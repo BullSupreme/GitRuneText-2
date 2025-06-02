@@ -50,7 +50,7 @@ RuneText is a browser-based idle/incremental RPG game inspired by RuneScape. Bui
 3. Start your adventure!
 
 ```bash
-git clone https://github.com/yourusername/RuneText.git
+git clone https://github.com/BullSupreme/RuneText.git
 cd RuneText/Version3
 # Open index.html in your browser
 ```
@@ -58,7 +58,8 @@ cd RuneText/Version3
 ## 🎮 How to Play
 
 ### Basic Gameplay
-1. **Start Mining** - Begin by mining copper ore to gather resources
+1. **KILL CHICKENS** - Start by killing chickens don't quit!
+1. **Start Mining** -  Mining copper ore to gather resources
 2. **Smelt Bars** - Convert ores into bars at the smithing station
 3. **Craft Equipment** - Create weapons and armor to improve combat
 4. **Battle Monsters** - Fight enemies to gain experience and gold
