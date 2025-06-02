@@ -5,7 +5,7 @@
 
 'use strict';
 
-import { playerData, savePlayerData, logMessage, removeItemFromInventory, addItemToInventory, formatNumber, titleCase } from './utils.js';
+import { playerData, savePlayerData, logMessage, removeItemFromInventory, addItemToInventory, formatNumber, titleCase, getLevelFromXp, handleLevelUp } from './utils.js';
 import { trackStatistic } from './achievements.js';
 import { showSection } from './ui.js';
 import { showActionsMenu } from './actions.js';
@@ -537,6 +537,22 @@ export function buildCropPlot(plotType) {
     trackStatistic('progression', 'structureBuilt');
     logMessage(`${plotInfo.name} built! You can now plant crops here.`, "fore-green", plotInfo.emoji);
     
+    // Grant farming XP for building crop plots (5000 XP - major one-time purchase)
+    const oldLevel = getLevelFromXp(playerData.skills?.farming?.xp || 0);
+    // Initialize farming skill if it doesn't exist
+    if (!playerData.skills) playerData.skills = {};
+    if (!playerData.skills.farming) playerData.skills.farming = { xp: 0, is_active: true };
+    
+    const xpGain = 5000;
+    playerData.skills.farming.xp += xpGain;
+    logMessage(`+${xpGain} Farming XP for building ${plotInfo.name}`, "fore-green", "🏗️");
+    
+    // Check for level up
+    const newLevel = getLevelFromXp(playerData.skills.farming.xp);
+    if (newLevel > oldLevel) {
+        handleLevelUp('farming', oldLevel, newLevel);
+    }
+    
     // Save and update
     savePlayerData();
     updateFarmingDisplay();
@@ -666,11 +682,32 @@ function harvestPlot(plotId) {
     // Ensure farm storage exists
     playerData.farm_storage = playerData.farm_storage || {};
     // Add yields to storage and notify
+    let totalHarvested = 0;
     Object.entries(harvestTotals).forEach(([crop, qty]) => {
         playerData.farm_storage[crop] = (playerData.farm_storage[crop] || 0) + qty;
+        totalHarvested += qty;
         const emoji = CROP_ITEMS[crop]?.emoji || '';
         logMessage(`Harvested ${qty} ${emoji} ${crop}!`, "fore-green", emoji);
     });
+    
+    // Grant farming XP based on crops harvested (2 XP per crop harvested)
+    if (totalHarvested > 0) {
+        const oldLevel = getLevelFromXp(playerData.skills?.farming?.xp || 0);
+        // Initialize farming skill if it doesn't exist
+        if (!playerData.skills) playerData.skills = {};
+        if (!playerData.skills.farming) playerData.skills.farming = { xp: 0, is_active: true };
+        
+        const xpGain = totalHarvested * 2;
+        playerData.skills.farming.xp += xpGain;
+        logMessage(`+${xpGain} Farming XP`, "fore-green", "🌱");
+        
+        // Check for level up
+        const newLevel = getLevelFromXp(playerData.skills.farming.xp);
+        if (newLevel > oldLevel) {
+            handleLevelUp('farming', oldLevel, newLevel);
+        }
+    }
+    
     savePlayerData();
     updateFarmingDisplay();
 }
@@ -737,6 +774,22 @@ export function buildFarmAnimalHousing(housingId) {
     trackStatistic('progression', 'structureBuilt');
     logMessage(`${housingInfo.name} built! You can now raise animals here.`, "fore-green", housingInfo.emoji);
     
+    // Grant farming XP for building housing (8000 XP - major one-time purchase)
+    const oldLevel = getLevelFromXp(playerData.skills?.farming?.xp || 0);
+    // Initialize farming skill if it doesn't exist
+    if (!playerData.skills) playerData.skills = {};
+    if (!playerData.skills.farming) playerData.skills.farming = { xp: 0, is_active: true };
+    
+    const xpGain = 8000;
+    playerData.skills.farming.xp += xpGain;
+    logMessage(`+${xpGain} Farming XP for building ${housingInfo.name}`, "fore-green", "🏗️");
+    
+    // Check for level up
+    const newLevel = getLevelFromXp(playerData.skills.farming.xp);
+    if (newLevel > oldLevel) {
+        handleLevelUp('farming', oldLevel, newLevel);
+    }
+    
     // Save and update
     savePlayerData();
     updateFarmingDisplay();
@@ -797,6 +850,22 @@ export function buyFarmAnimal(animalType) {
     
     logMessage(`You bought a ${animalInfo.name}! It has been added to your ${FARM_ANIMAL_HOUSING_DATA[housingId].name}.`, "fore-green", animalInfo.emoji);
     
+    // Grant farming XP for buying animals (2000 XP - limited purchases per housing)
+    const oldLevel = getLevelFromXp(playerData.skills?.farming?.xp || 0);
+    // Initialize farming skill if it doesn't exist
+    if (!playerData.skills) playerData.skills = {};
+    if (!playerData.skills.farming) playerData.skills.farming = { xp: 0, is_active: true };
+    
+    const xpGain = 2000;
+    playerData.skills.farming.xp += xpGain;
+    logMessage(`+${xpGain} Farming XP for buying ${animalInfo.name}`, "fore-green", "🐾");
+    
+    // Check for level up
+    const newLevel = getLevelFromXp(playerData.skills.farming.xp);
+    if (newLevel > oldLevel) {
+        handleLevelUp('farming', oldLevel, newLevel);
+    }
+    
     // Save and update
     savePlayerData();
     updateFarmingDisplay();
@@ -848,11 +917,31 @@ export function processAnimalProduction() {
             });
         }
     });
-    // Log each 10min tick
+    // Log each 10min tick and grant XP
     if (Object.keys(totalProduced).length > 0) {
         const parts = Object.entries(totalProduced)
             .map(([p, amt]) => `${formatNumber(amt)} ${p}`);
         logMessage(`Farm production tick: ${parts.join(', ')}`, "success");
+        
+        // Grant farming XP based on items produced (1 XP per 2 items produced, minimum 1 XP)
+        const totalItems = Object.values(totalProduced).reduce((sum, amt) => sum + amt, 0);
+        if (totalItems > 0) {
+            const oldLevel = getLevelFromXp(playerData.skills?.farming?.xp || 0);
+            // Initialize farming skill if it doesn't exist
+            if (!playerData.skills) playerData.skills = {};
+            if (!playerData.skills.farming) playerData.skills.farming = { xp: 0, is_active: true };
+            
+            const xpGain = Math.max(1, Math.floor(totalItems / 2));
+            playerData.skills.farming.xp += xpGain;
+            logMessage(`+${xpGain} Farming XP from animal production`, "fore-green", "🐄");
+            
+            // Check for level up
+            const newLevel = getLevelFromXp(playerData.skills.farming.xp);
+            if (newLevel > oldLevel) {
+                handleLevelUp('farming', oldLevel, newLevel);
+            }
+        }
+        
         savePlayerData();
         renderFarmStorage();
     }
@@ -1017,6 +1106,23 @@ function hireWorker(workerType) {
     };
     playerData.gold -= cost;
     logMessage(`Hired a ${info.name}.`,"success");
+    
+    // Grant farming XP for hiring workers (3000 XP for farmhand, 5000 XP for manager)
+    const oldLevel = getLevelFromXp(playerData.skills?.farming?.xp || 0);
+    // Initialize farming skill if it doesn't exist
+    if (!playerData.skills) playerData.skills = {};
+    if (!playerData.skills.farming) playerData.skills.farming = { xp: 0, is_active: true };
+    
+    const xpGain = workerType === 'farm_manager' ? 5000 : 3000;
+    playerData.skills.farming.xp += xpGain;
+    logMessage(`+${xpGain} Farming XP for hiring ${info.name}`, "fore-green", "👷");
+    
+    // Check for level up
+    const newLevel = getLevelFromXp(playerData.skills.farming.xp);
+    if (newLevel > oldLevel) {
+        handleLevelUp('farming', oldLevel, newLevel);
+    }
+    
     savePlayerData();
     updateFarmWorkerUi();
 }
@@ -1056,6 +1162,23 @@ function assignManager(workerId, roleType) {
     w.role = roleType;
     w.status = 'active';
     playerData.farm_managers_roles[roleKey] = workerId;
+    
+    // Grant farming XP for assigning manager to role (1000 XP)
+    const oldLevel = getLevelFromXp(playerData.skills?.farming?.xp || 0);
+    // Initialize farming skill if it doesn't exist
+    if (!playerData.skills) playerData.skills = {};
+    if (!playerData.skills.farming) playerData.skills.farming = { xp: 0, is_active: true };
+    
+    const xpGain = 1000;
+    playerData.skills.farming.xp += xpGain;
+    logMessage(`+${xpGain} Farming XP for assigning manager to ${roleKey} role`, "fore-green", "📋");
+    
+    // Check for level up
+    const newLevel = getLevelFromXp(playerData.skills.farming.xp);
+    if (newLevel > oldLevel) {
+        handleLevelUp('farming', oldLevel, newLevel);
+    }
+    
     savePlayerData();
     updateFarmWorkerUi();
 }
@@ -1606,6 +1729,23 @@ function showAssignmentModal(workerId) {
                 const w = playerData.farm_workers[currentAssignmentWorkerId];
                 w.assignedTo = id;
                 w.status = 'active';
+                
+                // Grant farming XP for assigning farmhand to animal housing (500 XP)
+                const oldLevel = getLevelFromXp(playerData.skills?.farming?.xp || 0);
+                // Initialize farming skill if it doesn't exist
+                if (!playerData.skills) playerData.skills = {};
+                if (!playerData.skills.farming) playerData.skills.farming = { xp: 0, is_active: true };
+                
+                const xpGain = 500;
+                playerData.skills.farming.xp += xpGain;
+                logMessage(`+${xpGain} Farming XP for assigning farmhand to ${info.name}`, "fore-green", "🐾");
+                
+                // Check for level up
+                const newLevel = getLevelFromXp(playerData.skills.farming.xp);
+                if (newLevel > oldLevel) {
+                    handleLevelUp('farming', oldLevel, newLevel);
+                }
+                
                 savePlayerData();
                 // Update overview and workers tab
                 populateHiredWorkersOverview();
@@ -1626,6 +1766,23 @@ function showAssignmentModal(workerId) {
                 const w = playerData.farm_workers[currentAssignmentWorkerId];
                 w.assignedTo = plotId;
                 w.status = 'active';
+                
+                // Grant farming XP for assigning farmhand to crop plot (500 XP)
+                const oldLevel = getLevelFromXp(playerData.skills?.farming?.xp || 0);
+                // Initialize farming skill if it doesn't exist
+                if (!playerData.skills) playerData.skills = {};
+                if (!playerData.skills.farming) playerData.skills.farming = { xp: 0, is_active: true };
+                
+                const xpGain = 500;
+                playerData.skills.farming.xp += xpGain;
+                logMessage(`+${xpGain} Farming XP for assigning farmhand to ${info.name}`, "fore-green", "🌱");
+                
+                // Check for level up
+                const newLevel = getLevelFromXp(playerData.skills.farming.xp);
+                if (newLevel > oldLevel) {
+                    handleLevelUp('farming', oldLevel, newLevel);
+                }
+                
                 savePlayerData();
                 // Update overview and workers tab
                 populateHiredWorkersOverview();
