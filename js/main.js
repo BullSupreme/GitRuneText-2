@@ -98,6 +98,9 @@ function initGame() {
     
     // Start intervals for recurring game mechanics
     startGameIntervals();
+    
+    // Display welcome message in game log
+    logMessage("Welcome to RuneText-2! Kill chickens cook their meat sell for profit! --> Buy pickaxe --> mining --> smelt bars --> smith a weapon, TAKE YOUR REVENGE ON CHICKENS! <-- Revenge I say!", "fore-gold", "🎮");
 }
 
 /**

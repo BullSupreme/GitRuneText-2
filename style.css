@@ -1388,6 +1388,41 @@ body.desktop-mode-active .hp-bar-container {
     border-radius: 10px; padding: 2px 6px; display: inline-block;
 }
 
+/* Chest click indicator */
+.chest-click-indicator {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    background-color: #ff9800;
+    color: #fff;
+    font-weight: bold;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    animation: pulsate 2s ease-in-out infinite;
+    z-index: 10;
+}
+
+@keyframes pulsate {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 2px 8px rgba(255, 152, 0, 0.6);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+}
+
 /* Inventory Item Tooltip */
 .inventory-item .item-tooltip, /* Merged selector */
 .shop-item .item-tooltip { /* New for shop */

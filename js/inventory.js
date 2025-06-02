@@ -358,6 +358,7 @@ export function populateInventoryDisplay() {
                     </div>
                 </div>
                 <div class="item-tooltip">${tooltipHtml}</div> <!-- Tooltip container -->
+                ${item.itemType === 'chest' ? '<div class="chest-click-indicator">!</div>' : ''}
                 `;
             
             // Add click handler for chests
