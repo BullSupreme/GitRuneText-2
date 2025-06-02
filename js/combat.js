@@ -16,7 +16,8 @@ import {
     sounds, 
     titleCase,
     getEnchantmentBonus,
-    setLowHealthWarningResetCallback
+    setLowHealthWarningResetCallback,
+    handleLevelUp
 } from './utils.js';
 import { trackStatistic } from './achievements.js';
 import { showSection, updateHud, showFloatingCombatText, setActiveSkill, clearActiveSkill } from './ui.js';
@@ -932,12 +933,7 @@ export function handleMonsterDefeat(monsterInstance) {
     
     // Handle level up
     if (newLevel > oldLevel) {
-        logMessage(`Attack Level Up! ${oldLevel} → ${newLevel}`, "fore-gold", "🌟");
-        
-        // Play level up sound
-        if (sounds && sounds.levelUp) {
-            playSound('levelUp');
-        }
+        handleLevelUp('attack', oldLevel, newLevel);
         
         // Stop auto-attack on level up if no hunting permit
         if (!playerData.permits || !playerData.permits.hunter) {

@@ -6,7 +6,7 @@
 'use strict';
 
 // Import necessary functions and data
-import { playerData, savePlayerData, getLevelFromXp, getXpForDisplay, logMessage, playSound, sounds, getEnchantmentBonus } from './utils.js';
+import { playerData, savePlayerData, getLevelFromXp, getXpForDisplay, logMessage, playSound, sounds, getEnchantmentBonus, handleLevelUp } from './utils.js';
 import { trackStatistic } from './achievements.js';
 import { showSection, updateHud, setActiveSkill, clearActiveSkill } from './ui.js';
 import { stopAllAutoActions } from './actions.js';
@@ -481,7 +481,7 @@ function singleMineAction() {
     // Handle level up
     const newLevel = getLevelFromXp(playerData.skills.mining.xp);
     if (newLevel > oldLevel) {
-        logMessage(`Mining Level Up! ${oldLevel} → ${newLevel}`, "fore-gold", "🌟");
+        handleLevelUp('mining', oldLevel, newLevel);
         
         // Check for permit
         if (!playerData.permits || !playerData.permits.miner) {

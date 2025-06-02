@@ -6,7 +6,7 @@
 'use strict';
 
 // Import necessary functions and data
-import { playerData, savePlayerData, getLevelFromXp, getXpForDisplay, logMessage, playSound, sounds, getEnchantmentBonus } from './utils.js';
+import { playerData, savePlayerData, getLevelFromXp, getXpForDisplay, logMessage, playSound, sounds, getEnchantmentBonus, handleLevelUp } from './utils.js';
 import { trackStatistic } from './achievements.js';
 import { showSection, updateHud, setActiveSkill, clearActiveSkill } from './ui.js';
 import { stopAllAutoActions } from './actions.js';
@@ -509,7 +509,7 @@ function singleChopAction() {
     // Handle level up
     const newLevel = getLevelFromXp(playerData.skills.woodcutting.xp);
     if (newLevel > oldLevel) {
-        logMessage(`Woodcutting Level Up! ${oldLevel} → ${newLevel}`, "fore-gold", "🌟");
+        handleLevelUp('woodcutting', oldLevel, newLevel);
         
         // Check for LumberMill structure
         const hasLumberMill = playerData.built_structures && playerData.built_structures.lumberMill;

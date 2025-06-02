@@ -6,7 +6,7 @@
 'use strict';
 
 // Import necessary functions and data
-import { playerData, savePlayerData, getLevelFromXp, logMessage, playSound, sounds, titleCase, checkAndResetLowHealthWarning } from './utils.js';
+import { playerData, savePlayerData, getLevelFromXp, logMessage, playSound, sounds, titleCase, checkAndResetLowHealthWarning, handleLevelUp } from './utils.js';
 import { showSection, updateHud, setActiveSkill, clearActiveSkill, showFloatingCombatText } from './ui.js';
 import { stopAllAutoActions } from './actions.js';
 import { FOOD_DATA, COOKABLE_ITEMS, TIERS, getItemDetails } from './data.js';
@@ -643,7 +643,7 @@ function singleCookAction() {
     
     // Check if leveled up
     if (newLevel > oldLevel) {
-        logMessage(`Congratulations! Your Cooking level is now ${newLevel}.`, 'fore-cyan', '🎉');
+        handleLevelUp('cooking', oldLevel, newLevel);
         
         // Stop auto cooking on level up if no chef's permit
         if (!(playerData.permits && playerData.permits.chef)) {
