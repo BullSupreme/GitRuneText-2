@@ -50,7 +50,7 @@ RuneText is a browser-based idle/incremental RPG game inspired by RuneScape. Bui
 3. Start your adventure!
 
 ```bash
-git clone https://github.com/BullSupreme/RuneText.git
+git clone https://github.com/BullSupreme/GitRuneText2.git
 cd RuneText/Version3
 # Open index.html in your browser
 ```
