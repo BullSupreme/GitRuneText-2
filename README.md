@@ -31,18 +31,8 @@ RuneText is a browser-based idle/incremental RPG game inspired by RuneScape. Bui
 - **Guild system** with member management and bonuses
 - **Perk tree** for permanent character upgrades
 
-### 🎯 Special Features
-- **Auto-save** functionality
-- **Sound effects** and background music
-- **Responsive design** for various screen sizes
-- **Save/Load** system with import/export
-- **Settings menu** with volume controls
 
 ## 🚀 Getting Started
-
-### Prerequisites
-- Modern web browser (Chrome, Firefox, Safari, Edge)
-- No installation required!
 
 ### Playing the Game
 1. Clone or download the repository
@@ -103,11 +93,6 @@ RuneText/Version3/
 - Face off against increasingly difficult monsters
 - Equip powerful weapons with unique abilities
 - Use food and potions to sustain longer battles
-
-### Crafting
-- Comprehensive smithing system with 7 metal tiers
-- Create weapons, armor, and helmets
-- Enchant equipment for bonus stats
 
 ### Progression
 - Level up multiple skills independently
