@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>RuneText UI</title>
+    <meta name="description" content="RuneText: A text-based idle RPG">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/utils.js"></script>
+    <script type="module" src="js/ui.js"></script>
+    <script type="module" src="js/actions.js"></script>
+    <script type="module" src="js/inventory.js"></script>
+    <script type="module" src="js/characterinfo.js"></script>
+    <script type="module" src="js/perks.js"></script>
+    <script type="module" src="js/shop.js"></script>
+    <script type="module" src="js/blacksmithing.js"></script>
+    <script type="module" src="js/woodcutting.js"></script>
+    <script type="module" src="js/mining.js"></script>
+    <script type="module" src="js/cooking.js"></script>
+    <script type="module" src="js/combat.js"></script>
+    <script type="module" src="js/builds.js"></script>
+    <script type="module" src="js/guild.js"></script>
+    <script type="module" src="js/data.js"></script>
+    <script type="module" src="js/farming.js"></script>
+    <script type="module" src="js/enchanting.js"></script>
+</head>
+<body>
+    <audio id="main-theme-music" loop preload="auto">
+        <source src="sounds/Theme.mp3" type="audio/mpeg">
+    </audio>
+    <div id="game-wrapper">
+        <!-- Left Panel for Desktop Mode (initially hidden) -->
+        <div id="left-panel-nav" class="left-panel hidden">
+            <!-- Navigation items will be populated by JS -->
+        </div>
+
+        <!-- Main Game Container (becomes right panel in desktop mode) -->
+        <div class="container">
+            <!-- Top Controls (Save/Load/Mute) from index.html -->
+            <div class="top-controls" style="display: none;">
+                <button id="save-game-btn" title="Download current game progress to a file">Save Game</button>
+                <input type="file" id="import-file-input" accept=".json,.txt" style="display: none;">
+                <button id="load-game-btn" title="Load game progress from a previously saved file">Load Game</button>
+            </div>
+            <div class="top-right-controls">
+                 <button id="settings-btn" class="settings-btn" title="Settings">⚙️</button>
+            </div>
+
+            <!-- HUD from ui-mockup-backup.html -->
+            <div id="hud">
+                <div class="hud-left">
+                    <div id="hud-atk" class="stat-container skill-stat-container" data-skill="attack">
+                        <div class="stat-icon">⚔️</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Attack</span>
+                            <span class="hud-skill-level-text">Lvl 1</span>
+                            <div class="skill-xp-bar-container"><div class="skill-xp-bar atk"></div></div>
+                        </div>
+                        <div class="auto-status-indicator"></div>
+                        <div class="tooltip">Combat</div>
+                    </div>
+                    <div id="hud-wc" class="stat-container skill-stat-container" data-skill="woodcutting">
+                        <div class="stat-icon">🌲</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Woodcutting</span>
+                            <span class="hud-skill-level-text">Lvl 1</span>
+                            <div class="skill-xp-bar-container"><div class="skill-xp-bar wc"></div></div>
+                        </div>
+                        <div class="auto-status-indicator"></div>
+                        <div class="tooltip">Woodcutting</div>
+                    </div>
+                    <div id="hud-mn" class="stat-container skill-stat-container" data-skill="mining">
+                        <div class="stat-icon">⛏️</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Mining</span>
+                            <span class="hud-skill-level-text">Lvl 1</span>
+                            <div class="skill-xp-bar-container"><div class="skill-xp-bar mn"></div></div>
+                        </div>
+                        <div class="auto-status-indicator"></div>
+                        <div class="tooltip">Mining</div>
+                    </div>
+                    <div id="hud-bs" class="stat-container skill-stat-container" data-skill="blacksmithing">
+                        <div class="stat-icon">🛠️</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Blacksmithing</span>
+                            <span class="hud-skill-level-text">Lvl 1</span>
+                            <div class="skill-xp-bar-container"><div class="skill-xp-bar bs"></div></div>
+                        </div>
+                        <div class="auto-status-indicator"></div>
+                        <div class="tooltip">Blacksmithing</div>
+                    </div>
+                    <div id="hud-ck" class="stat-container skill-stat-container" data-skill="cooking">
+                        <div class="stat-icon">🍳</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Cooking</span>
+                            <span class="hud-skill-level-text">Lvl 1</span>
+                            <div class="skill-xp-bar-container"><div class="skill-xp-bar ck"></div></div>
+                        </div>
+                        <div class="auto-status-indicator"></div>
+                        <div class="tooltip">Cooking</div>
+                    </div>
+                    <div id="hud-fm" class="stat-container skill-stat-container locked" data-skill="farming">
+                        <div class="stat-icon">🏞️</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Farming</span>
+                            <span class="hud-skill-level-text">Lvl 1</span>
+                            <div class="skill-xp-bar-container"><div class="skill-xp-bar fm"></div></div>
+                        </div>
+                        <div class="auto-status-indicator"></div>
+                        <div class="tooltip">Farming</div>
+                    </div>
+                    <div id="hud-en" class="stat-container skill-stat-container" data-skill="enchanting">
+                        <div class="stat-icon">✨</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Enchanting</span>
+                            <span class="hud-skill-level-text">Lvl 1</span>
+                            <div class="skill-xp-bar-container"><div class="skill-xp-bar en"></div></div>
+                        </div>
+                        <div class="auto-status-indicator"></div>
+                        <div class="tooltip">Enchanting</div>
+                    </div>
+                </div>
+                
+                <div class="hud-right">
+                    <div id="hud-player-hp" class="stat-container hidden">
+                        <!-- Player HP Bar will be rendered here by JS using . style -->hp-bar-container
+                    </div>
+                    <div id="hud-gold-display" class="stat-container">
+                        <span class="gold-tooltip-text">Gold</span>
+                        <div class="stat-icon">💰</div>
+                        <span class="stat-value resource-value">0</span>
+                    </div>
+                    <div id="hud-perk-points-display" class="stat-container">
+                        <span class="perk-tooltip-text">Perk Points</span>
+                        <div class="stat-icon">✨</div>
+                        <span class="stat-value">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hp-bar-container">
+                <div class="hp-bar" id="main-menu-hp-bar-fill"></div>
+                <div class="hp-text" id="main-menu-hp-bar-text">0/0</div>
+            </div>
+            
+            <!-- Main Menu Section from ui-mockup-backup.html -->
+            <div id="main-menu-section" class="section">
+                <div class="welcome-text hidden">
+                    <h2 id="welcome-message-main-menu">Welcome to RuneText Idle</h2>
+                </div>
+                
+                <div class="menu-buttons">
+                    <button class="menu-button" id="character-menu-button">
+                        <span class="button-icon">👤</span><span class="button-label">Character</span>
+                    </button>
+                    <button class="menu-button" id="inventory-menu-button">
+                        <span class="button-icon">🎒</span><span class="button-label">Inventory</span>
+                    </button>
+                    <button class="menu-button" id="actions-menu-button">
+                        <span class="button-icon">▶️</span><span class="button-label">Actions</span>
+                    </button>
+                    <button class="menu-button" id="perks-menu-button">
+                        <span class="button-icon">🌟</span><span class="button-label">Perks</span>
+                    </button>
+                    <button class="menu-button" id="achievements-menu-button">
+                        <span class="button-icon">🏆</span><span class="button-label">Achievements</span>
+                    </button>
+                </div>
+                
+                <div class="town-menu-container">
+                    <h2 class="town-menu-title">Town</h2>
+                    <div class="town-button-grid">
+                        <div class="town-button" id="shop-menu-button">
+                            <div class="town-button-icon">🛒</div><div class="town-button-text">Shop</div>
+                        </div>
+                        <div class="town-button" id="build-structures-menu-button"> 
+                            <div class="town-button-icon">🏗️</div><div class="town-button-text">Build</div>
+                        </div>
+                        <div id="farm-menu-town-button" class="town-button hidden">
+                            <div class="town-button-icon">🏞️</div>
+                            <div class="town-button-text">Farm</div>
+                        </div>
+                        <div id="guild-hall-town-button" class="town-button"> 
+                            <div class="town-button-icon">🏛️</div><div class="town-button-text">Guild Hall</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mining Section -->
+            <div id="mining-section" class="section hidden">
+                <div class="compact-nav">
+                    <div class="compact-nav-title">⛏️ Mining</div>
+                    <div class="compact-nav-buttons">
+                        <button class="compact-nav-button" id="mining-back-button">
+                            <span class="button-icon">⬅️</span> Back
+                        </button>
+                    </div>
+                </div>
+                <div id="mining-permit-status-display" class="permit-status">
+                    <!-- Status populated by JS -->
+                </div>
+                <div id="mining-action-info" class="action-info hidden">
+                    <!-- Action time info populated by JS -->
+                </div>
+                <div id="available-ores-list" class="resource-list">
+                    <div class="section-title" style="text-align:left; font-size:1.2em; border:none; padding-bottom:5px;">Available Ores</div>
+                    <!-- Ore buttons will be populated here by JS -->
+                </div>
+            </div>
+            
+            <!-- Woodcutting Section -->
+            <div id="woodcutting-section" class="section hidden">
+                <div class="compact-nav">
+                    <div class="compact-nav-title">🌲 Woodcutting</div>
+                    <div class="compact-nav-buttons">
+                        <button class="compact-nav-button" id="woodcutting-back-button">
+                            <span class="button-icon">⬅️</span> Back
+                        </button>
+                    </div>
+                </div>
+                <div id="woodcutting-permit-status-display" class="permit-status">
+                    <!-- Status populated by JS -->
+                </div>
+                <div id="woodcutting-action-info" class="action-info hidden">
+                    <!-- Action time info populated by JS -->
+                </div>
+                <div id="available-trees-list" class="resource-list">
+                    <div class="section-title" style="text-align:left; font-size:1.2em; border:none; padding-bottom:5px;">Available Trees</div>
+                    <!-- Tree buttons will be populated here by JS -->
+                </div>
+            </div>
+
+            <!-- Character Section from ui-mockup-backup.html -->
+            <div id="character-section" class="section hidden">
+                <!-- Header will be generated by showCharacterSection() -->
+                <div class="character-content-wrapper" style="display: flex; flex-wrap: wrap; gap: 20px;">
+                    <div class="character-stats-column" style="flex: 1; min-width: 300px;">
+                        <div id="char-info-target">
+                            <!-- Content will be injected by showCharacterSection -->
+                        </div>
+                    </div>
+                </div>
+                <div class="character-actions section-footer-controls"> <!-- Re-using section-footer-controls for consistency -->
+                    <button class="btn-back" id="character-back-button">⬅️ Back to Main Menu</button>
+                </div>
+            </div>
+
+            <!-- Inventory Section from ui-mockup-backup.html -->
+            <div id="inventory-section" class="section hidden">
+                <div class="inventory-header">
+                    <div class="inventory-stats">
+                        <span class="inventory-space" id="inventory-space-display">Space: 0/0</span>
+                        <span class="inventory-value" id="inventory-value-display">Total Value: 0g</span>
+                    </div>
+                    <div class="inventory-controls">
+                        <!-- Sort buttons will be dynamically added here by JS -->
+                        <div id="inventory-sort-controls-target" style="display:flex; gap:5px; flex-wrap:wrap;"></div>
+                    </div>
+                    <button class="btn-back" id="inventory-back-btn">⬅️ Back</button>
+                </div>
+                <div id="inventory-grid-target" class="inventory-grid">
+                    <!-- Inventory items will be populated here -->
+                </div>
+                <hr style="margin-top: 20px; margin-bottom: 10px; border-color: #444;">
+                <div class="inventory-actions section-footer-controls" style="justify-content: flex-start;">
+                    <button class="btn-back" id="inventory-footer-back-btn">⬅️ Back to Menu</button>
+                </div>
+            </div>
+
+            <!-- Shop Section from ui-mockup-backup.html -->
+            <div id="shop-section" class="section hidden">
+                <!-- Shop content will be dynamically generated by shop.js -->
+            </div>
+            
+            <!-- Perk Tree Section -->
+            <div id="perk-tree-section" class="section hidden">
+                <div class="section-title-header">
+                    <div class="section-title-text" style="color:#c586c0;">Perk Tree</div>
+                    <button id="perk-tree-back-button" class="section-back-button">❮ Back</button>
+                </div>
+                <div class="perk-system-container">
+                    <div class="perk-points-display">
+                        <span class="perk-points-label">Available Perk Points:</span>
+                        <span id="available-perk-points-display" class="perk-points-value">0</span>
+                        <div class="perk-points-help">
+                            <span class="help-icon">?</span>
+                            <div class="tooltip-content">
+                                Earn perk points by gaining XP across all skills. Each threshold of XP grants 1 perk point.
+                            </div>
+                        </div>
+                    </div>
+                    <div id="perk-list-target" class="perk-list">
+                        <!-- Perk cards will be generated by JS -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Build Structures Section -->
+            <div id="build-structures-section" class="section hidden">
+                <div class="section-title-header">
+                    <div class="section-title-text" style="color:#795548;">Build Structures</div>
+                    <button id="build-structures-back-button" class="section-back-button">❮ Back</button>
+                </div>
+                <div id="available-structures-to-build-list" class="resource-list" style="gap:15px;">
+                    <!-- Structure cards will be populated by JS -->
+                </div>
+            </div>
+            
+            <!-- Guild Hall Section -->
+            <div id="guild-hall-section" class="section hidden">
+                <!-- Guild Hall content will be dynamically generated by guild.js -->
+            </div>
+            
+            <!-- Farming Section -->
+            <div id="farming-section" class="section hidden">
+                <div class="compact-nav">
+                    <div class="compact-nav-title">🏞️ Farming</div>
+                    <div class="compact-nav-buttons">
+                        <button class="compact-nav-button" id="farming-back-button">
+                            <span class="button-icon">⬅️</span> Back
+                        </button>
+                    </div>
+                </div>
+                <div id="farm-unlock-status" class="permit-status" style="text-align:center; margin-top:15px;">
+                    <!-- Status populated by JS -->
+                </div>
+                <!-- Farming Tabs -->
+                <div class="farming-tabs">
+                    <button id="overview-tab" class="farming-tab active">Overview</button>
+                    <button id="animal-management-tab" class="farming-tab">Animals</button>
+                    <button id="crop-management-tab" class="farming-tab">Crops</button>
+                    <button id="farm-workers-tab" class="farming-tab">Workers</button>
+                    <button id="storage-tab" class="farming-tab">Storage</button>
+                </div>
+
+                <!-- Overview Content -->
+                <div id="overview-content" class="tab-content" style="display:block;">
+                    <!-- Summary and navigation buttons will be injected by JS -->
+                </div>
+
+                <!-- Animals Content -->
+                <div id="animal-management-content" class="tab-content" style="display:none;">
+                    <div id="animal-status-container" class="resource-list"></div>
+                    <div id="animal-production-container" class="resource-list"></div>
+                </div>
+
+                <!-- Crops Content -->
+                <div id="crop-management-content" class="tab-content" style="display:none;">
+                    <div id="farm-plots-container" class="resource-list" style="margin-top: 15px; gap:15px;"></div>
+                </div>
+
+                <!-- Workers Content -->
+                <div id="farm-workers-content" class="tab-content" style="display:none;">
+                    <div id="farm-activities-container" class="resource-list" style="margin-top: 20px;"></div>
+                </div>
+
+                <!-- Storage Content -->
+                <div id="storage-content" class="tab-content" style="display:none;"></div>
+
+                <div class="section-footer-controls">
+                    <button id="farming-footer-back-btn" class="btn-back">⬅️ Back to Main Menu</button>
+                </div>
+            </div>
+            
+            <!-- Add a basic modal dialog for reset confirmation -->
+            <div id="reset-confirm-modal" class="modal hidden">
+                <div class="modal-content">
+                    <h3>Reset Game Progress</h3>
+                    <p>Are you sure you want to reset all game progress? This cannot be undone.</p>
+                    <div class="modal-buttons">
+                        <button id="reset-confirm-yes">Yes, Reset</button>
+                        <button id="reset-confirm-no">Cancel</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Eat Food Modal -->
+            <div id="eat-food-modal" class="modal hidden">
+                <div class="modal-content">
+                    <h3>Select Food to Eat</h3>
+                    <div id="eat-food-list" class="resource-list">
+                        <!-- Food items from inventory will be populated here by JS -->
+                    </div>
+                    <div class="modal-buttons">
+                        <button id="close-eat-food-modal-btn">Close</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blacksmithing Menu Section -->
+            <div id="blacksmithing-menu-section" class="section hidden blacksmithing-menu-modern">
+                <div class="blacksmithing-menu-card">
+                    <button id="blacksmithing-back-btn" class="btn-back blacksmithing-back-btn blacksmithing-back-btn-topright">⬅️ Back</button>
+                    <div class="blacksmithing-menu-icon">⚒️</div>
+                    <div class="blacksmithing-menu-title fore-yellow">Blacksmithing</div>
+                    <div class="blacksmithing-menu-buttons-modern">
+                        <button id="smelting-button" class="blacksmithing-button-modern smelt-btn"><span class="blacksmithing-btn-icon"><span></span></span> Smelting</button>
+                        <button id="smithing-button" class="blacksmithing-button-modern smith-btn"><span class="blacksmithing-btn-icon">⚒️</span> Smithing</button>
+                    </div>
+                    <button id="blacksmithing-footer-back-btn" class="btn-back blacksmithing-back-btn blacksmithing-back-btn-bottomleft">⬅️ Back to Main Menu</button>
+                </div>
+            </div>
+            
+            <!-- Smelting Section -->
+            <div id="smelting-section" class="section hidden">
+                <div class="compact-nav">
+                    <div class="compact-nav-title fore-yellow">🔥 Smelting</div>
+                    <div class="compact-nav-buttons">
+                        <button id="smelting-back-btn" class="btn-back">⬅️ Back</button>
+                    </div>
+                </div>
+                <div id="available-bars-to-smelt-list" class="resource-list"></div>
+                <div id="smelting-recipes-container" class="resource-list">
+                    <!-- Smelting recipes populated by JS -->
+                </div>
+                <div class="section-footer-controls">
+                    <button id="smelting-footer-back-btn" class="btn-back">⬅️ Back to Main Menu</button>
+                </div>
+            </div>
+            
+            <!-- Smithing Section -->
+            <div id="smithing-section" class="section hidden">
+                <div class="compact-nav">
+                    <div class="compact-nav-title fore-yellow">⚒️ Smithing</div>
+                    <div class="compact-nav-buttons">
+                        <button id="smithing-back-btn" class="btn-back">⬅️ Back</button>
+                    </div>
+                </div>
+                <div id="smithing-weapons-category-list" class="resource-list"></div>
+                <div id="smithing-recipes-container" class="resource-list">
+                    <!-- Smithing recipes populated by JS -->
+                </div>
+                <div class="section-footer-controls">
+                    <button id="smithing-footer-back-btn" class="btn-back">⬅️ Back to Main Menu</button>
+                </div>
+            </div>
+            
+            <!-- Action Menu Section -->
+            <div id="actions-menu-section" class="section hidden">
+                <div class="section-title-header">
+                    <div class="section-title-text">Actions</div>
+                    <div class="compact-nav-buttons">
+                        <button id="actions-back-btn" class="btn-back">⬅️ Back</button>
+                    </div>
+                </div>
+                <div class="actions-menu-buttons">
+                    <button id="combat-menu-button" class="action-button">
+                        <span class="button-icon">⚔️</span><span class="button-label">Combat</span>
+                    </button>
+                    <button id="woodcutting-menu-button" class="action-button">
+                        <span class="button-icon">🌲</span><span class="button-label">Woodcutting</span>
+                    </button>
+                    <button id="mining-menu-button" class="action-button">
+                        <span class="button-icon">⛏️</span><span class="button-label">Mining</span>
+                    </button>
+                    <button id="cooking-menu-button" class="action-button">
+                        <span class="button-icon">🍳</span><span class="button-label">Cooking</span>
+                    </button>
+                    <button id="blacksmithing-menu-button" class="action-button">
+                        <span class="button-icon">🛠️</span><span class="button-label">Blacksmithing</span>
+                    </button>
+                    <button id="enchanting-menu-button" class="action-button">
+                        <span class="button-icon">✨</span><span class="button-label">Enchanting</span>
+                    </button>
+                    <!-- Farming action button -->
+                    <button id="farming-menu-action-button" class="action-button hidden">
+                        <span class="button-icon">🌾</span><span class="button-label">Farming</span>
+                    </button>
+                </div>
+                <div class="section-footer-controls">
+                    <button id="actions-footer-back-btn" class="btn-back">⬅️ Back to Main Menu</button>
+                </div>
+            </div>
+            
+            <!-- Cook Food Section -->
+            <div id="cooking-section" class="section hidden">
+                <div class="compact-nav">
+                    <div class="compact-nav-title fore-yellow">🍳 Cook Food</div>
+                    <div class="compact-nav-buttons">
+                        <button id="eat-food-cooking-btn" class="compact-nav-button"><span class="button-icon">🍳</span> Eat Food</button>
+                        <button id="cooking-back-btn" class="btn-back">⬅️ Back</button>
+                    </div>
+                </div>
+                <div id="cooking-permit-status-display" class="permit-status">
+                    <!-- Status populated by JS -->
+                </div>
+                <div id="available-food-list" class="resource-list">
+                     <!-- Cookable items populated by JS -->
+                </div>
+                <div class="section-footer-controls">
+                    <button id="cooking-footer-back-btn" class="btn-back">⬅️ Back to Main Menu</button>
+                </div>
+            </div>
+            
+            <!-- Combat Section from ui-mockup-backup.html -->
+            <div id="combat-section" class="section hidden">
+                <div class="section-title-header">
+                    <div class="section-title-text">Combat</div>
+                    <div class="compact-nav-buttons">
+                        <button id="eat-food-combat-btn" class="compact-nav-button"><span class="button-icon">🍳</span> Eat Food</button>
+                        <button id="combat-back-button" class="btn-back">⬅️ Back to Actions</button>
+                    </div>
+                </div>
+                <div id="combat-permit-status-display" class="permit-status">
+                    <!-- Status populated by JS -->
+                </div>
+                <div id="available-monsters-list" class="resource-list">
+                    <div class="section-title" style="text-align:left; font-size:1.2em; border:none; padding-bottom:5px;">Available Monsters</div>
+                    <!-- Monster buttons will be populated here by JS -->
+                </div>
+                <div id="combat-arena-display" class="hidden">
+                    <div id="monster-display-combat"></div>
+                    <div id="player-combat-info-container">
+                        Player HP: <span id="player-hp-combat-display">--/--</span>
+                    </div>
+                </div>
+                <div class="section-footer-controls">
+                    <button id="combat-footer-back-btn" class="btn-back">⬅️ Back to Main Menu</button>
+                </div>
+            </div>
+
+            <!-- Enchanting Section -->
+            <div id="enchanting-section" class="section hidden">
+                <div class="compact-nav">
+                    <div class="compact-nav-title">✨ Enchanting</div>
+                    <div class="compact-nav-buttons">
+                        <button class="compact-nav-button" id="enchanting-back-button">
+                            <span class="button-icon">⬅️</span> Back
+                        </button>
+                    </div>
+                </div>
+                <div id="enchanting-status-display" class="permit-status">
+                    <!-- Status populated by JS -->
+                </div>
+                
+                <!-- Main Enchanting Content -->
+                <div class="enchanting-main-container">
+                    <!-- Left Panel: Equipment Grid -->
+                    <div class="enchanting-left-panel">
+                        <div class="section-title">Equipment</div>
+                        <div id="enchanting-equipment-grid" class="enchanting-equipment-grid">
+                            <!-- Equipment grid populated by JS (similar to character info) -->
+                        </div>
+                    </div>
+
+                    <!-- Right Panel: Enchanting Interface -->
+                    <div class="enchanting-right-panel">
+                        <!-- Selected Item Info -->
+                        <div id="enchanting-selected-info" class="enchanting-panel" style="display:none;">
+                            <div class="section-title">Selected Item</div>
+                            <div id="enchanting-selected-item-details">
+                                <!-- Selected item details -->
+                            </div>
+                        </div>
+
+                        <!-- Current Stats -->
+                        <div id="enchanting-current-stats" class="enchanting-panel" style="display:none;">
+                            <div class="section-title">Current Stats</div>
+                            <div id="enchanting-current-stats-content">
+                                <!-- Current stats display -->
+                            </div>
+                        </div>
+
+                        <!-- Enchantment Options -->
+                        <div id="enchanting-options" class="enchanting-panel" style="display:none;">
+                            <div class="section-title">Available Enchantments</div>
+                            <div id="enchanting-tier-options">
+                                <!-- Enchantment tier options -->
+                            </div>
+                        </div>
+
+                        <!-- New Stats Preview -->
+                        <div id="enchanting-preview" class="enchanting-panel" style="display:none;">
+                            <div class="section-title">Item Stats</div>
+                            <div id="enchanting-preview-content">
+                                <!-- Preview stats -->
+                            </div>
+                            <div class="enchanting-choice-buttons">
+                                <button id="enchanting-cancel-btn" class="btn-secondary">Cancel</button>
+                                <button id="enchanting-perform-btn" class="btn-primary">
+                                    <span class="enchant-button-text">Enchant ✨</span>
+                                    <div class="enchant-cost-display"></div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Default Message -->
+                        <div id="enchanting-no-selection" class="enchanting-panel">
+                            <div class="enchanting-prompt">
+                                <div class="enchanting-prompt-icon">✨</div>
+                                <div class="enchanting-prompt-text">Click on equipped gear to start enchanting</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-footer-controls">
+                    <button id="enchanting-footer-back-btn" class="btn-back">⬅️ Back to Main Menu</button>
+                </div>
+            </div>
+            
+            <!-- Gem Conversion Section -->
+            <div id="gem-conversion-section" class="section hidden">
+                <div class="compact-nav">
+                    <div class="compact-nav-title">💎 Gem Conversion</div>
+                    <div class="compact-nav-buttons">
+                        <button class="compact-nav-button" id="gem-conversion-back-button">
+                            <span class="button-icon">⬅️</span> Back to Enchanting
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="gem-conversion-container">
+                    <div class="section-title">Convert Your Gems</div>
+                    <div class="gem-conversion-info">
+                        <p>💎 <strong>Upgrade:</strong> 4 lower tier gems → 1 higher tier gem (Grants Enchanting XP)</p>
+                        <p>💔 <strong>Downgrade:</strong> 1 higher tier gem → 4 lower tier gems (No XP)</p>
+                    </div>
+                    
+                    <div id="gem-conversion-grid" class="gem-conversion-grid">
+                        <!-- Gem conversion options populated by JS -->
+                    </div>
+                </div>
+                
+                <div class="section-footer-controls">
+                    <button id="gem-conversion-footer-back-btn" class="btn-back">⬅️ Back to Enchanting</button>
+                </div>
+            </div>
+            
+            <!-- Achievements Section -->
+            <div id="achievements-section" class="section hidden">
+                <div class="compact-nav">
+                    <div class="compact-nav-title">🏆 Achievements</div>
+                    <div class="compact-nav-buttons">
+                        <button class="compact-nav-button" id="achievements-back-button">
+                            <span class="button-icon">⬅️</span> Back to Main Menu
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="achievements-container">
+                    <div class="section-title">Your Achievements</div>
+                    <div class="achievements-stats">
+                        <div id="achievements-summary" class="achievements-summary">
+                            <!-- Achievement summary populated by JS -->
+                        </div>
+                    </div>
+                    
+                    <div id="achievements-list" class="achievements-list">
+                        <!-- Achievement cards populated by JS -->
+                    </div>
+                </div>
+                
+                <div class="section-footer-controls">
+                    <button id="achievements-footer-back-btn" class="btn-back">⬅️ Back to Main Menu</button>
+                </div>
+            </div>
+        </div> <!-- End .container -->
+    </div> <!-- End #game-wrapper -->
+    
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content settings-modal-content">
+            <h3>Settings</h3>
+            <div class="setting-option">
+                <label>🔊 Sound Settings:</label>
+                <div class="sound-controls">
+                    <button id="mute-toggle-setting" class="settings-toggle-btn icon-btn">🔊</button>
+                    <input type="range" id="sound-volume-slider" class="settings-slider" min="0" max="100" value="15">
+                    <span id="sound-volume-display">15%</span>
+                </div>
+            </div>
+            <div class="setting-option">
+                <label for="music-volume-slider">🎵 Music Volume:</label>
+                <input type="range" id="music-volume-slider" class="settings-slider" min="0" max="100" value="50">
+                <span id="music-volume-display">50%</span>
+            </div>
+            <div class="setting-option">
+                <label for="ui-mode-toggle">💻 Display Mode:</label>
+                <button id="ui-mode-toggle" class="settings-toggle-btn" data-mode="mobile">Switch to Desktop Mode</button>
+            </div>
+            <div class="settings-divider"></div>
+            <div class="setting-option">
+                <label for="save-game-settings-btn">💾 Save Progress:</label>
+                <button id="save-game-settings-btn" class="settings-action-btn" title="Download current game progress to a file">Save Game</button>
+            </div>
+            <div class="setting-option">
+                <label for="load-game-settings-btn">📁 Load Progress:</label>
+                <input type="file" id="import-file-settings-input" accept=".json,.txt" style="display: none;">
+                <button id="load-game-settings-btn" class="settings-action-btn" title="Load game progress from a previously saved file">Load Game</button>
+            </div>
+            <div class="settings-divider"></div>
+            <div class="setting-option">
+                <label for="reset-game-settings-btn">🗑️ Reset Progress:</label>
+                <button id="reset-game-settings-btn" class="settings-action-btn settings-danger-btn" title="Reset all game progress">Reset Game</button>
+            </div>
+            <div class="setting-option cheat-code-option">
+                <label for="cheat-code-input">🎮 Cheat Code:</label>
+                <div class="cheat-input-group">
+                    <input type="text" id="cheat-code-input" class="settings-input" placeholder="Enter code..." maxlength="20">
+                    <button id="apply-cheat-btn" class="settings-action-btn">Apply</button>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="close-settings-modal-btn" class="btn-back">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Log Container -->
+    <div id="game-log-container" class="game-log-container">
+        <div class="game-log-header">
+            <div class="game-log-title">Game Log</div>
+            <div class="game-log-controls">
+                <button id="clear-log-btn" class="game-log-clear">🗑️</button>
+                <button id="toggle-log-btn" class="game-log-toggle">▼</button>
+            </div>
+        </div>
+        <div id="game-log" class="game-log-content"></div>
+    </div>
+
+    <!-- Modal overlay for equipment selection -->
+    <div id="equip-modal-overlay" class="modal-overlay hidden">
+      <div id="item-selection-for-equip-target" class="modal-dialog">
+        <button id="close-equip-modal-btn" class="modal-close-btn" aria-label="Close">×</button>
+        <h4 id="equip-item-type-title-target" style="margin-bottom:10px;">Equip Item</h4>
+        <div id="equip-item-list-target" class="inventory-grid"></div>
+        <button id="cancel-equip-btn" style="margin-top:10px; background-color:#555; color:white; border:none; padding:8px 15px; border-radius:4px;">Cancel</button>
+      </div>
+    </div>
+</body>
+</html>
