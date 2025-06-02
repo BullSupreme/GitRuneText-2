@@ -77,8 +77,17 @@ export function showSection(sectionId) {
             const revivePercent = attackLevel < 10 ? 0.5 : 0.25;
             const reviveAmount = Math.ceil(maxHp * revivePercent);
             playerData.hp = reviveAmount;
+            
+            // Apply death penalty: lose 10% of gold (minimum 1g)
+            const oldGold = playerData.gold || 0;
+            const goldLoss = Math.max(1, Math.floor(oldGold * 0.1));
+            playerData.gold = Math.max(0, oldGold - goldLoss);
+            
             savePlayerData();
             logMessage(`You have been revived with ${reviveAmount} HP!`, "fore-green", "💖");
+            if (goldLoss > 0) {
+                logMessage(`Death penalty: Lost ${goldLoss} gold!`, "fore-red", "💰");
+            }
             updateHud();
         }
     } else {
