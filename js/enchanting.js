@@ -264,7 +264,8 @@ function updateEquipmentSelection(selectedSlotKey) {
     
     // Add selected class to the clicked slot
     const slots = document.querySelectorAll('.enchanting-equipment-slot');
-    const slotKeys = ['placeholder', 'weapon', 'helmet', 'emptyVisual', 'armor', 'emptyVisual2'];
+    // Match the order from the slots array: placeholder, weapon, helmet, axe, armor, pickaxe
+    const slotKeys = ['placeholder', 'weapon', 'helmet', 'axe', 'armor', 'pickaxe'];
     const slotIndex = slotKeys.indexOf(selectedSlotKey);
     
     if (slotIndex !== -1 && slots[slotIndex]) {
@@ -474,6 +475,9 @@ function displayEnchantingPreview(slotKey, enchantmentTierId) {
     if (enchantments.length > 0) {
         statsHtml += '<div class="enchanted-stats-section">';
         statsHtml += '<div class="stats-section-title">Current Enchantments:</div>';
+        // Check if item is at maximum enchantments
+        const isAtMaxEnchantments = enchantments.length >= MAX_ENCHANTMENTS;
+        
         enchantments.forEach((enchantment, index) => {
             // Use wizard tier color for Wizard Tower enchantments, otherwise use normal tier color
             const isWizardEnchantment = ['life_steal', 'fire_damage', 'ice_damage'].includes(enchantment.stat);
@@ -485,18 +489,41 @@ function displayEnchantingPreview(slotKey, enchantmentTierId) {
             const lockedClass = isLocked ? 'locked' : '';
             const playerTomes = playerData.inventory['ancient_tomes'] || 0;
             const canAfford = !isLocked && playerTomes >= lockCost;
-            const tooltipText = isLocked ? 
-                'Click to unlock this enchantment' : 
-                `Click to lock for ${lockCost} Ancient Tomes (have ${playerTomes})`;
             
-            statsHtml += `<div class="enchantment-container clickable-enchantment ${colorClass} ${lockedClass}" 
+            // Update tooltip and functionality based on max enchantments
+            let tooltipText, clickAction, lockCostDisplay;
+            
+            if (isLocked) {
+                tooltipText = 'Click to unlock this enchantment';
+                clickAction = `window.toggleEnchantmentLock('${slotKey}', ${index})`;
+                lockCostDisplay = '';
+            } else if (isAtMaxEnchantments) {
+                tooltipText = 'Cannot lock - item is at maximum enchantments (12/12)';
+                clickAction = '';
+                lockCostDisplay = '<span class="lock-cost-badge" style="margin-left: auto; font-size: 0.9em; opacity: 0.4; color: #666;">MAX</span>';
+            } else {
+                tooltipText = `Click to lock for ${lockCost} Ancient Tomes (have ${playerTomes})`;
+                clickAction = `window.toggleEnchantmentLock('${slotKey}', ${index})`;
+                lockCostDisplay = `<span class="lock-cost-badge" style="margin-left: auto; font-size: 0.9em; opacity: 0.7;">📚 ${lockCost}</span>`;
+            }
+            
+            // Determine styles and cursor
+            let containerStyle = "display: flex; justify-content: space-between; align-items: center;";
+            if (isAtMaxEnchantments && !isLocked) {
+                containerStyle += " opacity: 0.5; cursor: not-allowed;";
+            } else if (!isLocked && !canAfford) {
+                containerStyle += " opacity: 0.6; cursor: not-allowed;";
+            }
+            
+            statsHtml += `<div class="enchantment-container ${isLocked || isAtMaxEnchantments ? '' : 'clickable-enchantment'} ${colorClass} ${lockedClass}" 
                               data-enchantment-index="${index}" 
                               data-tier="${enchantment.tier}"
                               data-slot="${slotKey}"
                               title="${tooltipText}"
-                              onclick="window.toggleEnchantmentLock('${slotKey}', ${index})"
-                              style="${!isLocked && !canAfford ? 'opacity: 0.6; cursor: not-allowed;' : ''}">
-                            ${lockIcon}${statDisplay}
+                              ${clickAction ? `onclick="${clickAction}"` : ''}
+                              style="${containerStyle}">
+                            <span>${lockIcon}${statDisplay}</span>
+                            ${lockCostDisplay}
                           </div>`;
         });
         statsHtml += '</div>';

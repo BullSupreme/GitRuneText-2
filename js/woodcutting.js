@@ -11,7 +11,7 @@ import { trackStatistic } from './achievements.js';
 import { showSection, updateHud, setActiveSkill, clearActiveSkill } from './ui.js';
 import { stopAllAutoActions } from './actions.js';
 import { getSummedPyramidPerkEffects } from './perks.js';
-import { TREE_DATA, TOOL_DATA } from './data.js';
+import { TREE_DATA, TOOL_DATA, ITEM_DATA } from './data.js';
 
 // Woodcutting state variables
 let isAutoWoodcutting = false;

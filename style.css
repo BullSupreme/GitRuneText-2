@@ -1227,6 +1227,11 @@ body.desktop-mode-active .hp-bar-container {
 .equipment-slot {
     background-color: #333; border-radius: 5px; padding: 10px;
     display: flex; flex-direction: column; min-height: 120px;
+    overflow: visible; /* Allow content to be visible */
+    max-width: 100%; /* Prevent horizontal expansion */
+    word-break: break-word; /* Force text wrapping */
+    height: auto; /* Allow natural height expansion */
+    justify-content: flex-start; /* Align content to top */
 }
 .slot-name {
     color: #aaa; font-size: 0.9em; margin-bottom: 8px; text-align: center;
@@ -1234,6 +1239,8 @@ body.desktop-mode-active .hp-bar-container {
 .slot-item { /* Container for the item icon and details within a slot */
     display: flex; flex-direction: column; align-items: center;
     background-color: #2a2a2a; border-radius: 4px; padding: 8px; flex-grow: 1;
+    min-height: auto; /* Allow natural height */
+    height: auto; /* Allow expansion */
 }
 .item-icon { /* Emoji for equipped item */
     font-size: 24px; margin-bottom: 5px;
@@ -1256,12 +1263,26 @@ body.desktop-mode-active .hp-bar-container {
 }
 .item-stats { /* Stats of equipped item */
     font-size: 0.85em; color: #4caf50; text-align: center; word-break: break-word;
+    overflow: visible; /* Allow stats to be visible */
+    max-width: 100%; /* Prevent horizontal expansion */
+    line-height: 1.4; /* Better line spacing */
+}
+/* Enchantment stats within item-stats */
+.item-stats span {
+    display: block;
+    font-size: 0.9em;
+    line-height: 1.3;
 }
 /* Enchantment info in equipment slots */
 .item-enchant-info, .item-enchant-count {
     font-size: 0.85em;
     margin-top: 3px;
     text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%; /* Prevent horizontal expansion */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Add ellipsis for very long text */
 }
 /* Item Selection for Equipping */
 #item-selection-for-equip-target { margin-top:10px; /* Initially hidden */ }
@@ -3472,19 +3493,20 @@ body.desktop-mode-active .hp-bar-container {
   margin-top: 8px;
 }
 .card-left-column {
-  flex: 1.3 1 0;
+  flex: 1 1 0; /* Equal flex with right column for 50/50 split */
   display: flex;
   flex-direction: column;
   gap: 0;
   min-width: 0;
 }
 .card-right-column {
-    flex: auto;
+    flex: 1 1 0; /* Equal flex with left column for 50/50 split */
     display: flex;
     flex-direction: column;
-    min-width: 320px;
-    max-width: 840px;
-    margin-left: auto;
+    min-width: 0; /* Remove fixed min-width for equal sizing */
+    max-width: none; /* Remove max-width constraint */
+    margin-left: 0; /* Remove auto margin */
+    overflow: visible; /* Allow content to be visible */
 }
 @media (max-width: 900px) {
   .card-internal-wrapper {
@@ -3497,8 +3519,8 @@ body.desktop-mode-active .hp-bar-container {
     min-width: 0;
   }
   .equipment-section-grid {
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important; /* Force 3 columns on mobile */
+    grid-template-rows: repeat(2, 1fr) !important; /* Force 2 rows on mobile */
   }
 }
 @media (max-width: 600px) {
@@ -3586,10 +3608,13 @@ body.desktop-mode-active .hp-bar-container {
 }
 .equipment-section-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* minmax prevents expansion */
+  grid-template-rows: repeat(2, auto); /* Allow rows to auto-size */
   width: 100%;
   gap: 12px 12px;
+  max-width: 100%; /* Prevent grid expansion */
+  overflow: visible; /* Allow content to be visible */
+  align-items: start; /* Align items to top of each cell */
 }
 .skill-levels-section-grid {
   grid-template-columns: 1fr;
@@ -3620,9 +3645,15 @@ body.desktop-mode-active .hp-bar-container {
     margin: 14px 4px 0 4px;
     padding: 12px 6px 10px 6px;
   }
-  .character-section-grid, .equipment-section-grid {
+  .character-section-grid {
     grid-template-columns: 1fr;
     gap: 8px 0;
+  }
+  /* Keep equipment grid as 3x2 on mobile */
+  .equipment-section-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, auto) !important; /* Allow auto height */
+    gap: 8px 8px;
   }
 }
 /* Ensure stat-row, compact-skill-row, etc. remain compatible */
@@ -4878,6 +4909,37 @@ body.desktop-mode-active .hp-bar-container {
     transform: translateY(-1px);
 }
 
+/* Enchanting Info Panel */
+.enchanting-info-panel {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    border-radius: 8px;
+}
+
+.enchanting-info-title {
+    color: #4CAF50;
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.enchanting-info-content {
+    font-size: 0.9em;
+    line-height: 1.4;
+    color: #ccc;
+}
+
+.enchanting-info-content p {
+    margin: 8px 0;
+}
+
+.enchanting-info-content strong {
+    color: #fff;
+}
+
 /* Enchanting Comparison Display */
 .enchanting-comparison-display {
     display: flex;
@@ -5833,4 +5895,563 @@ body.desktop-mode-active .hp-bar-container {
 #achievement-notification.show {
     transform: translateX(-50%) translateY(0);
     opacity: 1;
+}
+/* Additional CSS to prevent layout shift with enchanted items */
+.equipment-slot .item-enchant-info {
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limit to 3 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.2;
+}
+
+/* Ensure equipment slots have fixed dimensions */
+.equipment-slot .slot-item {
+    min-height: 80px;
+    max-height: 150px;
+    overflow-y: auto; /* Allow scrolling if content is too tall */
+    overflow-x: hidden;
+}
+
+/* Small scrollbar for equipment slots if needed */
+.equipment-slot .slot-item::-webkit-scrollbar {
+    width: 4px;
+}
+
+.equipment-slot .slot-item::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.equipment-slot .slot-item::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+/* Ensure consistent column widths */
+.card-left-column,
+.card-right-column {
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 600px) {
+    .equipment-section-grid {
+        grid-template-columns: repeat(3, 1fr) \!important;
+        grid-template-rows: repeat(2, minmax(100px, auto)) \!important;
+    }
+    
+    .equipment-slot {
+        min-height: 100px;
+        max-height: 140px;
+    }
+    
+    .equipment-slot .item-enchant-info {
+        font-size: 0.75em; /* Smaller font on mobile */
+        -webkit-line-clamp: 2; /* Fewer lines on mobile */
+    }
+}
+EOF < /dev/null
+/* Additional CSS to prevent layout shift with enchanted items */
+.equipment-slot .item-enchant-info {
+    line-height: 1.2;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    font-size: 0.85em;
+}
+
+/* Allow equipment slots to expand naturally */
+.equipment-slot .slot-item {
+    min-height: 60px;
+    /* Remove max-height to allow natural expansion */
+    overflow: visible; /* Allow all content to be visible */
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    height: auto; /* Ensure auto height */
+    padding: 10px 8px; /* Better padding */
+}
+
+/* Ensure consistent column widths */
+.card-left-column,
+.card-right-column {
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 600px) {
+    .equipment-section-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        grid-template-rows: repeat(2, auto) !important; /* Allow auto height */
+    }
+    
+    .equipment-slot {
+        min-height: 100px;
+        /* Remove max-height to allow expansion */
+    }
+    
+    .equipment-slot .item-enchant-info {
+        font-size: 0.75em; /* Smaller font on mobile */
+    }
+}/* Additional styles to improve enchantment display */
+.equipment-slot .item-enchant-info span {
+    display: block;
+    margin: 2px 0;
+    font-size: 0.9em;
+}
+
+/* Ensure equipment slots can expand vertically */
+.equipment-section-grid {
+    grid-auto-rows: minmax(120px, auto); /* Minimum height but can grow */
+}
+
+/* Improve enchantment stats readability */
+.item-stats.enchanted-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-top: 6px;
+}
+
+/* Ensure proper spacing in equipment slots */
+.equipment-slot .slot-item .item-name {
+    margin-bottom: 4px;
+}
+
+.equipment-slot .slot-item .item-stats {
+    margin-bottom: 4px;
+}
+
+/* Responsive font sizes for enchantment text */
+@media (max-width: 900px) {
+    .equipment-slot .item-enchant-info {
+        font-size: 0.8em;
+    }
+}
+
+@media (max-width: 600px) {
+    .equipment-slot .item-enchant-info {
+        font-size: 0.7em;
+    }
+    
+    .equipment-slot .item-enchant-info span {
+        margin: 1px 0;
+    }
+}/* Final fixes for equipment slot visibility */
+
+/* Ensure equipment grid rows expand properly */
+.equipment-section-grid {
+    grid-auto-flow: row;
+    align-content: start;
+}
+
+/* Ensure slot content is visible */
+.equipment-slot {
+    position: relative;
+    z-index: 1;
+}
+
+/* Make sure equip buttons don't overlap content */
+.equipment-slot .equip-btn {
+    margin-top: auto; /* Push button to bottom */
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0; /* Prevent button from shrinking */
+}
+
+/* Better spacing for item content */
+.equipment-slot .item-name {
+    order: 1;
+}
+
+.equipment-slot .item-icon {
+    order: 2;
+    margin: 5px 0;
+}
+
+.equipment-slot .item-stats {
+    order: 3;
+    margin: 5px 0;
+}
+
+.equipment-slot .item-enchant-info {
+    order: 4;
+    margin-top: 5px;
+}
+
+/* Ensure empty slots have consistent sizing */
+.equipment-slot .slot-item[style*="justify-content: center"] {
+    min-height: 100px !important;
+}
+
+/* Fix any lingering overflow issues */
+.character-section-card {
+    overflow: visible;
+}
+
+.card-right-column {
+    overflow: visible;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .equipment-slot {
+        min-height: 110px;
+        padding: 8px;
+    }
+    
+    .equipment-slot .slot-item {
+        padding: 8px 6px;
+    }
+}/* Force equipment slots to contain all content */
+
+/* Main equipment slot container */
+.equipment-slot {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: fit-content !important;
+    height: auto !important;
+    overflow: visible !important;
+    position: relative !important;
+}
+
+/* The slot-item should expand to fit content */
+.equipment-slot .slot-item {
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: fit-content !important;
+    height: auto !important;
+    overflow: visible !important;
+    margin-bottom: 10px !important; /* Space before button */
+}
+
+/* Ensure stats don't have any height restrictions */
+.equipment-slot .item-stats {
+    overflow: visible !important;
+    height: auto !important;
+    min-height: fit-content !important;
+    max-height: none !important;
+    display: block !important;
+}
+
+/* Ensure the grid allows rows to expand */
+.equipment-section-grid {
+    grid-auto-rows: minmax(150px, max-content) !important;
+    align-items: stretch !important;
+}
+
+/* Remove any height constraints from parent containers */
+.character-section-card {
+    height: auto !important;
+    min-height: fit-content !important;
+    overflow: visible !important;
+}
+
+.card-right-column {
+    height: auto !important;
+    overflow: visible !important;
+}
+
+/* Ensure button stays at bottom and doesn't float */
+.equipment-slot .equip-btn,
+.equipment-slot button[id^="equip-"] {
+    margin-top: auto !important;
+    align-self: stretch !important;
+    width: 100% !important;
+}
+
+/* Fix for the specific tier styling */
+.equipment-slot.item-card-tier {
+    min-height: fit-content !important;
+    height: auto !important;
+}
+
+/* Remove any conflicting height from media queries */
+@media (max-width: 900px), (max-width: 700px), (max-width: 600px) {
+    .equipment-slot {
+        min-height: fit-content !important;
+        height: auto !important;
+        max-height: none !important;
+    }
+    
+    .equipment-slot .slot-item {
+        min-height: fit-content !important;
+        height: auto !important;
+        max-height: none !important;
+    }
+    
+    .equipment-section-grid {
+        grid-auto-rows: minmax(120px, max-content) !important;
+    }
+}/* Critical fixes to ensure slots expand with content */
+
+/* Reset box-sizing to ensure padding is included in height calculations */
+.equipment-slot,
+.equipment-slot * {
+    box-sizing: border-box !important;
+}
+
+/* Ensure the slot background expands with content */
+.equipment-slot {
+    background-color: #333;
+    border-radius: 5px;
+    padding: 10px;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 120px !important;
+    height: max-content !important; /* This is key - use max-content */
+    overflow: visible !important;
+    contain: layout style; /* Contain layout calculations */
+}
+
+/* Ensure slot-item background also expands */
+.equipment-slot .slot-item {
+    background-color: #2a2a2a;
+    border-radius: 4px;
+    padding: 10px 8px;
+    flex: 1 0 auto !important;
+    min-height: fit-content !important; /* Changed from auto to fit-content */
+    height: max-content !important; /* Use max-content here too */
+}
+
+/* Ensure grid cells expand to fit their content */
+.equipment-section-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, minmax(120px, max-content)) !important;
+    grid-auto-rows: minmax(120px, max-content) !important;
+    gap: 12px 12px !important;
+    align-items: start !important; /* Don't stretch items */
+}
+
+/* Debug helper - add red border to see actual slot boundaries */
+.equipment-slot {
+    /* Uncomment to debug: border: 2px solid red !important; */
+}
+
+/* Ensure spans in stats display as blocks */
+.equipment-slot .item-stats span {
+    display: block !important;
+    margin: 2px 0;
+}/* Hide any equipment slots that are set to display: none */
+.equipment-slot[style*="display: none"],
+.equipment-slot[style*="display:none"] {
+    display: none !important;
+}
+
+/* Also hide empty slots with no content */
+.equipment-slot:empty {
+    display: none !important;
+}/* Update grid for 3-2 layout: 3 slots in row 1, 2 slots in row 2 */
+.equipment-section-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-rows: auto auto !important; /* Two rows, auto height */
+    gap: 4px !important;
+    align-items: start !important;
+    justify-items: stretch !important;
+}
+
+/* Make the second row span only 2 columns centered */
+.equipment-section-grid > .equipment-slot:nth-child(4) {
+    grid-column: 1 / 2; /* First column */
+}
+
+.equipment-section-grid > .equipment-slot:nth-child(5) {
+    grid-column: 2 / 3; /* Second column */
+}
+
+/* Leave third column empty in second row */
+.equipment-section-grid > .equipment-slot:nth-child(6) {
+    display: none; /* Hide any potential 6th slot */
+}
+
+/* Ensure slots can scale vertically */
+.equipment-slot {
+    height: fit-content !important;
+    min-height: 140px !important;
+    max-height: none !important;
+}
+
+/* Make sure stats are visible */
+.equipment-slot .item-stats {
+    white-space: pre-line !important;
+    overflow: visible !important;
+    height: auto !important;
+    line-height: 1.3 !important;
+    word-break: break-word !important;
+}
+
+/* Better spacing for stat lines */
+.equipment-slot .item-stats br {
+    line-height: 1.5;
+}
+
+/* Ensure enchantment spans display properly */
+.equipment-slot .item-stats span[class*="tier-"] {
+    display: block !important;
+    margin: 2px 0 !important;
+    line-height: 1.2 !important;
+}
+
+/* Mobile adjustments for 3-2 layout */
+@media (max-width: 600px) {
+    .equipment-section-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8px !important;
+    }
+    
+    .equipment-slot {
+        min-height: 120px !important;
+        padding: 8px !important;
+    }
+    
+    .equipment-slot .item-stats {
+        font-size: 0.8em !important;
+    }
+}/* Ensure equal panel sizing is maintained */
+.card-internal-wrapper {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 3px !important; /* Increase gap slightly for better separation */
+}
+
+/* Force equal sizing for both columns */
+.card-left-column,
+.card-right-column {
+    flex: 1 1 50% !important; /* Explicit 50/50 split */
+    min-width: 0 !important; /* Allow equal shrinking */
+    max-width: none !important; /* Remove any max-width constraints */
+}
+
+/* Better gap between columns */
+.card-left-column {
+    margin-right: 1px;
+}
+
+.card-right-column {
+    margin-left: 1px;
+}
+
+/* Ensure wrapper takes full width */
+.character-info-card {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+/* Maintain responsive behavior */
+@media (max-width: 900px) {
+    .card-internal-wrapper {
+        flex-direction: column !important;
+        gap: 15px !important;
+    }
+    
+    .card-left-column,
+    .card-right-column {
+        flex: 1 1 auto !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+}/* Final fix to ensure equipment slots expand to show all content */
+
+/* Override any conflicting min-height rules */
+.equipment-slot,
+.equipment-slot .slot-item {
+    min-height: fit-content !important;
+    height: auto !important;
+    max-height: none !important;
+}
+
+/* Ensure the equipment grid allows natural row heights */
+.equipment-section-grid {
+    grid-auto-rows: minmax(fit-content, auto) !important;
+    grid-template-rows: repeat(2, minmax(fit-content, auto)) !important;
+}
+
+/* Make sure item stats container expands */
+.equipment-slot .item-stats {
+    min-height: fit-content !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    display: block !important;
+}
+
+/* Ensure enchantment info is visible */
+.equipment-slot .item-enchant-info {
+    min-height: fit-content !important;
+    height: auto !important;
+    overflow: visible !important;
+}/* Remove excess white space between enchanted stats */
+
+/* Compact spacing for item stats */
+.equipment-slot .item-stats {
+    line-height: 1.1 !important; /* Tighter line spacing */
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Remove margins from enchantment stat spans */
+.equipment-slot .item-stats span[class*="tier-"] {
+    display: block !important;
+    margin: 0 !important; /* Remove all margins */
+    padding: 0 !important; /* Remove all padding */
+    line-height: 1.1 !important; /* Tight line height */
+}
+
+/* Compact spacing for all stat text */
+.equipment-slot .item-stats br {
+    line-height: 1 !important; /* Minimal line break spacing */
+}
+
+/* Remove any additional spacing from enchantment info */
+.equipment-slot .item-enchant-info {
+    margin-top: 4px !important; /* Small gap from stats */
+    margin-bottom: 0 !important;
+    padding: 0 !important;
+    line-height: 1.1 !important;
+}
+
+/* Ensure no extra spacing in the slot item container */
+.equipment-slot .slot-item {
+    gap: 2px !important; /* Minimal gap between elements */
+}
+
+/* Compact the overall item stats section */
+.equipment-slot .slot-item .item-name {
+    margin-bottom: 2px !important;
+}
+
+.equipment-slot .slot-item .item-icon {
+    margin: 2px 0 !important;
+}
+
+.equipment-slot .slot-item .item-stats {
+    margin: 2px 0 !important;
+}/* Style the enchant stats container to display stats compactly */
+.enchant-stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+}
+
+/* Make each enchantment stat span display as a block with no extra spacing */
+.enchant-stats-container span[class*="tier-"] {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.1 !important;
+}
+
+/* Override any existing spacing rules */
+.equipment-slot .item-stats .enchant-stats-container {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.equipment-slot .item-stats .enchant-stats-container span {
+    margin: 0 !important;
+    padding: 0 !important;
 }

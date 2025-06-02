@@ -359,11 +359,19 @@ export function getEnchantedStatsHtml(slotKey) {
         return '';
     }
     
+    // IMPORTANT: Only show enchantments if enchantedStats has them
+    // This prevents showing enchantments on unenchanted items
+    if (!playerData.enchantedStats || !playerData.enchantedStats[equipmentSlot] || 
+        playerData.enchantedStats[equipmentSlot].length === 0) {
+        return '';
+    }
+    
     // Check for enchantments on the specific equipped item (use 'armor' for chestplate enchantments)
     const enchantmentSlotKey = slotKey === 'chestplate' ? 'armor' : slotKey;
     const itemKey = `${enchantmentSlotKey}:${equippedItemName}`;
     
-    // Debug logging for chestplate armor
+    // Debug logging commented out
+    /*
     if (slotKey === 'chestplate') {
         console.log('Debug armor enchantments:', {
             slotKey,
@@ -376,30 +384,20 @@ export function getEnchantedStatsHtml(slotKey) {
             hasEnchantedStats: !!(playerData.enchantedStats && playerData.enchantedStats[enchantmentSlotKey])
         });
     }
+    */
     
-    let enchantments = null;
-    
-    // First try to get enchantments from itemEnchantments (the authoritative source)
-    if (playerData.itemEnchantments && playerData.itemEnchantments[itemKey]) {
-        enchantments = playerData.itemEnchantments[itemKey].enchantments;
-    } else {
-        // Fallback to enchantedStats for backward compatibility
-        enchantments = playerData.enchantedStats[enchantmentSlotKey];
-    }
-    
-    if (!enchantments || enchantments.length === 0) {
-        return '';
-    }
+    // We already checked enchantedStats above, so we know they exist
+    const enchantments = playerData.enchantedStats[equipmentSlot];
     
     const enchantedLines = enchantments.map(enchantment => {
         // Use wizard tier color for Wizard Tower enchantments, otherwise use normal tier color
         const isWizardEnchantment = ['life_steal', 'fire_damage', 'ice_damage'].includes(enchantment.stat);
         const colorClass = isWizardEnchantment ? ENCHANTMENT_STAT_TIER_COLORS.wizard : (ENCHANTMENT_STAT_TIER_COLORS[enchantment.tier] || '');
         const statDisplay = formatEnchantmentStat(enchantment.stat, enchantment.value);
-        return `<br><span class="${colorClass}">${statDisplay}</span>`;
-    }).join('');
+        return `<span class="${colorClass}">${statDisplay}</span>`;
+    }).join(''); // Join with no separator - CSS will handle line breaks
     
-    return enchantedLines;
+    return enchantedLines ? `<br><div class="enchant-stats-container">${enchantedLines}</div>` : '';
 }
 
 /**
@@ -835,7 +833,7 @@ export function getPlayerCombatStats() {
         }
 
         // Apply enchanted stats from all equipment slots
-        const enchantableSlots = ['weapon', 'armor', 'helmet'];
+        const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe'];
         enchantableSlots.forEach(slotKey => {
             const enchantments = playerData.enchantedStats[slotKey];
             if (enchantments && enchantments.length > 0) {
@@ -1177,7 +1175,7 @@ export function populateEquipmentDisplay() {
     }
     
     const slots = [
-        { key: 'placeholder', name: 'Placeholder', data: {}, isPlaceholder: true }, // Hidden placeholder
+        // Row 1: Weapon, Axe, Pickaxe
         { key: 'weapon', name: 'Weapon', data: SWORD_DATA, 
           colorClassGetter: (itemData) => itemData.color, 
           statGetter: (itemData) => {
@@ -1211,12 +1209,12 @@ export function populateEquipmentDisplay() {
             return stats;
           }
         },
-        { key: 'helmet', name: 'Helmet', data: HELMET_DATA, 
+        { key: 'axe', name: 'Axe', data: TOOL_DATA.axe, 
           colorClassGetter: (itemData) => itemData.color, 
           statGetter: (itemData) => {
             if (!itemData) return "N/A";
-            let stats = `Def: ${(itemData.defense * 100).toFixed(0)}%`;
-            stats += getEnchantedStatsHtml('helmet');
+            let stats = `Yield: ${itemData.yield_config.base}`;
+            stats += getEnchantedStatsHtml('axe');
             return stats;
           }
         },
@@ -1229,22 +1227,22 @@ export function populateEquipmentDisplay() {
             return stats;
           }
         },
-        { key: 'emptyVisual', name: 'Empty Slot', data: {}, isEmptyVisual: true }, // Visible empty placeholder
+        // Row 2: Chestplate, Helmet
         { key: 'armor', name: 'Chestplate', data: ARMOR_DATA, 
           colorClassGetter: (itemData) => itemData.color, 
           statGetter: (itemData) => {
             if (!itemData) return "N/A";
             let stats = `Def: ${(itemData.defense * 100).toFixed(0)}%`;
-            stats += getEnchantedStatsHtml('chestplate');
+            stats += getEnchantedStatsHtml('armor');
             return stats;
           }
         },
-        { key: 'axe', name: 'Axe', data: TOOL_DATA.axe, 
+        { key: 'helmet', name: 'Helmet', data: HELMET_DATA, 
           colorClassGetter: (itemData) => itemData.color, 
           statGetter: (itemData) => {
             if (!itemData) return "N/A";
-            let stats = `Yield: ${itemData.yield_config.base}`;
-            stats += getEnchantedStatsHtml('axe');
+            let stats = `Def: ${(itemData.defense * 100).toFixed(0)}%`;
+            stats += getEnchantedStatsHtml('helmet');
             return stats;
           }
         }
@@ -1257,22 +1255,9 @@ export function populateEquipmentDisplay() {
                 return; // Skip this iteration
             }
             
-            // For placeholder, we don't need to access playerData.equipped
+            // Skip any placeholder slots (shouldn't exist anymore but just in case)
             if (slotInfo.isPlaceholder || slotInfo.isEmptyVisual) {
-                const slotDiv = document.createElement('div');
-                slotDiv.className = 'equipment-slot';
-                
-                if (slotInfo.isPlaceholder) {
-                    slotDiv.style.display = 'none';
-                } else {
-                    slotDiv.innerHTML = `
-                        <div class="slot-item" style="justify-content: center; align-items: center; background-color: #222; border: 1px dashed #444; min-height: 100px;">
-                            <!-- Visually empty slot -->
-                        </div>`;
-                }
-                
-                eqGrid.appendChild(slotDiv);
-                return; // Continue to next iteration
+                return; // Skip this iteration
             }
             
             const equippedItemName = playerData.equipment[slotInfo.key];
@@ -1286,25 +1271,38 @@ export function populateEquipmentDisplay() {
                 slotDiv.classList.add('item-card-tier', itemData.tier.toLowerCase());
             }
 
-            const itemNameDisplay = itemData ? titleCase(equippedItemName) : "None";
+            // Determine if the equipped item is enchanted for name display
+            let itemNameDisplay = "None";
+            let isEnchantedItem = false;
+            if (itemData) {
+                itemNameDisplay = titleCase(equippedItemName);
+                // Check if this slot has active enchantments
+                if (['weapon', 'helmet', 'armor', 'axe', 'pickaxe'].includes(slotInfo.key)) {
+                    const currentEnchantments = playerData.enchantedStats && playerData.enchantedStats[slotInfo.key];
+                    if (currentEnchantments && currentEnchantments.length > 0) {
+                        itemNameDisplay += " (Enchanted)";
+                        isEnchantedItem = true;
+                    }
+                }
+            }
             const itemColor = itemData ? slotInfo.colorClassGetter(itemData) : "fore-white";
             const itemEmoji = itemData ? (itemData.emoji || "❔") : "➖";
             const itemStatsDisplay = slotInfo.statGetter ? slotInfo.statGetter(itemData) : "N/A";
             
-            // Check if item has enchantments (for enchantable slots)
+            // Check if currently equipped item has enchantments (for enchantable slots)
             let enchantmentInfo = '';
-            if (itemData && ['weapon', 'helmet', 'armor'].includes(slotInfo.key)) {
+            if (itemData && ['weapon', 'helmet', 'armor', 'axe', 'pickaxe'].includes(slotInfo.key)) {
                 const slotKey = slotInfo.key;
-                const itemKey = `${slotKey}:${equippedItemName}`;
-                if (playerData.itemEnchantments && playerData.itemEnchantments[itemKey]) {
-                    const enchantData = playerData.itemEnchantments[itemKey];
-                    if (enchantData.enchantments && enchantData.enchantments.length > 0) {
-                        enchantmentInfo = `<div class="item-enchant-info fore-purple">Enchanted`;
-                        if (enchantData.count) {
-                            enchantmentInfo += ` (${enchantData.count}/12)`;
-                        }
-                        enchantmentInfo += `</div>`;
+                // Check enchantedStats to see if what's actually equipped is enchanted
+                const currentEnchantments = playerData.enchantedStats && playerData.enchantedStats[slotKey];
+                if (currentEnchantments && currentEnchantments.length > 0) {
+                    enchantmentInfo = `<div class="item-enchant-info fore-purple">Enchanted`;
+                    // Get count from itemEnchantments if available
+                    const itemKey = `${slotKey}:${equippedItemName}`;
+                    if (playerData.itemEnchantments && playerData.itemEnchantments[itemKey] && playerData.itemEnchantments[itemKey].count) {
+                        enchantmentInfo += ` (${playerData.itemEnchantments[itemKey].count}/12)`;
                     }
+                    enchantmentInfo += `</div>`;
                 }
             }
             
@@ -1380,7 +1378,7 @@ export function showEquipSelection(slot) {
         if (qty > 0 && relevantItemSource[itemName]) {
             // Count how many are enchanted
             let enchantedCount = 0;
-            const enchantableSlots = ['weapon', 'armor', 'helmet'];
+            const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe'];
             
             if (enchantableSlots.includes(dataSlot) && playerData.itemEnchantments) {
                 Object.entries(playerData.itemEnchantments).forEach(([enchantKey, enchantData]) => {
@@ -1411,6 +1409,10 @@ export function showEquipSelection(slot) {
                         (itemDataForSlot.block_chance ? `<br>Block: ${(itemDataForSlot.block_chance * 100).toFixed(0)}% / ${itemDataForSlot.block_amount}` : '');
                 } else if ((slot === 'axe' || slot === 'pickaxe') && itemDataForSlot.yield_config) {
                     statsDisplay = `Yield: ${itemDataForSlot.yield_config.base}`;
+                    if (itemDataForSlot.speed_multiplier) {
+                        const speedPercent = Math.round((1 - itemDataForSlot.speed_multiplier) * 100);
+                        statsDisplay += `<br>Speed: +${speedPercent}%`;
+                    }
                 }
                 // Render image icons for axes, pickaxes, swords, armor, and helmets in equip selection
                 let iconHtmlSel;
@@ -1449,7 +1451,7 @@ export function showEquipSelection(slot) {
     });
     
     // Then, show enchanted items
-    const enchantableSlots = ['weapon', 'armor', 'helmet'];
+    const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe'];
     if (enchantableSlots.includes(dataSlot) && playerData.itemEnchantments) {
         Object.entries(playerData.itemEnchantments).forEach(([enchantKey, enchantData]) => {
             const [slotKey, enchantedItemName] = enchantKey.split(':');
@@ -1469,6 +1471,12 @@ export function showEquipSelection(slot) {
                 } else if ((slot === 'armor' || slot === 'helmet') && itemDataForSlot.defense != null) {
                     statsDisplay = `Def: ${(itemDataForSlot.defense * 100).toFixed(0)}%` +
                         (itemDataForSlot.block_chance ? `<br>Block: ${(itemDataForSlot.block_chance * 100).toFixed(0)}% / ${itemDataForSlot.block_amount}` : '');
+                } else if ((slot === 'axe' || slot === 'pickaxe') && itemDataForSlot.yield_config) {
+                    statsDisplay = `Yield: ${itemDataForSlot.yield_config.base}`;
+                    if (itemDataForSlot.speed_multiplier) {
+                        const speedPercent = Math.round((1 - itemDataForSlot.speed_multiplier) * 100);
+                        statsDisplay += `<br>Speed: +${speedPercent}%`;
+                    }
                 }
                 
                 // Add enchantment info
@@ -1482,7 +1490,11 @@ export function showEquipSelection(slot) {
                 
                 // Render image icons
                 let iconHtmlSel;
-                if (slot === 'weapon') {
+                if (slot === 'axe') {
+                    iconHtmlSel = `<img src="assets/${enchantedItemName}-axe.png" class="inventory-item-icon">`;
+                } else if (slot === 'pickaxe') {
+                    iconHtmlSel = `<img src="assets/${enchantedItemName}-pickaxe.png" class="inventory-item-icon">`;
+                } else if (slot === 'weapon') {
                     const fileNameSel = enchantedItemName.replace(/ /g, '-').replace('-2h-sword','-2hsword');
                     iconHtmlSel = `<img src="assets/${fileNameSel}.png" class="inventory-item-icon">`;
                 } else if (slot === 'armor') {
@@ -1537,15 +1549,19 @@ export function equipItem(slot, itemName) {
     
     const oldItem = playerData.equipment[equipmentSlot];
     
-    // If equipping the same item that's already equipped AND it's not enchanted, just return without doing anything
+    // Check if we're equipping the same unenchanted item that's already equipped
     const hasEnchantments = playerData.enchantedStats && playerData.enchantedStats[equipmentSlot] && playerData.enchantedStats[equipmentSlot].length > 0;
     if (oldItem === itemName && !hasEnchantments) {
+        // Same unenchanted item is already equipped - no change needed
         logMessage(`${titleCase(itemName)} is already equipped.`, 'fore-yellow', '⚠️');
         hideEquipSelection();
         return;
     }
+    // If hasEnchantments is true, we allow the swap even with same item name
+    // This allows switching from enchanted to unenchanted version
     
     // Return old item to inventory if it's not 'none'
+    // Enchantment data is preserved in itemEnchantments regardless
     if (oldItem && oldItem !== 'none') {
         playerData.inventory[oldItem] = (playerData.inventory[oldItem] || 0) + 1;
     }
@@ -1559,14 +1575,12 @@ export function equipItem(slot, itemName) {
     }
     
     // Clear enchantments since this is a normal (unenchanted) item
+    // The equipItem function should only be used for unenchanted items
+    // Enchanted items should use equipItemEnchanted function instead
+    if (!playerData.enchantedStats) playerData.enchantedStats = {};
     playerData.enchantedStats[equipmentSlot] = [];
     
-    // Also clear itemEnchantments for this slot to prevent stale enchantment display
-    const slotKey = equipmentSlot === 'chestplate' ? 'armor' : equipmentSlot;
-    const itemKey = `${slotKey}:${itemName}`;
-    if (playerData.itemEnchantments && playerData.itemEnchantments[itemKey]) {
-        delete playerData.itemEnchantments[itemKey];
-    }
+    // Debug logging removed
     
     // Play equipment sound (only if equipping an actual item, not unequipping)
     if (itemName !== 'none' && sounds && sounds.equip) {
@@ -1576,8 +1590,13 @@ export function equipItem(slot, itemName) {
     logMessage(`Equipped ${titleCase(itemName)} to ${slot}.`, 'fore-green', '🔧');
     savePlayerData();
     updateHud();
-    populateEquipmentDisplay();
-    if (typeof window.populateInventoryDisplay === 'function') window.populateInventoryDisplay();
+    
+    // Force a complete re-render with a minimal delay to ensure state is updated
+    setTimeout(() => {
+        populateEquipmentDisplay();
+        if (typeof window.populateInventoryDisplay === 'function') window.populateInventoryDisplay();
+    }, 0);
+    
     hideEquipSelection();
 }
 
@@ -1615,6 +1634,7 @@ export function equipItemEnchanted(slot, itemName, enchantKey) {
     }
     
     // Update enchantments for the new equipment using the specific enchantment key
+    if (!playerData.enchantedStats) playerData.enchantedStats = {};
     if (playerData.itemEnchantments && playerData.itemEnchantments[enchantKey]) {
         playerData.enchantedStats[equipmentSlot] = playerData.itemEnchantments[enchantKey].enchantments;
     } else {

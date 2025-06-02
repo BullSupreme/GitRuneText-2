@@ -217,6 +217,15 @@ function renderShopItems(category) {
                 itemDetails.itemType !== 'crop' && itemDetails.itemType !== 'animal' && itemDetails.itemType !== 'animal_product' && 
                 itemDetails.itemType !== 'farm_resource' && itemDetails.itemType !== 'crafting_material' && itemDetails.itemType !== 'currency' && 
                 itemDetails.category !== 'food_ingredient') { // Also exclude food_ingredient items from misc
+                
+                // Check if item requires a structure to be built
+                if (itemDetails.requiresStructure) {
+                    const hasRequiredStructure = playerData.built_structures && playerData.built_structures[itemDetails.requiresStructure];
+                    if (!hasRequiredStructure) {
+                        continue; // Skip this item if required structure is not built
+                    }
+                }
+                
                 if (cat === 'all' || cat === 'other') { // Double-check category for 'other'
                     itemsToDisplay.push(itemDetails);
                 }
@@ -540,7 +549,7 @@ function renderSellItems() {
 
     // Now handle enchanted items
     if (playerData.itemEnchantments) {
-        const enchantableSlots = ['weapon', 'armor', 'helmet'];
+        const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe'];
         
         for (const [enchantKey, enchantData] of Object.entries(playerData.itemEnchantments)) {
             if (!enchantData.enchantments || enchantData.enchantments.length === 0) continue;

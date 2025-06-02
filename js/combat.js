@@ -472,7 +472,7 @@ export function getMaxHp(combatLevel) {
     // Add enchantment hp_flat bonus
     let enchantmentHp = 0;
     if (typeof playerData !== 'undefined' && playerData.enchantedStats) {
-        const enchantableSlots = ['weapon', 'armor', 'helmet'];
+        const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe'];
         enchantableSlots.forEach(slotKey => {
             const enchantments = playerData.enchantedStats[slotKey];
             if (enchantments && enchantments.length > 0) {
@@ -602,7 +602,7 @@ export function executePlayerAttack() {
     }
     
     // Apply enchanted stats from all equipment slots (same logic as characterinfo.js)
-    const enchantableSlots = ['weapon', 'armor', 'helmet'];
+    const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe'];
     enchantableSlots.forEach(slotKey => {
         const enchantments = playerData.enchantedStats[slotKey];
         if (enchantments && enchantments.length > 0) {

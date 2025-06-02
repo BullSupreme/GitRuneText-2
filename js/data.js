@@ -1211,7 +1211,7 @@ export const ITEM_DATA = {
     "silk": {"name": "Silk", "description": "Fine, luxurious silk threads.", "sell_price": 20, "emoji": "🧵", "stackable": true, "category": "material", "tier": TIERS.COMMON},
     "stone": {"name": "Stone", "description": "A sturdy piece of rock.", "sell_price": 1, "emoji": "🪨", "stackable": true, "category": "material", "tier": TIERS.COMMON}, 
     "gems": {"name": "Assorted Gems", "description": "A collection of various gemstones.", "sell_price": 0, "emoji": "💠", "stackable": true, "category": "material", "tier": TIERS.UNCOMMON, "noShop": true}, 
-    "assorted_gems": {"name": "Assorted Gems", "description": "A collection of various gemstones.", "sell_price": 0, "emoji": "💠", "stackable": true, "category": "material", "tier": TIERS.UNCOMMON, "noShop": true}, 
+    "assorted_gems": {"name": "Assorted Gems", "description": "A collection of various gemstones.", "sell_price": 0, "price": 100, "emoji": "💠", "stackable": true, "category": "material", "tier": TIERS.UNCOMMON, "requiresStructure": "wizardTower"}, 
     "dragon gem": {"name": "Dragon Gem", "description": "A fiery gem, pulsating with power.", "sell_price": 1000, "emoji": "💎🔥", "stackable": true, "category": "rare_material", "tier": TIERS.EPIC, "noShop": true},
     "demon heart": {"name": "Demon Heart", "description": "The still-beating heart of a powerful demon.", "sell_price": 0, "emoji": "❤️‍🔥", "stackable": true, "category": "quest_item", "tier": TIERS.LEGENDARY, "noShop": true}, 
     "maple logs": {"name": "Maple Logs", "description": "Sturdy logs from a maple tree.", "sell_price": 8, "emoji": "🍁", "stackable": true, "category": "log", "tier": TIERS.COMMON, "noShop": true},

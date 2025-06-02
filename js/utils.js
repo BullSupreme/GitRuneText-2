@@ -615,17 +615,19 @@ export function loadPlayerData() {
             const parsedData = JSON.parse(saved);
             playerData = migratePlayerData(parsedData);
             
-            if (playerData.itemEnchantments && playerData.equipment) {
-                Object.keys(playerData.equipment).forEach(slot => {
-                    const itemName = playerData.equipment[slot];
-                    if (itemName && itemName !== 'none') {
-                        const itemKey = `${slot}:${itemName}`;
-                        if (playerData.itemEnchantments[itemKey]) {
-                             if(!playerData.enchantedStats) playerData.enchantedStats = {}; // Ensure exists
-                            playerData.enchantedStats[slot] = playerData.itemEnchantments[itemKey].enchantments;
-                        }
-                    }
+            // Ensure enchantedStats exists
+            if (!playerData.enchantedStats) playerData.enchantedStats = {};
+            
+            // One-time migration to fix enchantment display issue
+            // This clears all enchantedStats to ensure clean state
+            // Users will need to re-equip enchanted items
+            if (!playerData.enchantmentFixApplied) {
+                console.log('Applying one-time enchantment fix - clearing enchantedStats');
+                Object.keys(playerData.enchantedStats).forEach(slot => {
+                    playerData.enchantedStats[slot] = [];
                 });
+                playerData.enchantmentFixApplied = true;
+                savePlayerData();
             }
             
             console.log('Player data loaded and migrated successfully');

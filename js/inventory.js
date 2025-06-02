@@ -179,7 +179,7 @@ export function populateInventoryDisplay() {
             }
             
             // Check if this item type can be enchanted and if there are enchanted versions
-            const enchantableSlots = ['sword', 'armor', 'helmet'];
+            const enchantableSlots = ['sword', 'armor', 'helmet', 'axe', 'pickaxe'];
             let enchantedVersions = [];
             
             // Look for enchanted versions of this item

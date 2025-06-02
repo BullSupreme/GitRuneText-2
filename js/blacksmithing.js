@@ -66,7 +66,7 @@ function updateSmeltingDisplay() {
     smeltingContainer.innerHTML = '';
     
     // Current blacksmithing level
-    const bsLevel = getLevelFromXp(playerData.blacksmithing_xp);
+    const bsLevel = getLevelFromXp(playerData.skills.blacksmithing.xp);
     
     // Create elements for each bar (show all, grey out if locked)
     for (const [barName, barData] of Object.entries(BAR_DATA)) {
@@ -218,7 +218,7 @@ export function singleSmeltAction() {
         return;
     }
     // Check if player has required level
-    if (getLevelFromXp(playerData.blacksmithing_xp) < (recipe.level_req || recipe.level)) {
+    if (getLevelFromXp(playerData.skills.blacksmithing.xp) < (recipe.level_req || recipe.level)) {
         logMessage(`You need level ${(recipe.level_req || recipe.level)} Blacksmithing to smelt ${currentSmeltingTarget}`, 'fore-red');
         stopAutoSmelting();
         return;
@@ -251,10 +251,11 @@ export function singleSmeltAction() {
     const smeltEffects = getSummedPyramidPerkEffects();
     const xpBoost = smeltEffects.xp_boost_percentage_blacksmithing || 0;
     const xpGain = Math.floor((recipe.xp_gain || recipe.xp) * (1 + xpBoost));
-    playerData.blacksmithing_xp += xpGain;
+    playerData.skills.blacksmithing.xp += xpGain;
     // Play smelting sound
     if (sounds && sounds.smelting) {
-        playSound('smelting');
+        const smeltingSound = typeof sounds.smelting === 'function' ? sounds.smelting() : sounds.smelting;
+        playSound(smeltingSound);
     }
     // Log the action
     logMessage(`+${barYield} ${currentSmeltingTarget} smelted! (+${xpGain} XP)`, 'fore-cyan');
@@ -332,7 +333,7 @@ export function populateSwordSmeltingGrid() {
     if (!container) return;
     container.innerHTML = '';
     for (const [swordName, swordData] of Object.entries(SWORD_DATA)) {
-        const meetsLevel = getLevelFromXp(playerData.blacksmithing_xp) >= swordData.smith_level_req;
+        const meetsLevel = getLevelFromXp(playerData.skills.blacksmithing.xp) >= swordData.smith_level_req;
         // Calculate max craftable
         let maxCraftable = Infinity;
         Object.entries(swordData.recipe).forEach(([item, amount]) => {
@@ -420,7 +421,7 @@ export function craftSword(swordName) {
         return;
     }
     // Check smithing level
-    if (getLevelFromXp(playerData.blacksmithing_xp) < swordData.smith_level_req) {
+    if (getLevelFromXp(playerData.skills.blacksmithing.xp) < swordData.smith_level_req) {
         logMessage(`Insufficient smithing level to craft ${swordName}`, "fore-red");
         return;
     }
@@ -441,10 +442,11 @@ export function craftSword(swordName) {
     playerData.inventory[swordName] = (playerData.inventory[swordName] || 0) + swordYield;
     trackEquipmentCollection(swordName, 'weapon');
     // Grant XP
-    playerData.blacksmithing_xp += swordData.xp_gain;
+    playerData.skills.blacksmithing.xp += swordData.xp_gain;
     // Play smithing sound
     if (sounds && sounds.smithing) {
-        playSound('smithing');
+        const smithingSound = typeof sounds.smithing === 'function' ? sounds.smithing() : sounds.smithing;
+        playSound(smithingSound);
     }
     // Update UI
     populateSwordSmeltingGrid();
@@ -482,7 +484,7 @@ export function populateSmithingArmor() {
     container.innerHTML = '';
     
     for (const [armorName, armorData] of Object.entries(ARMOR_DATA)) {
-        if (getLevelFromXp(playerData.blacksmithing_xp) >= armorData.smith_level_req) {
+        if (getLevelFromXp(playerData.skills.blacksmithing.xp) >= armorData.smith_level_req) {
             const div = document.createElement('div');
             div.className = 'skill-resource';
             
@@ -528,7 +530,7 @@ export function populateSmithingHelmets() {
     container.innerHTML = '';
     
     for (const [helmetName, helmetData] of Object.entries(HELMET_DATA)) {
-        if (getLevelFromXp(playerData.blacksmithing_xp) >= helmetData.smith_level_req) {
+        if (getLevelFromXp(playerData.skills.blacksmithing.xp) >= helmetData.smith_level_req) {
             const div = document.createElement('div');
             div.className = 'skill-resource';
             
@@ -583,7 +585,7 @@ export function craftArmor(armorName) {
     }
 
     // Check smithing level
-    if (playerData.blacksmithing_xp < getLevelFromXp(armorData.smith_level_req)) {
+    if (getLevelFromXp(playerData.skills.blacksmithing.xp) < armorData.smith_level_req) {
         logMessage(`Insufficient smithing level to craft ${armorName}`, "fore-red");
         return;
     }
@@ -605,11 +607,12 @@ export function craftArmor(armorName) {
     playerData.inventory[armorName] = (playerData.inventory[armorName] || 0) + armorYield;
     trackEquipmentCollection(armorName, 'armor');
     // Grant XP
-    playerData.blacksmithing_xp += armorData.xp_gain;
+    playerData.skills.blacksmithing.xp += armorData.xp_gain;
     
     // Play smithing sound
     if (sounds && sounds.smithing) {
-        playSound('smithing');
+        const smithingSound = typeof sounds.smithing === 'function' ? sounds.smithing() : sounds.smithing;
+        playSound(smithingSound);
     }
     
     // Update UI
@@ -640,7 +643,7 @@ export function craftHelmet(helmetName) {
     }
 
     // Check smithing level
-    if (getLevelFromXp(playerData.blacksmithing_xp) < helmetData.smith_level_req) {
+    if (getLevelFromXp(playerData.skills.blacksmithing.xp) < helmetData.smith_level_req) {
         logMessage(`Insufficient smithing level to craft ${helmetName}`, "fore-red");
         return;
     }
@@ -662,11 +665,12 @@ export function craftHelmet(helmetName) {
     playerData.inventory[helmetName] = (playerData.inventory[helmetName] || 0) + helmetYield;
     trackEquipmentCollection(helmetName, 'helmet');
     // Grant XP
-    playerData.blacksmithing_xp += helmetData.xp_gain;
+    playerData.skills.blacksmithing.xp += helmetData.xp_gain;
     
     // Play smithing sound
     if (sounds && sounds.smithing) {
-        playSound('smithing');
+        const smithingSound = typeof sounds.smithing === 'function' ? sounds.smithing() : sounds.smithing;
+        playSound(smithingSound);
     }
     
     // Update UI
