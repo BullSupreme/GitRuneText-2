@@ -31,7 +31,6 @@ RuneText is a browser-based idle/incremental RPG game inspired by RuneScape. Bui
 - **Guild system** with member management and bonuses
 - **Perk tree** for permanent character upgrades
 
-
 ## 🚀 Getting Started
 
 ### Playing the Game
@@ -40,8 +39,6 @@ RuneText is a browser-based idle/incremental RPG game inspired by RuneScape. Bui
 3. Start your adventure!
 
 ```bash
-<<<<<<< HEAD
-git clone https://github.com/BullSupreme/RuneText.git
 =======
 git clone https://github.com/BullSupreme/GitRuneText2.git
 >>>>>>> 508a158dfe9cf4173037a98047ccc55a3f2132c7
