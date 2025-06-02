@@ -549,18 +549,6 @@ function singleCookAction() {
                     gainTextShown = true;
                 }
             }
-            
-            // Notification for burnt
-            const notifKey = currentCookingTarget.replace(/\s+/g, '-');
-            const notifEl = document.getElementById(`loot-notification-ck-${notifKey}`);
-            if (notifEl) {
-                const notifText = `+${recipe.xp_gain} XP, burned ${recipe.burnt_item}`;
-                notifEl.textContent = notifText;
-                notifEl.classList.remove('active'); void notifEl.offsetWidth;
-                notifEl.classList.add('active');
-                if (notifEl.timeout) clearTimeout(notifEl.timeout);
-                notifEl.timeout = setTimeout(() => notifEl.classList.remove('active'), 1500);
-            }
         } else {
             logMessage(`You burned ${recipe.recipe ? 'the ingredients' : `the ${currentCookingTarget}`}.`, 'fore-red', '🔥');
             
@@ -575,18 +563,6 @@ function singleCookAction() {
                     showStaticGainText(foodContainer, `Burned 🔥 (+${recipe.xp_gain} XP)`, true, true);
                     gainTextShown = true;
                 }
-            }
-            
-            // Notification for burnt without specific item
-            const notifKey = currentCookingTarget.replace(/\s+/g, '-');
-            const notifEl = document.getElementById(`loot-notification-ck-${notifKey}`);
-            if (notifEl) {
-                const notifText = `+${recipe.xp_gain} XP, burned ${currentCookingTarget}`;
-                notifEl.textContent = notifText;
-                notifEl.classList.remove('active'); void notifEl.offsetWidth;
-                notifEl.classList.add('active');
-                if (notifEl.timeout) clearTimeout(notifEl.timeout);
-                notifEl.timeout = setTimeout(() => notifEl.classList.remove('active'), 1500);
             }
         }
     } else {

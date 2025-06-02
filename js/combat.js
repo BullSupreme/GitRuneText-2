@@ -1325,6 +1325,11 @@ export function handlePlayerDefeat() {
     
     logMessage("You have been defeated!", "fore-red", "💔");
     
+    // Play player death sound
+    if (sounds && sounds.playerDeath) {
+        playSound(sounds.playerDeath);
+    }
+    
     // Clear all pending monster attacks immediately to prevent delayed hits
     clearPendingMonsterAttacks();
     
