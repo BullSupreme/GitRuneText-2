@@ -2,7 +2,6 @@
 
 ![RuneText Logo](https://img.shields.io/badge/RuneText-Idle%20RPG-gold?style=for-the-badge)
 ![Version](https://img.shields.io/badge/Version-3.0-blue?style=flat-square)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
 ## 🎮 Overview
 
@@ -115,30 +114,10 @@ RuneText/Version3/
 - Complete achievements for rewards
 - Build and manage your guild
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
-
-### Development Guidelines
-1. Maintain the modular architecture
-2. Follow existing code style
-3. Test thoroughly in multiple browsers
-4. Update documentation as needed
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## 🙏 Acknowledgments
 
 - Inspired by RuneScape and classic idle games
 - Sound effects from various open-source collections
-- Community feedback and suggestions
-
-## 📞 Contact
-
-- GitHub Issues: [Report bugs or request features](https://github.com/yourusername/RuneText/issues)
-- Discussions: [Join the community](https://github.com/yourusername/RuneText/discussions)
 
 ---
 
