@@ -145,7 +145,8 @@ export const SWORD_DATA = {
 
 // Food/healing items data
 export const FOOD_DATA = {
-    "cooked meat":       {"name": "Cooked Meat", "heal_amount": 5,  "sell_price": 2, "price": 175, "emoji": "🍖", "tier": TIERS.COMMON, "category": "food", "description": "Cooked meat. Heals 5 HP." }, 
+    "cooked meat":       {"name": "Cooked Meat", "heal_amount": 5,  "sell_price": 2, "emoji": "🍖", "tier": TIERS.COMMON, "category": "food", "description": "Cooked meat. Heals 5 HP.", "excludeFromShop": true }, 
+    "cooked pork":       {"name": "Cooked Pork", "heal_amount": 6,  "sell_price": 3, "emoji": "🥓", "tier": TIERS.COMMON, "category": "food", "description": "Cooked pork. Heals 6 HP.", "noShop": true },
     "bread":             {"heal_amount": 3,  "sell_price": 5, "emoji": "🍞", "tier": TIERS.COMMON, "category": "food", "damage_boost": {"min": 2, "max": 4, "duration_ms": 1800000}, "description": "Freshly baked bread. Grants +2-4 damage for 30 minutes.", "noShop": true },
     "health potion (s)": {"heal_amount": 15, "sell_price": 50, "emoji": "🧪", "tier": TIERS.COMMON, "category": "potion"},
     "health potion (m)": {"heal_amount": 30, "sell_price": 150, "emoji": "🧪", "tier": TIERS.UNCOMMON, "category": "potion"},
@@ -171,9 +172,10 @@ export const FOOD_DATA = {
 
 // Cookable items data
 export const COOKABLE_ITEMS = {
-    "raw meat": {"cooked_item":"cooked meat", "burnt_item":"burnt meat", "xp_gain":10, "level_req":1, "difficulty_level":1, "emoji": "🥩", "tier": TIERS.COMMON},
-    "raw shrimp": {"cooked_item":"shrimp", "burnt_item":"burnt shrimp", "xp_gain":30, "level_req":1, "difficulty_level":1, "emoji": "🦐", "tier": TIERS.COMMON},
-    "raw fish": {"cooked_item":"fish", "burnt_item":"burnt fish", "xp_gain":50, "level_req":5, "difficulty_level":1.2, "emoji": "🐟", "tier": TIERS.COMMON},
+    "raw meat": {"cooked_item":"cooked meat", "burnt_item":"burnt meat", "xp_gain":10, "level_req":1, "difficulty_level":1, "emoji": "🥩", "tier": TIERS.COMMON, "price": 5},
+    "raw pork": {"cooked_item":"cooked pork", "burnt_item":"burnt pork", "xp_gain":15, "level_req":1, "difficulty_level":1, "emoji": "🥓", "tier": TIERS.COMMON, "price": 5},
+    "raw shrimp": {"cooked_item":"shrimp", "burnt_item":"burnt shrimp", "xp_gain":30, "level_req":1, "difficulty_level":1, "emoji": "🦐", "tier": TIERS.COMMON, "noShop": true},
+    "raw fish": {"cooked_item":"fish", "burnt_item":"burnt fish", "xp_gain":50, "level_req":5, "difficulty_level":1.2, "emoji": "🐟", "tier": TIERS.COMMON, "noShop": true},
     "egg_herbs_for_scrambled": {
         "cooked_item": "scrambled eggs",
         "burnt_item": "burnt eggs",
@@ -185,11 +187,11 @@ export const COOKABLE_ITEMS = {
         "yield": 1,
         "tier": TIERS.COMMON
     },
-    "raw trout": {"cooked_item":"trout", "burnt_item":"burnt trout", "xp_gain":70, "level_req":20, "difficulty_level":1.8, "emoji": "🐟", "tier": TIERS.COMMON},
-    "raw salmon": {"cooked_item":"salmon", "burnt_item":"burnt salmon", "xp_gain":90, "level_req":30, "difficulty_level":2.2, "emoji": "🐟", "tier": TIERS.COMMON},
-    "raw lobster": {"cooked_item":"lobster", "burnt_item":"burnt lobster", "xp_gain":120, "level_req":40, "difficulty_level":2.5, "emoji": "🦞", "tier": TIERS.COMMON},
-    "raw swordfish": {"cooked_item":"swordfish", "burnt_item":"burnt swordfish", "xp_gain":140, "level_req":50, "difficulty_level":2.8, "emoji": "🐟", "tier": TIERS.RARE},
-    "raw shark": {"cooked_item":"shark", "burnt_item":"burnt shark", "xp_gain":210, "level_req":65, "difficulty_level":3.2, "emoji": "🦈", "tier": TIERS.RARE},
+    "raw trout": {"cooked_item":"trout", "burnt_item":"burnt trout", "xp_gain":70, "level_req":20, "difficulty_level":1.8, "emoji": "🐟", "tier": TIERS.COMMON, "noShop": true},
+    "raw salmon": {"cooked_item":"salmon", "burnt_item":"burnt salmon", "xp_gain":90, "level_req":30, "difficulty_level":2.2, "emoji": "🐟", "tier": TIERS.COMMON, "noShop": true},
+    "raw lobster": {"cooked_item":"lobster", "burnt_item":"burnt lobster", "xp_gain":120, "level_req":40, "difficulty_level":2.5, "emoji": "🦞", "tier": TIERS.COMMON, "noShop": true},
+    "raw swordfish": {"cooked_item":"swordfish", "burnt_item":"burnt swordfish", "xp_gain":140, "level_req":50, "difficulty_level":2.8, "emoji": "🐟", "tier": TIERS.RARE, "noShop": true},
+    "raw shark": {"cooked_item":"shark", "burnt_item":"burnt shark", "xp_gain":210, "level_req":65, "difficulty_level":3.2, "emoji": "🦈", "tier": TIERS.RARE, "noShop": true},
     
     // New recipes using farm products
     "wheat": {
@@ -1196,7 +1198,7 @@ export const GUILD_MEMBER_LOOT_TABLES = {
 export const EQUIPMENT_DATA = {};
 
 export const ITEM_DATA = {
-    "feathers": {"name": "Feathers", "description": "Light and fluffy feathers.", "sell_price": 0, "emoji": "🪶", "stackable": true, "category": "material", "tier": TIERS.COMMON},
+    "feathers": {"name": "Feathers", "description": "Light and fluffy feathers.", "sell_price": 1, "price": 2, "emoji": "🪶", "stackable": true, "category": "material", "tier": TIERS.COMMON},
     "bones": {"name": "Bones", "description": "A pile of old bones.", "sell_price": 2, "emoji": "🦴", "stackable": true, "category": "material", "tier": TIERS.COMMON},
     "goblin mail": {"name": "Goblin Mail Scrap", "description": "A piece of crude goblin armor.", "sell_price": 5, "emoji": "⛓️", "stackable": false, "category": "material", "tier": TIERS.UNCOMMON}, 
     "dragon scale": {"name": "Dragon Scale", "description": "A shimmering, incredibly hard scale.", "sell_price": 100, "emoji": "🐉鱗", "stackable": true, "category": "rare_material", "tier": TIERS.EPIC, "noShop": true},
@@ -1215,20 +1217,20 @@ export const ITEM_DATA = {
     "maple logs": {"name": "Maple Logs", "description": "Sturdy logs from a maple tree.", "sell_price": 8, "emoji": "🍁", "stackable": true, "category": "log", "tier": TIERS.COMMON, "noShop": true},
     "gold ore": {"name": "Gold Ore", "description": "Ore flecked with glittering gold.", "sell_price": 20, "emoji": "🌟", "stackable": true, "category": "ore", "tier": TIERS.UNCOMMON},
     "egg": { "name": "Egg", "description": "A fresh chicken egg.", "sell_price": 0, "emoji": "🥚", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON, "noShop": true },
-    "raw pork": { "name": "Raw Pork", "description": "Uncooked pork meat.", "sell_price": 5, "price": 150, "emoji": "🥓", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
+    "raw pork": { "name": "Raw Pork", "description": "Uncooked pork meat.", "sell_price": 5, "price": 5, "emoji": "🥓", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
     "sheep milk": { "name": "Sheep Milk", "description": "Fresh milk from a sheep.", "sell_price": 4, "emoji": "🥛", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON, "noShop": true },
     "wool": { "name": "Wool", "description": "Soft sheep wool.", "sell_price": 8, "emoji": "🧶", "stackable": true, "category": "material", "tier": TIERS.COMMON },
     "milk": { "name": "Milk", "description": "Fresh cow's milk.", "sell_price": 6, "emoji": "🥛", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
     "water": { "name": "Water", "description": "Clear, fresh water.", "sell_price": 1, "price": 5, "emoji": "💧", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
     "flour": { "name": "Flour", "description": "Finely ground wheat, essential for baking.", "sell_price": 3, "emoji": "🍚", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
-    "raw meat": { "name": "Raw Meat", "description": "Uncooked meat that needs cooking.", "sell_price": 2, "price": 50, "emoji": "🥩", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
-    "raw shrimp": { "name": "Raw Shrimp", "description": "Fresh uncooked shrimp.", "sell_price": 0, "emoji": "🦐", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
-    "raw fish": { "name": "Raw Fish", "description": "Fresh fish that needs cooking.", "sell_price": 0, "emoji": "🐟", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
-    "raw trout": { "name": "Raw Trout", "description": "Uncooked trout, perfect for cooking.", "sell_price": 0, "emoji": "🐟", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
-    "raw salmon": { "name": "Raw Salmon", "description": "Fresh salmon ready for cooking.", "sell_price": 0, "emoji": "🐟", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
-    "raw lobster": { "name": "Raw Lobster", "description": "Uncooked lobster that needs preparation.", "sell_price": 0, "emoji": "🦞", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
-    "raw swordfish": { "name": "Raw Swordfish", "description": "Large fish requiring skillful cooking.", "sell_price": 0, "emoji": "🐟", "stackable": true, "category": "food_ingredient", "tier": TIERS.RARE },
-    "raw shark": { "name": "Raw Shark", "description": "Dangerous fish that requires expert cooking.", "sell_price": 0, "emoji": "🦈", "stackable": true, "category": "food_ingredient", "tier": TIERS.RARE },
+    "raw meat": { "name": "Raw Meat", "description": "Uncooked meat that needs cooking.", "sell_price": 0, "price": 5, "emoji": "🥩", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
+    "raw shrimp": { "name": "Raw Shrimp", "description": "Fresh uncooked shrimp.", "sell_price": 0, "emoji": "🦐", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON, "noShop": true },
+    "raw fish": { "name": "Raw Fish", "description": "Fresh fish that needs cooking.", "sell_price": 0, "emoji": "🐟", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON, "noShop": true },
+    "raw trout": { "name": "Raw Trout", "description": "Uncooked trout, perfect for cooking.", "sell_price": 0, "emoji": "🐟", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON, "noShop": true },
+    "raw salmon": { "name": "Raw Salmon", "description": "Fresh salmon ready for cooking.", "sell_price": 0, "emoji": "🐟", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON, "noShop": true },
+    "raw lobster": { "name": "Raw Lobster", "description": "Uncooked lobster that needs preparation.", "sell_price": 0, "emoji": "🦞", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON, "noShop": true },
+    "raw swordfish": { "name": "Raw Swordfish", "description": "Large fish requiring skillful cooking.", "sell_price": 0, "emoji": "🐟", "stackable": true, "category": "food_ingredient", "tier": TIERS.RARE, "noShop": true },
+    "raw shark": { "name": "Raw Shark", "description": "Dangerous fish that requires expert cooking.", "sell_price": 0, "emoji": "🦈", "stackable": true, "category": "food_ingredient", "tier": TIERS.RARE, "noShop": true },
     "burnt flour": { "name": "Burnt Flour", "description": "Over-processed wheat that's no longer usable.", "sell_price": 0, "emoji": "⚫", "stackable": true, "category": "material", "tier": TIERS.COMMON, "noShop": true },
     "cakeSlice": { "name": "Cake Slice", "description": "A delicious slice of cake.", "heal_amount": 25, "sell_price": 20, "emoji": "🍰", "stackable": true, "category": "food", "tier": TIERS.UNCOMMON, "noShop": true },
     "burnt cake": { "name": "Burnt Cake", "description": "An overcooked cake that's inedible.", "sell_price": 0, "emoji": "⚫", "stackable": true, "category": "material", "tier": TIERS.COMMON, "noShop": true },
@@ -1241,6 +1243,7 @@ export const ITEM_DATA = {
     "burnt sandwich": { "name": "Burnt Sandwich", "description": "A charred grilled cheese sandwich.", "sell_price": 0, "emoji": "⚫", "stackable": true, "category": "material", "tier": TIERS.COMMON, "noShop": true },
     "burnt soup": { "name": "Burnt Soup", "description": "Overcooked soup that's not fit for consumption.", "sell_price": 0, "emoji": "⚫", "stackable": true, "category": "material", "tier": TIERS.COMMON, "noShop": true },
     "burnt meat": { "name": "Burnt Meat", "description": "Oops, too much fire!", "sell_price": 0, "emoji": "⚫", "stackable": true, "category": "material", "tier": TIERS.COMMON, "noShop": true },
+    "burnt pork": { "name": "Burnt Pork", "description": "Overcooked pork!", "sell_price": 0, "emoji": "⚫", "stackable": true, "category": "material", "tier": TIERS.COMMON, "noShop": true },
     "goblin beads": {"name": "Goblin Beads", "description": "Crude beads favored by goblins.", "sell_price": 5, "price": 20, "emoji": "📿", "stackable": true, "category": "material", "tier": TIERS.COMMON},
     "wolf fang": {"name": "Wolf Fang", "description": "A sharp fang from a wolf.", "sell_price": 10, "price": 50, "emoji": "🦷", "stackable": true, "category": "material", "tier": TIERS.COMMON},
     "bear claw": {"name": "Bear Claw", "description": "A formidable claw from a bear.", "sell_price": 15, "price": 75, "emoji": "🐾", "stackable": true, "category": "material", "tier": TIERS.COMMON},

@@ -482,8 +482,9 @@ function singleCookAction() {
     }
     
     // Play sound if available
-    if (sounds && sounds.cook) {
-        playSound('cook');
+    if (sounds && sounds.cooking) {
+        const cookingSound = typeof sounds.cooking === 'function' ? sounds.cooking() : sounds.cooking;
+        playSound(cookingSound);
     }
     
     // Calculate and add XP
@@ -568,6 +569,9 @@ function singleCookAction() {
     // Calculate yield amount (default to 1 if not specified)
     const yieldAmount = recipe.yield || 1;
     
+    // Initialize gainTextShown flag
+    let gainTextShown = false;
+    
     // Determine if food burns
     if (Math.random() < adjustedBurnChance) {
         // Food burns, add burnt food to inventory
@@ -577,7 +581,6 @@ function singleCookAction() {
             
             // Show static gain text for burnt food
             const availableFoodContainer = document.getElementById('available-food-list');
-            let gainTextShown = false;
             if (availableFoodContainer) {
                 const notifKey = currentCookingTarget.replace(/\s+/g, '-');
                 const foodDiv = availableFoodContainer.querySelector(`.action-list-item #loot-notification-ck-${notifKey}`);
@@ -592,7 +595,6 @@ function singleCookAction() {
             
             // Show static gain text for burnt (no specific item)
             const availableFoodContainer = document.getElementById('available-food-list');
-            let gainTextShown = false;
             if (availableFoodContainer) {
                 const notifKey = currentCookingTarget.replace(/\s+/g, '-');
                 const foodDiv = availableFoodContainer.querySelector(`.action-list-item #loot-notification-ck-${notifKey}`);
@@ -627,7 +629,6 @@ function singleCookAction() {
         
         // Show static gain text on the cooking container
         const availableFoodContainer = document.getElementById('available-food-list');
-        let gainTextShown = false;
         if (availableFoodContainer) {
             const notifKey = currentCookingTarget.replace(/\s+/g, '-');
             const foodDiv = availableFoodContainer.querySelector(`.action-list-item #loot-notification-ck-${notifKey}`);

@@ -260,7 +260,8 @@ function singleMineAction() {
     
     // Play sound if available
     if (sounds && sounds.mining) {
-        playSound('mining');
+        const miningSound = typeof sounds.mining === 'function' ? sounds.mining() : sounds.mining;
+        playSound(miningSound);
     }
     
     // Calculate and add XP
@@ -491,9 +492,11 @@ function singleMineAction() {
     }
     
     // Update inventory count display
-    const countSpan = document.querySelector(`#mn-ore-${currentMiningTarget.replace(/\s+/g, '-')} .resource-inventory-count`);
-    if (countSpan) {
-        countSpan.textContent = playerData.inventory[oreData.item_name] || 0;
+    if (currentMiningTarget) {
+        const countSpan = document.querySelector(`#mn-ore-${currentMiningTarget.replace(/\s+/g, '-')} .resource-inventory-count`);
+        if (countSpan) {
+            countSpan.textContent = playerData.inventory[oreData.item_name] || 0;
+        }
     }
 }
 

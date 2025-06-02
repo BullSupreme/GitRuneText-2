@@ -215,7 +215,8 @@ function renderShopItems(category) {
             const itemDetails = getItemDetails(itemId); // Use getItemDetails
             if (itemDetails && !itemDetails.noShop && itemDetails.itemType !== 'permit' && itemDetails.itemType !== 'seed' && 
                 itemDetails.itemType !== 'crop' && itemDetails.itemType !== 'animal' && itemDetails.itemType !== 'animal_product' && 
-                itemDetails.itemType !== 'farm_resource' && itemDetails.itemType !== 'crafting_material' && itemDetails.itemType !== 'currency') { // Exclude specific item types that shouldn't be in 'other' or handled separately
+                itemDetails.itemType !== 'farm_resource' && itemDetails.itemType !== 'crafting_material' && itemDetails.itemType !== 'currency' && 
+                itemDetails.category !== 'food_ingredient') { // Also exclude food_ingredient items from misc
                 if (cat === 'all' || cat === 'other') { // Double-check category for 'other'
                     itemsToDisplay.push(itemDetails);
                 }
@@ -250,6 +251,17 @@ function renderShopItems(category) {
 
     // In the renderShopItems function, add this after the other category checks:
     if (cat === 'all' || cat === 'consumables') {
+        // Add food items from FOOD_DATA
+        for (const itemId in FOOD_DATA) {
+            const item = FOOD_DATA[itemId];
+            if (item && !item.noShop && !item.excludeFromShop) {
+                const itemDetails = getItemDetails(itemId);
+                if (itemDetails) {
+                    itemsToDisplay.push(itemDetails);
+                }
+            }
+        }
+        // Add potions, elixirs, and brews from ITEM_DATA
         for (const itemId in ITEM_DATA) {
             const item = ITEM_DATA[itemId];
             if (item && !item.noShop && (item.category === 'potion' || item.category === 'elixir' || item.category === 'brew')) {
@@ -424,8 +436,8 @@ function renderSellItems() {
         const itemDetails = getItemDetails(itemId); // Get item details
 
         // Check if item exists and has a sell price
-        // Also ensure quantity is greater than 0
-        if (itemDetails && quantity > 0 &&
+        // Also ensure quantity is greater than 0 and item is not marked as noShop
+        if (itemDetails && quantity > 0 && !itemDetails.noShop &&
             (ITEM_DATA[itemId]?.sell_price !== undefined ||
              FOOD_DATA[itemId]?.sell_price !== undefined ||
              TOOL_DATA.axe[itemId]?.sell_price !== undefined ||

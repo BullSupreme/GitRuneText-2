@@ -1328,7 +1328,10 @@ function unlockAchievement(achievement) {
     playerData.achievements.completed.push(achievement.id);
     showAchievementNotification(achievement);
     logMessage(`🏆 Achievement Unlocked: ${achievement.icon} ${achievement.name}!`, 'fore-gold', '🏆');
-    if (sounds && sounds.achievement) playSound('achievement');
+    if (sounds && sounds.achievement) {
+        const achievementSound = typeof sounds.achievement === 'function' ? sounds.achievement() : sounds.achievement;
+        playSound(achievementSound);
+    }
     savePlayerData();
 }
 

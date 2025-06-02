@@ -309,7 +309,8 @@ function singleChopAction() {
     
     // Play sound if available
     if (sounds && sounds.woodcutting) {
-        playSound('woodcutting');
+        const woodcuttingSound = typeof sounds.woodcutting === 'function' ? sounds.woodcutting() : sounds.woodcutting;
+        playSound(woodcuttingSound);
     }
     
     // Calculate and add XP
@@ -520,9 +521,11 @@ function singleChopAction() {
     }
     
     // Update inventory count display
-    const countSpan = document.querySelector(`#wc-tree-${currentWoodcuttingTarget.replace(/\s+/g, '-')} .resource-inventory-count`);
-    if (countSpan) {
-        countSpan.textContent = playerData.inventory[tree.yield.item] || 0;
+    if (currentWoodcuttingTarget) {
+        const countSpan = document.querySelector(`#wc-tree-${currentWoodcuttingTarget.replace(/\s+/g, '-')} .resource-inventory-count`);
+        if (countSpan) {
+            countSpan.textContent = playerData.inventory[tree.yield.item] || 0;
+        }
     }
 }
 

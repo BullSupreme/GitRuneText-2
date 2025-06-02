@@ -47,6 +47,8 @@ const woodcutting1Sound = new Audio('sounds/woodcutting1.mp3');
 woodcutting1Sound.volume = 0.3;
 const woodcutting2Sound = new Audio('sounds/woodcutting2.mp3');
 woodcutting2Sound.volume = 0.3;
+const chopSound = new Audio('sounds/chop.mp3');
+chopSound.volume = 0.3;
 const mining1Sound = new Audio('sounds/mining1.mp3');
 mining1Sound.volume = 0.3;
 const mining2Sound = new Audio('sounds/mining2.mp3');
@@ -254,7 +256,8 @@ function getRandomAttackSound() {
 }
 
 function getRandomWoodcuttingSound() {
-    return Math.random() < 0.5 ? woodcutting1Sound : woodcutting2Sound;
+    const sounds = [woodcutting1Sound, woodcutting2Sound];
+    return sounds[Math.floor(Math.random() * sounds.length)];
 }
 
 function getRandomMiningSound() {
@@ -808,7 +811,10 @@ export function resetGame() {
 
 export function handleLevelUp(skillType, oldLevel, newLevel) {
     let skillName = capitalize(skillType);
-    playSound('levelUp');
+    if (sounds && sounds.levelUp) {
+        const levelUpSound = typeof sounds.levelUp === 'function' ? sounds.levelUp() : sounds.levelUp;
+        playSound(levelUpSound);
+    }
     logMessage(`🎉 ${skillName} level up! ${oldLevel} → ${newLevel}`, 'level-up', '🌟'); // Added emoji to log
     
     // updatePerkPoints(); // Assuming this function exists and handles PP logic
