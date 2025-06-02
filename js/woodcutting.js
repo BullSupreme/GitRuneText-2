@@ -308,8 +308,8 @@ function singleChopAction() {
     }
     
     // Play sound if available
-    if (sounds && sounds.chop) {
-        playSound('chop');
+    if (sounds && sounds.woodcutting) {
+        playSound('woodcutting');
     }
     
     // Calculate and add XP

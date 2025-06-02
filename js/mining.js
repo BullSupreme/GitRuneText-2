@@ -259,8 +259,8 @@ function singleMineAction() {
     }
     
     // Play sound if available
-    if (sounds && sounds.mine) {
-        playSound('mine');
+    if (sounds && sounds.mining) {
+        playSound('mining');
     }
     
     // Calculate and add XP

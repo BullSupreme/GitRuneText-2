@@ -316,6 +316,7 @@ export const sounds = {
     perk: perkSound,
     enchant: enchantSound,
     equip: equipSound,
+    achievement: levelUp2Sound, // Use levelup2 for achievements
     
     // Shop & Items
     buy: sellingBuyingSound,
@@ -807,7 +808,7 @@ export function resetGame() {
 
 export function handleLevelUp(skillType, oldLevel, newLevel) {
     let skillName = capitalize(skillType);
-    playSound(sounds.levelUp);
+    playSound('levelUp');
     logMessage(`🎉 ${skillName} level up! ${oldLevel} → ${newLevel}`, 'level-up', '🌟'); // Added emoji to log
     
     // updatePerkPoints(); // Assuming this function exists and handles PP logic
