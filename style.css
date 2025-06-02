@@ -710,14 +710,14 @@ body.desktop-mode-active .hp-bar-container {
 .skill-xp-bar.en { background-color: #9c27b0; } /* Enchanting Purple */
 .skill-xp-bar.fm { background-color: #8bc34a; } /* Farming Green */
 
-/* Skill-specific hover effects */
-#hud-atk:hover { background-color: rgba(244, 67, 54, 0.2); border-color: #f44336; }
-#hud-wc:hover { background-color: rgba(76, 175, 80, 0.2); border-color: #4caf50; }
-#hud-mi:hover { background-color: rgba(158, 158, 158, 0.2); border-color: #9e9e9e; }
-#hud-bs:hover { background-color: rgba(255, 152, 0, 0.2); border-color: #ff9800; }
-#hud-ck:hover { background-color: rgba(255, 235, 59, 0.2); border-color: #ffeb3b; }
-#hud-en:hover { background-color: rgba(156, 39, 176, 0.2); border-color: #9c27b0; }
-#hud-fa:hover { background-color: rgba(139, 195, 74, 0.2); border-color: #8bc34a; }
+/* Skill-specific hover effects with higher specificity */
+#hud-atk.skill-stat-container:hover { background-color: rgba(244, 67, 54, 0.2) !important; border-color: #f44336 !important; }
+#hud-wc.skill-stat-container:hover { background-color: rgba(76, 175, 80, 0.2) !important; border-color: #4caf50 !important; }
+#hud-mi.skill-stat-container:hover { background-color: rgba(158, 158, 158, 0.2) !important; border-color: #9e9e9e !important; }
+#hud-bs.skill-stat-container:hover { background-color: rgba(255, 152, 0, 0.2) !important; border-color: #ff9800 !important; }
+#hud-ck.skill-stat-container:hover { background-color: rgba(255, 235, 59, 0.2) !important; border-color: #ffeb3b !important; }
+#hud-en.skill-stat-container:hover { background-color: rgba(156, 39, 176, 0.2) !important; border-color: #9c27b0 !important; }
+#hud-fa.skill-stat-container:hover { background-color: rgba(139, 195, 74, 0.2) !important; border-color: #8bc34a !important; }
 
 /* Locked/Unavailable Skill States */
 .skill-stat-container.locked {
