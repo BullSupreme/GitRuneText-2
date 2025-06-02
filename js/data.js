@@ -797,7 +797,7 @@ export const GUILD_UPGRADE_DATA = {
 
 // Monster data
 export const MONSTER_DATA = {
-    "chicken":     {"name":"Chicken", "level_req":1, "min_dmg": 0, "max_dmg": 1, "hp":5,    "attack_xp":5,   "gold_drop": [0,1], "color":"fore-white", "emoji":"🐔", "drops":[{"item_name":"egg","base_chance":0.9, "quantity":[1,2], "always_drop_one":true},{"item_name":"raw meat","base_chance":0.7, "quantity":[1,1]}]},
+    "chicken":     {"name":"Chicken", "level_req":1, "min_dmg": 0, "max_dmg": 1, "hp":5,    "attack_xp":5,   "gold_drop": [0,1], "color":"fore-white", "emoji":"🐔", "drops":[{"item_name":"egg","base_chance":0.9, "quantity":[1,2], "always_drop_one":true},{"item_name":"raw meat","base_chance":0.7, "quantity":[1,1]},{"item_name":"feathers","base_chance":0.5, "quantity":[1,3]}]},
     "goblin":      {"name":"Goblin", "level_req":5, "min_dmg": 1, "max_dmg": 3, "hp":20,   "attack_xp":15,  "gold_drop": [1,5], "color":"fore-green", "emoji":"👺", "drops":[{"item_name":"goblin beads","base_chance":0.5, "quantity":[1,1]}, {"item_name":"bronze chestplate",  "base_chance":0.02, "quantity":[1,1]}]},
     "wolf":        {"name":"Wolf", "level_req":10, "min_dmg": 2, "max_dmg": 4, "hp":35,   "attack_xp":25,  "gold_drop": [3,8], "color":"fore-lightblack_ex", "emoji":"🐺", "drops":[{"item_name":"raw meat","base_chance":0.8, "quantity":[1,2]},{"item_name":"wolf fang","base_chance":0.3, "quantity":[1,1]}]},
     "bear":        {"name":"Bear", "level_req":20, "min_dmg": 4, "max_dmg": 8, "hp":70,   "attack_xp":50,  "gold_drop": [10,25],"color":"fore-yellow","emoji":"🐻", "drops":[{"item_name":"raw meat","base_chance":0.9, "quantity":[2,3]},{"item_name":"bear claw","base_chance":0.25, "quantity":[1,1]},{"item_name":"cooked meat","base_chance":0.1, "quantity":[1,1]}, {"item_name":"iron chestplate",    "base_chance":0.025, "quantity":[1,1]}]},
@@ -919,6 +919,7 @@ export const ITEM_SELL_PRICES = {
     "raw shark": 0,
     "egg": 0,
     "water": 0,
+    "feathers": 1,
     "goblin beads": 2,
     "wolf fang": 5,
     "bear claw": 8,

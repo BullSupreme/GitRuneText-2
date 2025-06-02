@@ -515,6 +515,44 @@ function singleCookAction() {
         }
     }
     
+    // Update Max value and ingredient counts immediately after consuming ingredients
+    const maxCookable = calculateMaxCookable(currentCookingTarget);
+    const sanitizedKey = currentCookingTarget.replace(/\s+/g, '-');
+    const recipeElement = document.querySelector(`#loot-notification-ck-${sanitizedKey}`)?.closest('.action-list-item');
+    
+    if (recipeElement) {
+        // Update Max value
+        const maxElement = recipeElement.querySelector('.resource-max-craft');
+        if (maxElement) {
+            maxElement.textContent = `Max: ${maxCookable}`;
+        }
+        
+        // Update ingredient counts
+        if (recipe.recipe) {
+            // Multi-ingredient recipe
+            Object.entries(recipe.recipe).forEach(([ingredient, amountNeeded]) => {
+                const amountPlayerHas = playerData.inventory?.[ingredient] || 0;
+                const ingredientElements = recipeElement.querySelectorAll('.action-item-ingredients');
+                ingredientElements.forEach(el => {
+                    if (el.textContent.includes(titleCase(ingredient))) {
+                        const haveClass = amountPlayerHas >= amountNeeded ? 'have-enough' : 'have-not-enough';
+                        const regex = new RegExp(`\\(<span class="[^"]*">[0-9]+</span>\\)`);
+                        el.innerHTML = el.innerHTML.replace(regex, `(<span class="${haveClass}">${amountPlayerHas}</span>)`);
+                    }
+                });
+            });
+        } else {
+            // Single ingredient recipe
+            const rawIngredient = currentCookingTarget;
+            const amountPlayerHas = playerData.inventory?.[rawIngredient] || 0;
+            const ingredientElement = recipeElement.querySelector('.action-item-ingredients span');
+            if (ingredientElement) {
+                ingredientElement.className = amountPlayerHas >= 1 ? 'have-enough' : 'have-not-enough';
+                ingredientElement.textContent = amountPlayerHas.toString();
+            }
+        }
+    }
+    
     // Calculate if food burns (higher chance at lower levels)
     const cookingLevel = getLevelFromXp(playerData.skills.cooking.xp);
     const burnChance = Math.max(0, Math.min(0.8, (recipe.difficulty_level * 30 - cookingLevel) / (recipe.difficulty_level * 30)));
@@ -578,6 +616,14 @@ function singleCookAction() {
         
         playerData.inventory[recipe.cooked_item] = (playerData.inventory[recipe.cooked_item] || 0) + finalYieldAmount;
         logMessage(`Successfully cooked ${recipe.cooked_item}.`, 'fore-green', '✅');
+        
+        // Update cooked item count immediately
+        if (recipeElement) {
+            const cookedCountElement = recipeElement.querySelector('.resource-inventory-count');
+            if (cookedCountElement) {
+                cookedCountElement.textContent = playerData.inventory[recipe.cooked_item] || 0;
+            }
+        }
         
         // Show static gain text on the cooking container
         const availableFoodContainer = document.getElementById('available-food-list');
