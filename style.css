@@ -687,11 +687,9 @@ body.desktop-mode-active .hp-bar-container {
     font-size: 12px; white-space: nowrap; z-index: 100; pointer-events: none;
     opacity: 0; transition: opacity 0.2s; display: none; /* Hidden by default */
 }
-/* Skill container hover shows tooltip - JS might handle this or CSS :hover .tooltip { display: block; opacity: 1; } */
-.skill-stat-container:hover > .tooltip {
-    display: block;
-    opacity: 1;
-    visibility: visible;
+/* Tooltips disabled for skill containers */
+.skill-stat-container .tooltip {
+    display: none !important;
 }
 
 
@@ -711,6 +709,15 @@ body.desktop-mode-active .hp-bar-container {
 .skill-xp-bar.ck { background-color: #ffeb3b; } /* Cooking Yellow */
 .skill-xp-bar.en { background-color: #9c27b0; } /* Enchanting Purple */
 .skill-xp-bar.fm { background-color: #8bc34a; } /* Farming Green */
+
+/* Skill-specific hover effects */
+#hud-atk:hover { background-color: rgba(244, 67, 54, 0.2); border-color: #f44336; }
+#hud-wc:hover { background-color: rgba(76, 175, 80, 0.2); border-color: #4caf50; }
+#hud-mi:hover { background-color: rgba(158, 158, 158, 0.2); border-color: #9e9e9e; }
+#hud-bs:hover { background-color: rgba(255, 152, 0, 0.2); border-color: #ff9800; }
+#hud-ck:hover { background-color: rgba(255, 235, 59, 0.2); border-color: #ffeb3b; }
+#hud-en:hover { background-color: rgba(156, 39, 176, 0.2); border-color: #9c27b0; }
+#hud-fa:hover { background-color: rgba(139, 195, 74, 0.2); border-color: #8bc34a; }
 
 /* Locked/Unavailable Skill States */
 .skill-stat-container.locked {

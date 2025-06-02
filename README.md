@@ -11,7 +11,7 @@ RuneText is a browser-based idle/incremental RPG game inspired by RuneScape. Bui
 
 ### 🗡️ Combat System
 - **Auto-battle mechanics** with multiple monsters
-- **7 different enemy types** from Chickens to Dragons
+- **Different enemy types** from Chickens to Dragons
 - **Critical hits** and **AOE attacks**
 - **Weapon variety** with unique stats and effects
 - **Lifesteal** mechanics for survivability
