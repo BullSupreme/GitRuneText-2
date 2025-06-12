@@ -1040,19 +1040,28 @@ export function getSummedPyramidPerkEffects() {
  * @returns {number} Total available perk points
  */
 export function calculateAvailablePerkPoints() {
-    let totalPP = 0;
+    // Calculate total skill XP across all skills
+    let totalSkillXP = 0;
+    if (playerData.skills) {
+        for (const skill in playerData.skills) {
+            totalSkillXP += playerData.skills[skill].xp || 0;
+        }
+    }
     
-    // Base PP from XP
-    for (const skill in playerData.skills) {
-        if (PP_XP_THRESHOLDS[skill]) {
-            const skillXP = playerData.skills[skill].xp;
-            totalPP += Math.floor(skillXP / PP_XP_THRESHOLDS[skill]);
+    // Use the correct thresholds from PERK_POINT_XP_THRESHOLDS
+    const thresholds = PERK_POINT_XP_THRESHOLDS;
+    let earnedPP = 0;
+    for (const threshold of thresholds) {
+        if (totalSkillXP >= threshold) {
+            earnedPP++;
+        } else {
+            break;
         }
     }
     
     // Subtract spent PP
     const spentPP = calculateSpentPerkPoints();
-    return Math.max(0, totalPP - spentPP);
+    return Math.max(0, earnedPP - spentPP);
 }
 
 /**

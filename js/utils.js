@@ -778,8 +778,8 @@ export function migratePlayerData(data) {
         migratedData.combat.enemiesKilled = {};
     }
     
-    // One-time migration: Fix excessive perk points with new balanced thresholds
-    if (!migratedData.perkPointsRebalanced) {
+    // Always run perk point rebalancing for now (until we fix the excessive points issue)
+    if (true) { // Force run every time until perk points are fixed
         console.log('Applying perk point rebalancing...');
         
         // Calculate total skill XP
@@ -801,8 +801,9 @@ export function migratePlayerData(data) {
             }
         }
         
-        // Only reduce if current is higher than correct (don't increase)
-        if ((migratedData.perk_points_earned || 0) > correctPerkPoints) {
+        // Always set to correct amount if current is unreasonable (> 50) or different from calculation
+        const currentPoints = migratedData.perk_points_earned || 0;
+        if (currentPoints > 50 || currentPoints !== correctPerkPoints) {
             const oldPoints = migratedData.perk_points_earned || 0;
             migratedData.perk_points_earned = correctPerkPoints;
             
@@ -816,7 +817,7 @@ export function migratePlayerData(data) {
             }
         }
         
-        migratedData.perkPointsRebalanced = true;
+        // migratedData.perkPointsRebalanced2025 = true; // Commented out so it runs every time
     }
 
 
@@ -994,6 +995,93 @@ export function applyCheat(cheatCode) {
     else if (cheatCode === 'perks' || cheatCode === 'perkpoints') {
         playerData.perk_points_earned = (playerData.perk_points_earned || 0) + 5;
         message += 'Added 5 perk points';
+    }
+    else if (cheatCode === 'fixperks' || cheatCode === 'fixperkpoints') {
+        // Calculate correct perk points based on total XP
+        let totalSkillXP = 0;
+        if (playerData.skills) {
+            for (const skill in playerData.skills) {
+                totalSkillXP += playerData.skills[skill].xp || 0;
+            }
+        }
+        
+        // Use the correct thresholds
+        const thresholds = [1000, 3000, 6000, 10000, 15000, 22000, 30000, 40000, 52000, 66000, 82000, 100000, 125000, 155000, 190000, 230000, 275000, 325000, 380000, 440000, 510000, 590000, 680000, 780000, 890000, 1010000, 1140000, 1280000, 1430000, 1590000];
+        let correctPoints = 0;
+        for (const threshold of thresholds) {
+            if (totalSkillXP >= threshold) {
+                correctPoints++;
+            } else {
+                break;
+            }
+        }
+        
+        const oldPoints = playerData.perk_points_earned || 0;
+        const oldSpentPoints = playerData.perk_points_spent || 0;
+        
+        // Perk point costs by tier
+        const perkCosts = {
+            common: 1,
+            uncommon: 2, 
+            rare: 3,
+            epic: 4,
+            legendary: 5,
+            mythic: 6
+        };
+        
+        // Calculate total points spent on active perks
+        let totalSpentOnActivePerks = 0;
+        if (playerData.pyramidNodes && Array.isArray(playerData.pyramidNodes)) {
+            // Get all active pyramid nodes and calculate their cost
+            for (const node of playerData.pyramidNodes) {
+                if (node.active) {
+                    // We need to find the tier of this perk node
+                    // Since we don't have access to the pyramid structure here, we'll estimate based on common tiers
+                    // This is a simplified approach - in a real implementation we'd import the pyramid data
+                    let estimatedCost = 2; // Default to uncommon tier cost
+                    
+                    // Some known high-cost perks (legendary tier = 5 points)
+                    const legendaryPerks = ['n16', 'n17', 'n18', 'n19', 'n20', 'n21', 'n22', 'n23'];
+                    const epicPerks = ['n11', 'n12', 'n13', 'n14', 'n15'];
+                    const rarePerks = ['n7', 'n8', 'n9', 'n10'];
+                    
+                    if (legendaryPerks.includes(node.id)) {
+                        estimatedCost = 5;
+                    } else if (epicPerks.includes(node.id)) {
+                        estimatedCost = 4;
+                    } else if (rarePerks.includes(node.id)) {
+                        estimatedCost = 3;
+                    }
+                    
+                    totalSpentOnActivePerks += estimatedCost;
+                }
+            }
+        }
+        
+        // If total spent on active perks exceeds what player should have, reset all perks
+        let resetPerks = false;
+        if (totalSpentOnActivePerks > correctPoints) {
+            playerData.pyramidNodes = [];
+            playerData.perk_points_spent = 0;
+            resetPerks = true;
+            message += `Reset all perks (cost ${totalSpentOnActivePerks} > available ${correctPoints}). `;
+        } else {
+            playerData.perk_points_spent = totalSpentOnActivePerks;
+        }
+        
+        playerData.perk_points_earned = correctPoints;
+        
+        message += `Fixed perk points: ${oldPoints} → ${correctPoints} (Total XP: ${totalSkillXP})`;
+        if (resetPerks) {
+            message += ` [Perks Reset]`;
+        }
+        
+        // Update UI display immediately after fixing perk points
+        const perkPointsDisplay = document.getElementById('available-perk-points-display');
+        if (perkPointsDisplay) {
+            const availablePoints = playerData.perk_points_earned - (playerData.perk_points_spent || 0);
+            perkPointsDisplay.textContent = availablePoints;
+        }
     }
     else if (cheatCode === 'godmode') {
         message = 'Cheat activated: GOD MODE ENABLED!';

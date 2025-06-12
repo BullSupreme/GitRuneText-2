@@ -3226,13 +3226,39 @@ function checkAchievements() {
                 // Navigate through the playerData.skills object path
                 let current = playerData.skills;
                 const skillPathParts = pathParts.slice(1); // Remove 'skills' prefix
-                for (const part of skillPathParts) {
-                    current = current[part];
-                    if (current === undefined) {
-                        return; // Path doesn't exist
+                
+                // If asking for level, calculate it from XP instead of trusting stored value
+                if (skillPathParts.length === 2 && skillPathParts[1] === 'level') {
+                    const skillName = skillPathParts[0];
+                    const skillData = playerData.skills[skillName];
+                    if (skillData && skillData.xp !== undefined) {
+                        // Calculate level from XP
+                        const currentXp = skillData.xp || 0;
+                        const LEVEL_PROGRESSION = [0, 83, 174, 276, 388, 512, 650, 801, 969, 1154, 1358, 1584, 1833, 2107, 2411, 2746, 3115, 3523, 3973, 4470, 5018, 5624, 6291, 7028, 7842, 8740, 9730, 10824, 12031, 13363, 14833, 16456, 18247, 20224, 22406, 24815, 27473, 30408, 33648, 37224, 41171, 45529, 50339, 55649, 61512, 67983, 75127, 83014, 91721, 101333, 111945, 123660, 136594, 150872, 166636, 184040, 203254, 224466, 247886, 273742, 302288, 333804, 368599, 407015, 449428, 496254, 547953, 605032, 668051, 737627, 814445, 899257, 992895, 1096278, 1210421, 1336443, 1475581, 1629200, 1798808, 1986068, 2192818, 2421087, 2673114, 2951373, 3258594, 3597792, 3972294, 4385776, 4842295, 5346332, 5902831, 6517253, 7195629, 7944614, 8771558, 9684577, 10692629, 11805606, 13034431];
+                        let level = 1;
+                        for (let i = 1; i < LEVEL_PROGRESSION.length; i++) {
+                            if (currentXp < LEVEL_PROGRESSION[i]) {
+                                level = i;
+                                break;
+                            }
+                        }
+                        if (currentXp >= LEVEL_PROGRESSION[LEVEL_PROGRESSION.length - 1]) {
+                            level = LEVEL_PROGRESSION.length - 1;
+                        }
+                        currentValue = level;
+                    } else {
+                        currentValue = 1; // Default level
                     }
+                } else {
+                    // Normal path navigation for other skill properties
+                    for (const part of skillPathParts) {
+                        current = current[part];
+                        if (current === undefined) {
+                            return; // Path doesn't exist
+                        }
+                    }
+                    currentValue = current || 0;
                 }
-                currentValue = current || 0;
             } catch (error) {
                 return; // Error accessing path
             }
@@ -3276,18 +3302,42 @@ export function checkRetroactiveSkillAchievements() {
     skills.forEach(skill => {
         if (!playerData.skills[skill]) return;
         
-        const currentLevel = playerData.skills[skill].level || 1;
+        // Calculate current level from XP rather than trusting stored level
+        const currentXp = playerData.skills[skill].xp || 0;
+        
+        // Import getLevelFromXp from utils.js
+        let currentLevel = 1;
+        try {
+            // Simple level calculation - find the highest level threshold we meet
+            const LEVEL_PROGRESSION = [0, 83, 174, 276, 388, 512, 650, 801, 969, 1154, 1358, 1584, 1833, 2107, 2411, 2746, 3115, 3523, 3973, 4470, 5018, 5624, 6291, 7028, 7842, 8740, 9730, 10824, 12031, 13363, 14833, 16456, 18247, 20224, 22406, 24815, 27473, 30408, 33648, 37224, 41171, 45529, 50339, 55649, 61512, 67983, 75127, 83014, 91721, 101333, 111945, 123660, 136594, 150872, 166636, 184040, 203254, 224466, 247886, 273742, 302288, 333804, 368599, 407015, 449428, 496254, 547953, 605032, 668051, 737627, 814445, 899257, 992895, 1096278, 1210421, 1336443, 1475581, 1629200, 1798808, 1986068, 2192818, 2421087, 2673114, 2951373, 3258594, 3597792, 3972294, 4385776, 4842295, 5346332, 5902831, 6517253, 7195629, 7944614, 8771558, 9684577, 10692629, 11805606, 13034431];
+            for (let i = 1; i < LEVEL_PROGRESSION.length; i++) {
+                if (currentXp < LEVEL_PROGRESSION[i]) {
+                    currentLevel = i;
+                    break;
+                }
+            }
+            if (currentXp >= LEVEL_PROGRESSION[LEVEL_PROGRESSION.length - 1]) {
+                currentLevel = LEVEL_PROGRESSION.length - 1;
+            }
+        } catch (error) {
+            console.error('Error calculating level:', error);
+        }
+        
+        console.log(`Checking ${skill}: XP=${currentXp}, Level=${currentLevel}`);
         
         // Check all milestone achievements up to the player's current level
         milestones.forEach(milestone => {
             if (currentLevel >= milestone) {
-                const achievementId = `${skill}_level_${milestone}`;
+                const achievementId = `${skill}Level${milestone}`;
                 
                 // Only unlock if not already completed
                 if (!playerData.achievements.completed.includes(achievementId)) {
                     const achievement = ACHIEVEMENTS[achievementId];
                     if (achievement) {
+                        console.log(`Unlocking achievement: ${achievementId}`);
                         unlockAchievement(achievement);
+                    } else {
+                        console.log(`Achievement not found: ${achievementId}`);
                     }
                 }
             }
@@ -3572,12 +3622,12 @@ function claimAchievement(achievementId) {
     const ach = ACHIEVEMENTS[achievementId];
     let gems = 0, tomes = 0;
     switch (ach.tier) {
-        case 'common': gems = 20; break;
-        case 'uncommon': gems = 40; break;
+        case 'common': gems = 20; tomes = 1; break;
+        case 'uncommon': gems = 40; tomes = 5; break;
         case 'rare': gems = 100; tomes = 10; break;
         case 'epic': gems = 200; tomes = 50; break;
         case 'legendary': gems = 400; tomes = 100; break;
-        default: gems = 20;
+        default: gems = 20; tomes = 1;
     }
     if (gems > 0) {
         playerData.inventory['assorted_gems'] = (playerData.inventory['assorted_gems'] || 0) + gems;
