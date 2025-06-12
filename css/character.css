@@ -1,0 +1,651 @@
+/* === Character Section Styles === */
+
+/* Character Content Layout */
+.character-content-wrapper {
+  display: flex;
+  flex-direction: row;
+}
+.character-stats-column {
+  flex: 2 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.character-equipment-column {
+  flex: 1 1 0;
+  display: flex;
+  min-width: 220px;
+  max-width: 320px;
+}
+@media (max-width: 900px) {
+  .character-content-wrapper {
+    flex-direction: column;
+    gap: 0;
+  }
+  .character-equipment-column {
+    max-width: 100%;
+    margin-left: 0;
+  }
+}
+
+/* Character Stats Display */
+#char-info-target { /* Container for stats, often uses .stats-grid */ }
+.stats-grid {
+    display: grid; grid-template-columns: 1fr; gap: 10px;
+}
+.stat-row { /* Individual stat row, e.g., HP: 100/100 */
+    display: flex; justify-content: space-between; padding: 8px 10px;
+    border-bottom: 1px solid #333; position: relative; /* For tooltips */
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, background-color 0.2s ease-out;
+    border-radius: 4px;
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-row:hover {
+    transform: scale(1.03); background-color: rgba(76, 175, 80, 0.1);
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.5); z-index: 10;
+}
+.stat-name { color: #aaa; }
+
+/* Character Equipment Display */
+.character-equipment-column h3 { /* "Equipped Gear" title */
+    text-align:center; margin-top: 0; margin-bottom:10px; color:#90cdf4;
+}
+#equipment-display-target, /* Target for equipment slots */
+.equipment-grid { /* Grid for equipment slots */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+.equipment-slot {
+    background-color: #333; border-radius: 5px; padding: 10px;
+    display: flex; flex-direction: column; min-height: 120px;
+    overflow: visible; /* Allow content to be visible */
+    max-width: 100%; /* Prevent horizontal expansion */
+    word-break: break-word; /* Force text wrapping */
+    height: auto; /* Allow natural height expansion */
+    justify-content: flex-start; /* Align content to top */
+}
+.slot-name {
+    color: #aaa; font-size: 0.9em; margin-bottom: 8px; text-align: center;
+}
+.slot-item { /* Container for the item icon and details within a slot */
+    display: flex; flex-direction: column; align-items: center;
+    background-color: #2a2a2a; border-radius: 4px; padding: 8px; flex-grow: 1;
+    min-height: auto; /* Allow natural height */
+    height: auto; /* Allow expansion */
+}
+.item-icon { /* Emoji for equipped item */
+    font-size: 24px; margin-bottom: 5px;
+}
+.item-icon img,
+.item-card-icon img,
+.shop-item-icon img,
+.sell-item .item-icon img,
+.inventory-item .item-icon img.inventory-item-icon, /* Global rule from earlier */
+.mining-resource .resource-icon img.inventory-item-icon { /* Global rule from earlier */
+    width: 48px !important;
+    height: 48px !important;
+    object-fit: contain; /* Ensure aspect ratio is maintained */
+}
+
+.item-details { flex: 1; width: 100%; text-align: center; }
+.item-name { /* Name of equipped item */
+    font-weight: bold; margin-bottom: 8px; text-align: center; width: 100%;
+    word-break: break-word;
+}
+.item-stats { /* Stats of equipped item */
+    font-size: 0.85em; color: #4caf50; text-align: center; word-break: break-word;
+    overflow: visible; /* Allow stats to be visible */
+    max-width: 100%; /* Prevent horizontal expansion */
+    line-height: 1.4; /* Better line spacing */
+}
+/* Enchantment stats within item-stats */
+.item-stats span:not(.enchant-stats-container span) {
+    display: block;
+    font-size: 0.9em;
+    line-height: 1.3;
+}
+/* Enchantment info in equipment slots */
+.item-enchant-info, .item-enchant-count {
+    font-size: 0.85em;
+    margin-top: 3px;
+    text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%; /* Prevent horizontal expansion */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Add ellipsis for very long text */
+}
+
+/* Enchant Stats Container for Character Equipment */
+.equipment-slot .enchant-stats-container,
+.item-stats .enchant-stats-container,
+.character-section-grid .enchant-stats-container {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 2px !important;
+    margin-top: 5px !important;
+}
+
+.equipment-slot .enchant-stats-container span,
+.item-stats .enchant-stats-container span,
+.character-section-grid .enchant-stats-container span {
+    display: inline-flex !important;
+    background: rgba(0, 0, 0, 0.7) !important;
+    padding: 3px 8px !important;
+    border-radius: 4px !important;
+    font-size: 1em !important;
+    white-space: nowrap !important;
+    border: 1px solid #65543d !important;
+    line-height: 1.2 !important;
+    margin: 1px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Item Selection for Equipping */
+#item-selection-for-equip-target { 
+    margin-top: 10px;
+}
+
+#equip-item-type-title-target { 
+    margin-bottom: 15px; 
+    text-align: center;
+    color: #e0e0e0;
+    font-size: 1.2em;
+}
+
+/* Improved equip modal inventory grid - better vertical usage */
+#equip-item-list-target { 
+    display: grid; 
+    grid-template-columns: repeat(4, 1fr); /* Fixed 4 columns for consistent layout */
+    gap: 12px; 
+    /* max-height: 200px; */ /* Removed to allow natural expansion */
+    overflow-y: auto;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+/* Modal button container for proper alignment */
+.equip-modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    /* margin-top: 20px; */
+    /* padding-top: 15px; */
+    border-top: 1px solid #444;
+}
+
+#cancel-equip-btn {
+    background: linear-gradient(135deg, #555 0%, #666 100%);
+    color: white;
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 6px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 80px;
+}
+
+#cancel-equip-btn:hover { 
+    background: linear-gradient(135deg, #666 0%, #777 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* Character Stat Tooltips (custom tooltips for the stats grid) */
+.custom-tooltip-text {
+    position: absolute; bottom: 100%; left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background-color: #262626; color: #ccc; border: 1px solid #555;
+    padding: 4px 8px; border-radius: 3px; font-size: 12px; line-height: 1.2;
+    min-width: 120px; box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 9999; /* Ensure tooltips sit above other tiles */
+    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+.stats-grid .stat-row:hover .custom-tooltip-text {
+    opacity: 1; visibility: visible; transform: translateX(-50%) translateY(-12px);
+}
+
+/* Character Actions (Footer) */
+.character-actions { /* Uses .section-footer-controls */ justify-content: flex-start; }
+
+/* === Modern Character Info Card === */
+.character-info-card {
+  background: linear-gradient(135deg, #232526 0%, #414345 100%);
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.35), 0 2px 8px 0 rgba(255, 196, 81, 0.08);
+  border-radius: 22px;
+  width: 100%;
+  margin: 0;
+  padding: 0 0 32px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border: 2px solid #ffb74d33;
+}
+
+.card-internal-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  width: 100%;
+  justify-content: stretch;
+  align-items: flex-start;
+  margin-top: 8px;
+}
+
+.card-left-column {
+  flex: 1 1 0; /* Equal flex with right column for 50/50 split */
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+
+.card-right-column {
+    flex: 1 1 0; /* Equal flex with left column for 50/50 split */
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Remove fixed min-width for equal sizing */
+    max-width: none; /* Remove max-width constraint */
+    margin-left: 0; /* Remove auto margin */
+    overflow: visible; /* Allow content to be visible */
+}
+
+@media (max-width: 900px) {
+  .card-internal-wrapper {
+    flex-direction: column;
+    gap: 0;
+  }
+  .card-right-column {
+    max-width: 100%;
+    margin-left: 0;
+    min-width: 0;
+  }
+  .equipment-section-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important; /* Force 2 columns on mobile */
+    grid-template-rows: repeat(3, auto) !important; /* Allow auto height for rows */
+  }
+}
+
+@media (max-width: 600px) {
+  .equipment-section-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(3, auto) !important;
+    gap: 6px 6px !important;
+  }
+}
+
+/* Mobile-specific equipment text fixes */
+@media (max-width: 768px) {
+  /* Ensure equipment names aren't cut off on mobile */
+  .equipment-slot {
+    min-height: auto; /* Allow natural height */
+    padding: 6px 4px; /* Further reduce padding on mobile */
+  }
+  
+  .equipment-slot .item-name {
+    font-size: 0.7em; /* Even smaller font on mobile */
+    line-height: 1.15;
+    hyphens: auto; /* Allow automatic hyphenation */
+    -webkit-hyphens: auto;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    white-space: normal; /* Override any nowrap settings */
+    margin-bottom: 4px;
+  }
+  
+  .equipment-slot .item-stats {
+    font-size: 0.65em; /* Even smaller stats text */
+    line-height: 1.2;
+    white-space: normal; /* Ensure text wraps */
+  }
+  
+  .equipment-slot .slot-name {
+    font-size: 0.7em; /* Even smaller slot name */
+    margin-bottom: 4px;
+  }
+  
+  .equipment-slot .item-icon {
+    font-size: 18px; /* Smaller icon */
+    margin-bottom: 2px;
+  }
+  
+  .equipment-slot .item-icon img {
+    width: 32px !important; /* Even smaller images on mobile */
+    height: 32px !important;
+  }
+  
+  /* Ensure enchantment text fits properly */
+  .equipment-slot .enchant-stats-container {
+    gap: 1px !important;
+    padding: 2px !important;
+  }
+  
+  .equipment-slot .enchant-stats-container span {
+    font-size: 0.6em !important; /* Much smaller enchant stats */
+    padding: 1px 3px !important;
+    white-space: nowrap !important; /* Keep individual stats on one line */
+    margin: 0.5px !important;
+  }
+  
+  .equipment-slot .item-enchant-info,
+  .equipment-slot .item-enchant-count {
+    font-size: 0.65em;
+    line-height: 1.1;
+    margin-top: 2px;
+  }
+  
+  /* Adjust the slot-item container */
+  .equipment-slot .slot-item {
+    padding: 4px;
+    min-height: auto;
+  }
+  
+  /* Reduce button size on mobile */
+  .equipment-slot .equip-btn,
+  .equipment-slot button.menu-button {
+    font-size: 0.65em !important;
+    padding: 4px 8px !important;
+    margin-top: 4px !important;
+  }
+  
+  /* Reduce equipment grid gap on mobile */
+  .equipment-section-grid {
+    gap: 6px 6px !important;
+  }
+}
+
+.character-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px 0 6px 0;
+  border-bottom: 1.5px solid #444;
+  background: linear-gradient(90deg, #232526 60%, #2d2d2d 100%);
+  border-top-left-radius: 22px;
+  border-top-right-radius: 22px;
+  width: 100%;
+  min-height: unset;
+}
+
+.character-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0;
+}
+
+.character-header-title {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: #90cdf4;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.character-header-emoji {
+  font-size: 1.5em;
+  margin-right: 8px;
+}
+
+.character-section-card {
+  background: rgba(40, 40, 48, 0.98);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.18);
+  border: 2px solid #ffb74d33;
+  margin: 2px;
+  padding: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.character-section-title {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 1.15em;
+  margin-bottom: 2px;
+  color: #ffd166;
+  letter-spacing: 0.01em;
+}
+
+.character-section-icon {
+  font-size: 1.25em;
+  margin-right: 10px;
+}
+
+.character-section-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 18px;
+  margin-bottom: 0;
+}
+
+.equipment-section-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* minmax prevents expansion */
+  grid-template-rows: repeat(2, auto); /* Allow rows to auto-size */
+  width: 100%;
+  gap: 12px 12px;
+  max-width: 100%; /* Prevent grid expansion */
+  overflow: visible; /* Allow content to be visible */
+  align-items: start; /* Align items to top of each cell */
+}
+
+.skill-levels-section-grid {
+  grid-template-columns: 1fr;
+  gap: 8px 0;
+}
+
+.character-section-total-xp {
+  font-size: 0.98em;
+  color: #b388ff;
+  margin-left: 18px;
+  font-weight: 400;
+}
+
+.character-skill-speed-overview {
+  background: linear-gradient(90deg, #232526 60%, #2d2d2d 100%);
+  border-radius: 10px;
+  padding: 2px 4px;
+  color: #e0e0e0;
+  font-size: 1.05em;
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.10);
+  margin-left: 0;
+}
+
+@media (max-width: 700px) {
+  .character-info-card {
+    max-width: 98vw;
+    margin: 12px auto 12px auto;
+    padding: 0 0 16px 0;
+  }
+  .character-section-card {
+    margin: 14px 4px 0 4px;
+    padding: 12px 6px 10px 6px;
+  }
+  .character-section-grid {
+    grid-template-columns: 1fr;
+    gap: 8px 0;
+  }
+  /* Keep equipment grid as 2x3 on mobile */
+  .equipment-section-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(3, auto) !important; /* Allow auto height */
+    gap: 8px 8px;
+  }
+}
+
+/* Ensure stat-row, compact-skill-row, etc. remain compatible */
+.stat-row, .compact-skill-row {
+  background: none;
+  border: none;
+  box-shadow: none;
+  margin: 0;
+  padding: 0 0 0 0;
+  font-size: 1em;
+}
+
+.equipment-section-grid .equip-btn, 
+.equipment-section-grid button[id^="equip-"] {
+    background: linear-gradient(90deg, #2196f3 60%, #21cbf3 100%);
+    color: #fff;
+    font-weight: bold;
+    border: none;
+    border-radius: 22px;
+    box-shadow: 0 2px 8px 0 rgba(33, 150, 243, 0.18);
+    padding: 8px 18px;
+    margin-top: 8px;
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
+    outline: none;
+    letter-spacing: 0.02em;
+    z-index: 1;
+}
+
+.equipment-section-grid .equip-btn:hover, 
+.equipment-section-grid button[id^="equip-"]:hover {
+  background: linear-gradient(90deg, #21cbf3 60%, #2196f3 100%);
+}
+
+/* Character Skill Speed Overview Hover Effects */
+.character-skill-speed-overview > div {
+    position: relative;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.character-skill-speed-overview > div:hover {
+    transform: scale(1.05);
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Skill-specific hover effects for speed overview */
+.character-skill-speed-overview > div:first-child:hover {
+    border: 1px solid #f44336;
+    animation: attackGlow 2s infinite alternate;
+    background-color: rgba(244, 67, 54, 0.2);
+}
+
+.character-skill-speed-overview > div:nth-child(2):hover {
+    border: 1px solid #9e9e9e;
+    animation: miningGlow 2s infinite alternate;
+    background-color: rgba(158, 158, 158, 0.2);
+}
+
+.character-skill-speed-overview > div:nth-child(3):hover {
+    border: 1px solid #4caf50;
+    animation: woodcuttingGlow 2s infinite alternate;
+    background-color: rgba(76, 175, 80, 0.2);
+}
+
+/* Combat Stats Tooltips */
+.stat-row { position: relative; }
+.stat-row .custom-tooltip-text {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    transform: translateY(-4px);
+    background-color: #222; /* Dark container */
+    color: #e0e0e0; /* Light text */
+    padding: 8px 12px; /* Increased padding */
+    border-radius: 6px;
+    border: 1px solid #1ec469; /* Accent green border */
+    box-shadow: 0 0 8px rgba(30, 196, 105, 0.7);
+    max-width: 260px; /* Limit width */
+    line-height: 1.4;
+    white-space: pre-line; /* Respect line breaks */
+    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.stat-row:hover .custom-tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Combat Stats Tooltips - go down instead of up */
+#combat-stats-grid .stat-row .custom-tooltip-text {
+    bottom: auto;
+    top: 100%;
+    transform: translateY(4px);
+}
+
+#combat-stats-grid .stat-row:hover .custom-tooltip-text {
+    transform: translateY(8px);
+}
+
+/* Tooltip description border styling */
+.custom-tooltip-text .tooltip-desc {
+    border-bottom: 1px solid #444;
+    padding-bottom: 2px;
+    margin-bottom: 4px;
+}
+
+/* Accent color for sources header in tooltip */
+.custom-tooltip-text .tooltip-sources strong {
+    color: #1ec469;
+}
+
+/* AOE section styling in tooltips */
+.custom-tooltip-text .tooltip-aoe {
+    border-top: 1px solid #444;
+    padding-top: 4px;
+    margin-top: 4px;
+}
+
+.custom-tooltip-text .tooltip-aoe strong {
+    color: #ff9800; /* Orange color for AOE section */
+}
+
+/* Skill speed row hover effects */
+.skill-speed-row:hover .custom-tooltip-text {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-12px);
+}
+
+/* Animation keyframes for character skill hover effects */
+@keyframes attackGlow {
+    0% { box-shadow: 0 0 5px rgba(244, 67, 54, 0.5); }
+    100% { box-shadow: 0 0 15px rgba(244, 67, 54, 0.8); }
+}
+
+@keyframes miningGlow {
+    0% { box-shadow: 0 0 5px rgba(158, 158, 158, 0.5); }
+    100% { box-shadow: 0 0 15px rgba(158, 158, 158, 0.8); }
+}
+
+@keyframes woodcuttingGlow {
+    0% { box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); }
+    100% { box-shadow: 0 0 15px rgba(76, 175, 80, 0.8); }
+}
+
+/* Final override for enchant stats to ensure proper spacing */
+div.enchant-stats-container {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 3px !important;
+    margin-top: 5px !important;
+    padding: 4px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 6px !important;
+    background: rgba(0, 0, 0, 0.15) !important;
+}

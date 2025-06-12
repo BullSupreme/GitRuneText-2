@@ -1,0 +1,65 @@
+/* === Reset & Base Styles === */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    height: 100%; /* Ensure html takes full height */
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    height: 100%; /* Ensure body takes full height */
+}
+
+/* === Headings & Links === */
+h1, h2, h3, h4 {
+    margin-bottom: 10px;
+}
+
+button, a {
+    cursor: pointer;
+    outline: none;
+}
+
+/* === Focus Styles === */
+button:focus, a:focus, [tabindex]:focus {
+    outline: 2px solid #4caf50;
+    outline-offset: 2px;
+}
+
+/* === Hover Opacity (for devices that support hover) === */
+@media (hover: hover) {
+    button:hover, a:hover {
+        opacity: 0.9;
+    }
+}
+
+/* === Touch Target Sizing (for touch devices) === */
+@media (hover: none) {
+    button, a, .skill-stat-container, .skill-resource {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* === Utility Classes === */
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}

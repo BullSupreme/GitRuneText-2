@@ -1,0 +1,871 @@
+/* === Woodcutting Section CSS === */
+
+/* Woodcutting Section Layout */
+#woodcutting-section {
+    /* Uses .section, .compact-nav, .permit-status, .resource-list base styles */
+}
+
+/* Woodcutting XP Bar Colors */
+.skill-xp-bar.wc { 
+    background-color: #4caf50; /* Woodcutting Green */
+}
+
+/* Woodcutting Skill Hover Effects */
+@keyframes woodcuttingGlow {
+    0%, 100% { 
+        box-shadow: 0 0 10px 2px rgba(76, 175, 80, 0.8), 0 0 15px 5px rgba(255, 255, 255, 0.5); 
+    }
+    50% { 
+        box-shadow: 0 0 20px 5px rgba(76, 175, 80, 1), 0 0 25px 10px rgba(255, 255, 255, 0.7); 
+    }
+}
+
+.skill-stat-container[data-skill="woodcutting"]:hover { 
+    border: 1px solid #4caf50; 
+    animation: woodcuttingGlow 2s infinite alternate; 
+    background-color: rgba(76, 175, 80, 0.2); 
+}
+
+.skill-stat-container[data-skill="woodcutting"]:hover .stat-label { 
+    color: #4caf50; 
+}
+
+/* Woodcutting Button Theme */
+.btn-woodcutting { 
+    background-color: #588f46 !important; 
+} 
+
+.btn-woodcutting:hover { 
+    background-color: #6aab55 !important; 
+}
+
+/* Available Trees List Title */
+#available-trees-list .section-title {
+    text-align: left; 
+    font-size: 1.2em; 
+    border: none; 
+    padding-bottom: 5px; 
+    margin-bottom: 10px;
+}
+
+/* Tree Resource Cards - Only applies to action-list-item in woodcutting section */
+.tree-resource,
+#woodcutting-section #available-trees-list .action-list-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px 18px;
+    margin: 8px 0;
+    border-radius: 12px;
+    background: #2a2a2a !important;
+    border: 1.5px solid #444 !important;
+    min-height: 48px;
+    font-size: 1.08em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: background 0.22s, box-shadow 0.22s, border-color 0.22s, transform 0.18s;
+    cursor: pointer;
+}
+
+.tree-resource:hover,
+#woodcutting-section #available-trees-list .action-list-item:hover {
+    background: #333 !important;
+    border-color: #666 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-1px);
+}
+
+body #woodcutting-section #available-trees-list .action-list-item.selected,
+body #woodcutting-section #available-trees-list .action-list-item.active-action-item,
+body .tree-resource.selected,
+body .tree-resource.active-action-item {
+    background: rgba(76, 175, 80, 0.25) !important;
+    border-color: #4caf50 !important;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.5) !important;
+    transform: none !important;
+}
+
+body #woodcutting-section #available-trees-list .action-list-item:active,
+body .tree-resource:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.5) !important;
+    background: #1a2e1a !important;
+    border-color: #4caf50 !important;
+}
+
+/* Tree Info Container */
+.tree-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+/* Tree Icon Styling */
+.tree-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    font-size: 24px;
+}
+
+.tree-icon img {
+    width: 32px !important;
+    height: 32px !important;
+    object-fit: contain;
+}
+
+/* Tree Details */
+.tree-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.tree-name {
+    font-weight: bold;
+    color: #fff;
+    font-size: 1em;
+}
+
+.tree-level-req {
+    font-size: 0.85em;
+    color: #4caf50;
+}
+
+.tree-xp {
+    font-size: 0.8em;
+    color: #76d76c;
+}
+
+.tree-logs-per-action {
+    font-size: 0.8em;
+    color: #a5d6a7;
+}
+
+/* Woodcutting Actions Container */
+.woodcutting-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Log Inventory Count */
+.log-inventory-count {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: bold;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+/* Woodcutting Animation States */
+.tree-resource.cutting-active {
+    animation: cuttingPulse 2s infinite;
+    border-color: #8bc34a;
+}
+
+@keyframes cuttingPulse {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(139, 195, 74, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(139, 195, 74, 0.8);
+    }
+}
+
+/* Cutting Progress Indicator */
+.cutting-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background-color: #8bc34a;
+    border-radius: 0 0 12px 12px;
+    transition: width 0.1s linear;
+}
+
+/* Tree Swaying Animation (when being cut) */
+@keyframes treeSway {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(1deg);
+    }
+    75% {
+        transform: rotate(-1deg);
+    }
+}
+
+.tree-resource.cutting-active .tree-icon {
+    animation: treeSway 0.5s ease-in-out infinite;
+}
+
+/* === Axe Chopping Animation === */
+#woodcutting-section .action-list-item.active-action-item {
+    position: relative;
+    overflow: visible !important;
+}
+
+#woodcutting-section .action-list-item.active-action-item::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 110px;
+    width: 32px;
+    height: 32px;
+    background-image: url('../assets/bronze-axe.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 10;
+    animation: axeChop var(--axe-animation-duration, 1.2s) ease-in-out infinite;
+    transform-origin: bottom center;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+}
+
+/* Fallback for no axe equipped (fists) */
+#woodcutting-section .action-list-item.active-action-item:not([data-equipped-axe])::before,
+#woodcutting-section .action-list-item.active-action-item[data-equipped-axe="none"]::before {
+    content: '✊';
+    background-image: none;
+    font-size: 1.8em;
+    width: auto;
+    height: auto;
+    animation: fistChop var(--axe-animation-duration, 1.5s) ease-in-out infinite;
+}
+
+@keyframes fistChop {
+    0% {
+        transform: translateX(15px) translateY(2px) rotate(25deg) scale(0.75);
+        opacity: 0.5;
+    }
+    10% {
+        transform: translateX(12px) translateY(0px) rotate(20deg) scale(0.8);
+        opacity: 0.65;
+    }
+    20% {
+        transform: translateX(8px) translateY(-2px) rotate(10deg) scale(0.9);
+        opacity: 0.8;
+    }
+    30% {
+        transform: translateX(3px) translateY(-5px) rotate(-5deg) scale(1.0);
+        opacity: 0.95;
+    }
+    40% {
+        transform: translateX(-2px) translateY(-8px) rotate(-15deg) scale(1.1);
+        opacity: 1;
+    }
+    50% {
+        transform: translateX(-6px) translateY(-10px) rotate(-20deg) scale(1.15);
+        opacity: 1;
+    }
+    60% {
+        transform: translateX(-8px) translateY(-11px) rotate(-22deg) scale(1.2);
+        opacity: 1;
+    }
+    70% {
+        transform: translateX(-5px) translateY(-8px) rotate(-15deg) scale(1.1);
+        opacity: 0.9;
+    }
+    80% {
+        transform: translateX(0px) translateY(-4px) rotate(-5deg) scale(0.95);
+        opacity: 0.75;
+    }
+    90% {
+        transform: translateX(8px) translateY(0px) rotate(15deg) scale(0.8);
+        opacity: 0.6;
+    }
+    100% {
+        transform: translateX(15px) translateY(2px) rotate(25deg) scale(0.75);
+        opacity: 0.5;
+    }
+}
+
+/* Axe type variations */
+#woodcutting-section .action-list-item.active-action-item[data-equipped-axe="iron"]::before {
+    background-image: url('../assets/iron-axe.png');
+}
+
+#woodcutting-section .action-list-item.active-action-item[data-equipped-axe="steel"]::before {
+    background-image: url('../assets/steel-axe.png');
+}
+
+#woodcutting-section .action-list-item.active-action-item[data-equipped-axe="mithril"]::before {
+    background-image: url('../assets/mithril-axe.png');
+}
+
+#woodcutting-section .action-list-item.active-action-item[data-equipped-axe="adamant"]::before {
+    background-image: url('../assets/adamant-axe.png');
+}
+
+#woodcutting-section .action-list-item.active-action-item[data-equipped-axe="rune"]::before {
+    background-image: url('../assets/rune-axe.png');
+}
+
+#woodcutting-section .action-list-item.active-action-item[data-equipped-axe="dragon"]::before {
+    background-image: url('../assets/dragon-axe.png');
+    animation: dragonAxeChop var(--axe-animation-duration, 1.0s) ease-in-out infinite;
+    width: 36px;
+    height: 36px;
+}
+
+@keyframes axeChop {
+    0% {
+        transform: translateX(20px) translateY(5px) rotate(50deg) scale(0.7);
+        opacity: 0.6;
+    }
+    5% {
+        transform: translateX(18px) translateY(3px) rotate(45deg) scale(0.75);
+        opacity: 0.7;
+    }
+    10% {
+        transform: translateX(15px) translateY(0px) rotate(35deg) scale(0.8);
+        opacity: 0.8;
+    }
+    15% {
+        transform: translateX(12px) translateY(-2px) rotate(25deg) scale(0.85);
+        opacity: 0.85;
+    }
+    20% {
+        transform: translateX(8px) translateY(-4px) rotate(15deg) scale(0.9);
+        opacity: 0.9;
+    }
+    25% {
+        transform: translateX(5px) translateY(-6px) rotate(5deg) scale(0.95);
+        opacity: 0.95;
+    }
+    30% {
+        transform: translateX(2px) translateY(-8px) rotate(-5deg) scale(1.0);
+        opacity: 1;
+    }
+    35% {
+        transform: translateX(-2px) translateY(-10px) rotate(-15deg) scale(1.05);
+        opacity: 1;
+    }
+    40% {
+        transform: translateX(-5px) translateY(-12px) rotate(-25deg) scale(1.1);
+        opacity: 1;
+    }
+    45% {
+        transform: translateX(-8px) translateY(-14px) rotate(-35deg) scale(1.15);
+        opacity: 1;
+    }
+    50% {
+        transform: translateX(-10px) translateY(-15px) rotate(-40deg) scale(1.2);
+        opacity: 1;
+    }
+    55% {
+        transform: translateX(-8px) translateY(-13px) rotate(-35deg) scale(1.15);
+        opacity: 1;
+    }
+    60% {
+        transform: translateX(-5px) translateY(-10px) rotate(-25deg) scale(1.1);
+        opacity: 1;
+    }
+    65% {
+        transform: translateX(-2px) translateY(-7px) rotate(-15deg) scale(1.05);
+        opacity: 0.95;
+    }
+    70% {
+        transform: translateX(2px) translateY(-4px) rotate(-5deg) scale(1.0);
+        opacity: 0.9;
+    }
+    75% {
+        transform: translateX(5px) translateY(-1px) rotate(5deg) scale(0.95);
+        opacity: 0.85;
+    }
+    80% {
+        transform: translateX(8px) translateY(2px) rotate(15deg) scale(0.9);
+        opacity: 0.8;
+    }
+    85% {
+        transform: translateX(12px) translateY(4px) rotate(25deg) scale(0.85);
+        opacity: 0.75;
+    }
+    90% {
+        transform: translateX(15px) translateY(5px) rotate(35deg) scale(0.8);
+        opacity: 0.7;
+    }
+    95% {
+        transform: translateX(18px) translateY(5px) rotate(45deg) scale(0.75);
+        opacity: 0.65;
+    }
+    100% {
+        transform: translateX(20px) translateY(5px) rotate(50deg) scale(0.7);
+        opacity: 0.6;
+    }
+}
+
+/* Enhanced Dragon Axe animation already defined above */
+
+@keyframes dragonAxeChop {
+    0% {
+        transform: translateX(25px) translateY(8px) rotate(55deg) scale(0.65);
+        opacity: 0.5;
+        filter: drop-shadow(2px 2px 8px rgba(255,50,0,0.4));
+    }
+    8% {
+        transform: translateX(22px) translateY(6px) rotate(50deg) scale(0.7);
+        opacity: 0.6;
+        filter: drop-shadow(2px 2px 9px rgba(255,80,0,0.5));
+    }
+    15% {
+        transform: translateX(18px) translateY(4px) rotate(40deg) scale(0.8);
+        opacity: 0.75;
+        filter: drop-shadow(2px 2px 10px rgba(255,120,0,0.6));
+    }
+    22% {
+        transform: translateX(14px) translateY(1px) rotate(30deg) scale(0.9);
+        opacity: 0.85;
+        filter: drop-shadow(2px 2px 11px rgba(255,150,0,0.7));
+    }
+    28% {
+        transform: translateX(10px) translateY(-2px) rotate(20deg) scale(0.95);
+        opacity: 0.9;
+        filter: drop-shadow(2px 2px 12px rgba(255,180,0,0.75));
+    }
+    35% {
+        transform: translateX(5px) translateY(-6px) rotate(5deg) scale(1.05);
+        opacity: 0.95;
+        filter: drop-shadow(2px 2px 13px rgba(255,200,0,0.8));
+    }
+    42% {
+        transform: translateX(0px) translateY(-10px) rotate(-10deg) scale(1.15);
+        opacity: 1;
+        filter: drop-shadow(2px 2px 14px rgba(255,220,0,0.9));
+    }
+    48% {
+        transform: translateX(-6px) translateY(-14px) rotate(-25deg) scale(1.2);
+        opacity: 1;
+        filter: drop-shadow(2px 2px 16px rgba(255,240,0,0.95));
+    }
+    55% {
+        transform: translateX(-12px) translateY(-18px) rotate(-35deg) scale(1.3);
+        opacity: 1;
+        filter: drop-shadow(3px 3px 18px rgba(255,255,0,1)) brightness(1.2);
+    }
+    62% {
+        transform: translateX(-10px) translateY(-16px) rotate(-30deg) scale(1.25);
+        opacity: 1;
+        filter: drop-shadow(2px 2px 16px rgba(255,240,0,0.95));
+    }
+    68% {
+        transform: translateX(-6px) translateY(-12px) rotate(-20deg) scale(1.15);
+        opacity: 0.95;
+        filter: drop-shadow(2px 2px 14px rgba(255,220,0,0.85));
+    }
+    75% {
+        transform: translateX(-2px) translateY(-8px) rotate(-10deg) scale(1.05);
+        opacity: 0.9;
+        filter: drop-shadow(2px 2px 12px rgba(255,200,0,0.8));
+    }
+    82% {
+        transform: translateX(4px) translateY(-4px) rotate(5deg) scale(0.95);
+        opacity: 0.8;
+        filter: drop-shadow(2px 2px 10px rgba(255,150,0,0.7));
+    }
+    88% {
+        transform: translateX(10px) translateY(0px) rotate(20deg) scale(0.85);
+        opacity: 0.7;
+        filter: drop-shadow(2px 2px 9px rgba(255,120,0,0.6));
+    }
+    94% {
+        transform: translateX(18px) translateY(4px) rotate(40deg) scale(0.75);
+        opacity: 0.6;
+        filter: drop-shadow(2px 2px 8px rgba(255,80,0,0.5));
+    }
+    100% {
+        transform: translateX(25px) translateY(8px) rotate(55deg) scale(0.65);
+        opacity: 0.5;
+        filter: drop-shadow(2px 2px 8px rgba(255,50,0,0.4));
+    }
+}
+
+/* Auto Woodcutting Status */
+.auto-woodcutting-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background-color: #4caf50;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+    display: none;
+}
+
+.tree-resource.auto-active .auto-woodcutting-indicator {
+    display: block;
+}
+
+/* Woodcutting Permit Status */
+#woodcutting-permit-status {
+    text-align: center;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    border-radius: 8px;
+}
+
+/* Woodcutting Loot Notifications */
+.woodcutting-loot-notification {
+    position: absolute;
+    top: -30px;
+    right: 10px;
+    background-color: rgba(139, 195, 74, 0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+    pointer-events: none;
+    animation: lootFloat 2s ease-out forwards;
+    z-index: 100;
+}
+
+/* === Tree-Specific Styling === */
+
+/* Normal Tree - Basic green theme */
+body #woodcutting-section .action-list-item[data-tree-type="normal"] {
+    background: linear-gradient(135deg, #1a2a1a 0%, #2a3a2a 100%) !important;
+    border-color: #228b22 !important;
+}
+
+body #woodcutting-section .action-list-item[data-tree-type="normal"]:hover {
+    background: linear-gradient(135deg, #2a3a2a 0%, #3a4a3a 100%) !important;
+    border-color: #32cd32 !important;
+    box-shadow: 0 4px 16px rgba(34, 139, 34, 0.3) !important;
+}
+
+body #woodcutting-section .action-list-item[data-tree-type="normal"] .resource-main-text {
+    color: #90ee90;
+    text-shadow: 0 0 4px rgba(144, 238, 144, 0.3);
+}
+
+/* Oak Tree - Darker brown/green theme */
+body #woodcutting-section .action-list-item[data-tree-type="oak"] {
+    background: linear-gradient(135deg, #2a2015 0%, #3a3025 100%) !important;
+    border-color: #8b6914 !important;
+}
+
+body #woodcutting-section .action-list-item[data-tree-type="oak"]:hover {
+    background: linear-gradient(135deg, #3a3025 0%, #4a4035 100%) !important;
+    border-color: #b8860b !important;
+    box-shadow: 0 4px 18px rgba(184, 134, 11, 0.35) !important;
+}
+
+body #woodcutting-section .action-list-item[data-tree-type="oak"] .resource-main-text {
+    color: #daa520;
+    text-shadow: 0 0 5px rgba(218, 165, 32, 0.4);
+}
+
+/* Willow Tree - Light green/yellow theme */
+body #woodcutting-section .action-list-item[data-tree-type="willow"] {
+    background: linear-gradient(135deg, #252a20 0%, #353a30 100%) !important;
+    border-color: #9acd32 !important;
+}
+
+body #woodcutting-section .action-list-item[data-tree-type="willow"]:hover {
+    background: linear-gradient(135deg, #353a30 0%, #454a40 100%) !important;
+    border-color: #adff2f !important;
+    box-shadow: 0 4px 20px rgba(173, 255, 47, 0.4) !important;
+}
+
+body #woodcutting-section .action-list-item[data-tree-type="willow"] .resource-main-text {
+    color: #adff2f;
+    text-shadow: 0 0 6px rgba(173, 255, 47, 0.5);
+}
+
+/* Maple Tree - Orange/red autumn theme */
+body #woodcutting-section .action-list-item[data-tree-type="maple"] {
+    background: linear-gradient(135deg, #3a201a 0%, #4a302a 100%) !important;
+    border-color: #ff6347 !important;
+}
+
+body #woodcutting-section .action-list-item[data-tree-type="maple"]:hover {
+    background: linear-gradient(135deg, #4a302a 0%, #5a403a 100%) !important;
+    border-color: #ff7f50 !important;
+    box-shadow: 0 4px 22px rgba(255, 127, 80, 0.45) !important;
+}
+
+body #woodcutting-section .action-list-item[data-tree-type="maple"] .resource-main-text {
+    color: #ff8c69;
+    text-shadow: 0 0 7px rgba(255, 140, 105, 0.5);
+    font-weight: bold;
+}
+
+/* Yew Tree - Dark mystical theme */
+body #woodcutting-section .action-list-item[data-tree-type="yew"] {
+    background: linear-gradient(135deg, #1a1a2a 0%, #2a2a3a 100%) !important;
+    border-color: #483d8b !important;
+}
+
+body #woodcutting-section .action-list-item[data-tree-type="yew"]:hover {
+    background: linear-gradient(135deg, #2a2a3a 0%, #3a3a4a 100%) !important;
+    border-color: #6a5acd !important;
+    box-shadow: 0 4px 24px rgba(106, 90, 205, 0.5) !important;
+}
+
+body #woodcutting-section .action-list-item[data-tree-type="yew"] .resource-main-text {
+    color: #9370db;
+    text-shadow: 0 0 8px rgba(147, 112, 219, 0.6);
+    font-weight: bold;
+}
+
+/* Magic Tree - Blue/purple magical theme with sparkles */
+body #woodcutting-section .action-list-item[data-tree-type="magic"] {
+    background: linear-gradient(135deg, #1a1a3a 0%, #2a2a4a 100%) !important;
+    border-color: #4169e1 !important;
+    position: relative;
+    overflow: hidden;
+}
+
+body #woodcutting-section .action-list-item[data-tree-type="magic"]:hover {
+    background: linear-gradient(135deg, #2a2a4a 0%, #3a3a5a 100%) !important;
+    border-color: #00bfff !important;
+    box-shadow: 0 4px 28px rgba(0, 191, 255, 0.6) !important;
+}
+
+body #woodcutting-section .action-list-item[data-tree-type="magic"] .resource-main-text {
+    color: #00bfff;
+    text-shadow: 0 0 10px rgba(0, 191, 255, 0.7);
+    font-weight: bold;
+}
+
+body #woodcutting-section .action-list-item[data-tree-type="magic"]::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(circle, rgba(135,206,250,0.3) 10%, transparent 10%);
+    background-size: 15px 15px;
+    animation: magicSparkle 20s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes magicSparkle {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-100%); }
+}
+
+/* Divine Tree - Golden/white celestial theme with glow */
+body #woodcutting-section .action-list-item[data-tree-type="divine"] {
+    background: linear-gradient(135deg, #3a3025 0%, #4a4035 100%) !important;
+    border-color: #ffd700 !important;
+    position: relative;
+    overflow: hidden;
+}
+
+body #woodcutting-section .action-list-item[data-tree-type="divine"]:hover {
+    background: linear-gradient(135deg, #4a4035 0%, #5a5045 100%) !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 4px 32px rgba(255, 215, 0, 0.7), 0 0 40px rgba(255, 255, 255, 0.3) !important;
+    animation: divineGlow 2s ease-in-out infinite;
+}
+
+body #woodcutting-section .action-list-item[data-tree-type="divine"] .resource-main-text {
+    color: #ffed4e;
+    text-shadow: 0 0 12px rgba(255, 237, 78, 0.8), 0 0 20px rgba(255, 255, 255, 0.5);
+    font-weight: bold;
+}
+
+body #woodcutting-section .action-list-item[data-tree-type="divine"]::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    animation: divinePulse 3s ease-in-out infinite;
+}
+
+@keyframes divineGlow {
+    0%, 100% { 
+        filter: brightness(1) contrast(1);
+    }
+    50% { 
+        filter: brightness(1.2) contrast(1.1);
+    }
+}
+
+@keyframes divinePulse {
+    0%, 100% { 
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.3;
+    }
+    50% { 
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0.6;
+    }
+}
+
+@keyframes lootFloat {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* Tree Health/Durability Indicator */
+.tree-health {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    display: flex;
+    gap: 2px;
+}
+
+.tree-health-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #4caf50;
+    transition: background-color 0.3s;
+}
+
+.tree-health-dot.damaged {
+    background-color: #ff9800;
+}
+
+.tree-health-dot.depleted {
+    background-color: #f44336;
+}
+
+/* Axe Tools Display */
+.woodcutting-tools-display {
+    margin-top: 15px;
+    padding: 12px;
+    background-color: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    border-radius: 8px;
+}
+
+.woodcutting-tools-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #4caf50;
+    margin-bottom: 8px;
+}
+
+.current-axe {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background-color: rgba(76, 175, 80, 0.05);
+    border-radius: 6px;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.axe-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.axe-info {
+    flex: 1;
+}
+
+.axe-name {
+    font-weight: bold;
+    color: #fff;
+}
+
+.axe-bonus {
+    font-size: 0.85em;
+    color: #8bc34a;
+}
+
+/* Woodcutting Speed Bonus Indicator */
+.speed-bonus-indicator {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(76, 175, 80, 0.9);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 0.7em;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+/* Special Tree Types */
+.tree-resource.rare-tree {
+    background: linear-gradient(90deg, #2d1b4a 60%, #3d2560 100%);
+    border-color: #673ab7;
+}
+
+.tree-resource.rare-tree:hover {
+    border-color: #9c27b0;
+    box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
+}
+
+.tree-resource.magical-tree {
+    background: linear-gradient(90deg, #1a3d5c 60%, #2a4d6c 100%);
+    border-color: #2196f3;
+}
+
+.tree-resource.magical-tree:hover {
+    border-color: #03a9f4;
+    box-shadow: 0 4px 12px rgba(3, 169, 244, 0.3);
+}
+
+/* Responsive Design for Woodcutting */
+@media (max-width: 768px) {
+    .tree-resource {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 12px;
+    }
+    
+    .woodcutting-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .log-inventory-count {
+        position: static;
+        margin-top: 5px;
+        align-self: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .tree-resource {
+        padding: 10px;
+    }
+    
+    .tree-info {
+        gap: 8px;
+    }
+    
+    .tree-icon {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .tree-icon img {
+        width: 24px !important;
+        height: 24px !important;
+    }
+}

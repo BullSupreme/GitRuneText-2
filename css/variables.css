@@ -1,0 +1,47 @@
+/* === Color Variables & Utilities === */
+
+/* Text Color Utilities */
+.fore-yellow { color: #dcdcaa !important; }
+.fore-lightblack_ex { color: #a0a0a0 !important; }
+.fore-cyan { color: #4ec9b0 !important; }
+.fore-blue { color: #569cd6 !important; }
+.fore-green { color: #4ec9b0 !important; } /* General green, distinct from skill-specific greens */
+.fore-magenta { color: #c586c0 !important; }
+.fore-red { color: #f44747 !important; }
+.fore-lightred_ex { color: #ff6b6b !important; }
+.fore-orange { color: #ce9178 !important; }
+.fore-white { color: #d4d4d4 !important; }
+.fore-gold { color: #ffd700 !important; }
+.fore-purple { color: #b4a3d9 !important; }
+
+/* Item Tier Border Colors */
+.item-card-tier { /* Base style for items that will have a tier border */
+    border: 2px solid transparent;
+}
+.tier-common { border-color: grey !important; }
+.tier-uncommon { border-color: #4caf50 !important; }
+.tier-rare { border-color: rgb(26, 129, 199) !important; }
+.tier-epic { border-color: purple !important; }
+.tier-legendary { border-color: red !important; }
+
+/* === Enchantment Stat Tier Colors === */
+.tier-common-stat { color: #9e9e9e !important; }
+.tier-uncommon-stat { color: #4caf50 !important; }
+.tier-rare-stat { color: #1a81c7 !important; }
+.tier-epic-stat { color: #a855f7 !important; }
+.tier-legendary-stat { color: #ef4444 !important; }
+.tier-wizard-stat { color: #ff69b4 !important; } /* Pink for Wizard Tower enchantments */
+
+/* Background color themes for different sections */
+.bg-dark { background-color: #1e1e1e !important; }
+.bg-darker { background-color: #1a1a1a !important; }
+.bg-medium { background-color: #252526 !important; }
+.bg-light { background-color: #2d2d30 !important; }
+.bg-lighter { background-color: #3f3f46 !important; }
+
+/* Border themes */
+.border-default { border-color: #3f3f46 !important; }
+.border-active { border-color: #4ec9b0 !important; }
+.border-danger { border-color: #f44747 !important; }
+.border-success { border-color: #4caf50 !important; }
+.border-warning { border-color: #ff9800 !important; }

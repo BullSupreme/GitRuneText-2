@@ -12,12 +12,20 @@
 
 import { playerData, getLevelFromXp, getXpForDisplay, getMaxHp, savePlayerData, titleCase, logMessage, getEnchantmentBonus, playSound, sounds, formatEnchantmentStat } from './utils.js';
 import { showSection, updateHud } from './ui.js';
-import { SWORD_DATA, ARMOR_DATA, HELMET_DATA, TOOL_DATA, PERK_DATA, STRUCTURE_DATA, PERMIT_MASTER_LIST, TIERS, ENCHANTMENT_STAT_TIER_COLORS } from './data.js';
+import { SWORD_DATA, ARMOR_DATA, HELMET_DATA, RING_DATA, TOOL_DATA, PERK_DATA, STRUCTURE_DATA, PERMIT_MASTER_LIST, TIERS, ENCHANTMENT_STAT_TIER_COLORS, SEED_DATA, CROP_ITEMS, ITEM_SELL_PRICES, MAX_ENCHANTMENTS } from './data.js';
 import { calculateMiningActionTime } from './mining.js';
 import { calculateWoodcuttingActionTime } from './woodcutting.js';
+import { calculateCookingActionTime } from './cooking.js';
+import { calculateSmeltingActionTime } from './blacksmithing.js';
 import { getSummedPyramidPerkEffects } from './perks.js';
+import { getStructurePerkEffect } from './builds.js';
+import { isAutoAttacking, currentMonsterTarget } from './combat.js';
+import { updateEnchantingDisplay } from './enchanting.js';
+import { trackEquipmentEquipped } from './achievements.js';
 
 // After imports, before any functions
+let liveActivityUpdateInterval = null;
+
 function getSkillSpeedOverviewHTML() {
     const effects = getSummedPyramidPerkEffects();
     let html = '';
@@ -85,7 +93,7 @@ function getSkillSpeedOverviewHTML() {
     
     // Check for pickaxe bonus
     if (playerData.equipment?.pickaxe && playerData.equipment.pickaxe !== 'none' && TOOL_DATA.pickaxe[playerData.equipment.pickaxe]) {
-        const pickaxeSpeed = TOOL_DATA.pickaxe[playerData.equipment.pickaxe].action_time / 1000;
+        const pickaxeSpeed = TOOL_DATA.pickaxe[playerData.equipment.pickaxe].attack_speed || 3.0;
         miningSources.push({ source: titleCase(playerData.equipment.pickaxe + " Pickaxe"), value: `${pickaxeSpeed}s` });
     }
     
@@ -107,7 +115,7 @@ function getSkillSpeedOverviewHTML() {
     
     // Check for axe bonus
     if (playerData.equipment?.axe && playerData.equipment.axe !== 'none' && TOOL_DATA.axe[playerData.equipment.axe]) {
-        const axeSpeed = TOOL_DATA.axe[playerData.equipment.axe].action_time / 1000;
+        const axeSpeed = TOOL_DATA.axe[playerData.equipment.axe].attack_speed || 3.0;
         woodcuttingSources.push({ source: titleCase(playerData.equipment.axe + " Axe"), value: `${axeSpeed}s` });
     }
     
@@ -140,6 +148,10 @@ function getSkillSpeedOverviewHTML() {
 function populateSkillSpeedOverview(container) {
     container.innerHTML = '';
     const effects = getSummedPyramidPerkEffects();
+    
+    // Declare common speed bonuses once to avoid redeclaration
+    const globalSkillSpeedBonus = effects.global_skill_speed_boost || 0;
+    const structureSpeedBonus = getStructurePerkEffect('stronghold', 'global_skill_speed_boost') || 0;
     
     // Attack Speed
     let attackSpeed = 3.0;
@@ -191,8 +203,16 @@ function populateSkillSpeedOverview(container) {
     miningSources.push({ source: "Base Speed", value: `${baseSpeed}s` });
     
     if (playerData.equipment?.pickaxe && playerData.equipment.pickaxe !== 'none' && TOOL_DATA.pickaxe[playerData.equipment.pickaxe]) {
-        const pickaxeSpeed = TOOL_DATA.pickaxe[playerData.equipment.pickaxe].action_time / 1000;
-        miningSources.push({ source: titleCase(playerData.equipment.pickaxe + " Pickaxe"), value: `${pickaxeSpeed}s` });
+        // Calculate tier multiplier effect
+        const tierMultipliers = {
+            bronze: 1.0, iron: 0.967, steel: 0.933, mithril: 0.9, adamant: 0.9, rune: 0.867, dragon: 0.833
+        };
+        const tier = playerData.equipment.pickaxe.toLowerCase();
+        const multiplier = tierMultipliers[tier] || 1.0;
+        const speedReduction = ((1 - multiplier) * 100).toFixed(0);
+        if (speedReduction > 0) {
+            miningSources.push({ source: titleCase(playerData.equipment.pickaxe + " Pickaxe"), value: `-${speedReduction}% Time` });
+        }
     }
     
     const gatherSpeedBonus = effects.gather_speed || 0;
@@ -203,6 +223,14 @@ function populateSkillSpeedOverview(container) {
     const miningEnchantSpeedBonus = getEnchantmentBonus('gathering_speed', 'pickaxe');
     if (miningEnchantSpeedBonus > 0) {
         miningSources.push({ source: "Pickaxe Enchantments", value: `+${(miningEnchantSpeedBonus * 100).toFixed(0)}% Speed` });
+    }
+    
+    if (globalSkillSpeedBonus > 0) {
+        miningSources.push({ source: "Global Skill Speed", value: `+${(globalSkillSpeedBonus * 100).toFixed(0)}% Speed` });
+    }
+    
+    if (structureSpeedBonus > 0) {
+        miningSources.push({ source: "Stronghold", value: `+${(structureSpeedBonus * 100).toFixed(0)}% Speed` });
     }
     
     // Calculate mining AOE stats for tooltip
@@ -219,8 +247,16 @@ function populateSkillSpeedOverview(container) {
     woodcuttingSources.push({ source: "Base Speed", value: `${baseSpeed}s` });
     
     if (playerData.equipment?.axe && playerData.equipment.axe !== 'none' && TOOL_DATA.axe[playerData.equipment.axe]) {
-        const axeSpeed = TOOL_DATA.axe[playerData.equipment.axe].action_time / 1000;
-        woodcuttingSources.push({ source: titleCase(playerData.equipment.axe + " Axe"), value: `${axeSpeed}s` });
+        // Calculate tier multiplier effect
+        const tierMultipliers = {
+            bronze: 1.0, iron: 0.967, steel: 0.933, mithril: 0.9, adamant: 0.9, rune: 0.867, dragon: 0.833
+        };
+        const tier = playerData.equipment.axe.toLowerCase();
+        const multiplier = tierMultipliers[tier] || 1.0;
+        const speedReduction = ((1 - multiplier) * 100).toFixed(0);
+        if (speedReduction > 0) {
+            woodcuttingSources.push({ source: titleCase(playerData.equipment.axe + " Axe"), value: `-${speedReduction}% Time` });
+        }
     }
     
     if (gatherSpeedBonus > 0) {
@@ -232,11 +268,78 @@ function populateSkillSpeedOverview(container) {
         woodcuttingSources.push({ source: "Axe Enchantments", value: `+${(woodcuttingEnchantSpeedBonus * 100).toFixed(0)}% Speed` });
     }
     
+    if (globalSkillSpeedBonus > 0) {
+        woodcuttingSources.push({ source: "Global Skill Speed", value: `+${(globalSkillSpeedBonus * 100).toFixed(0)}% Speed` });
+    }
+    
+    if (structureSpeedBonus > 0) {
+        woodcuttingSources.push({ source: "Stronghold", value: `+${(structureSpeedBonus * 100).toFixed(0)}% Speed` });
+    }
+    
     // Calculate woodcutting AOE stats for tooltip
     const woodcuttingAoeData = calculateGatheringAoeStats('woodcutting');
     const woodcuttingDescription = `Time between woodcutting actions.${woodcuttingAoeData.chance > 0 ? ` AOE: ${(woodcuttingAoeData.chance * 100).toFixed(0)}% chance to chop adjacent trees.` : ''}`;
     
     createSkillSpeedRow(container, "🌲 Woodcutting:", finalWoodcuttingSpeed, "#4caf50", woodcuttingDescription, woodcuttingSources, woodcuttingAoeData);
+    
+    // Cooking Speed
+    const cookingActionTimeMs = calculateCookingActionTime();
+    const finalCookingSpeed = cookingActionTimeMs / 1000;
+    let cookingSources = [];
+    
+    cookingSources.push({ source: "Base Speed", value: `${baseSpeed}s` });
+    
+    // Crafting speed from ring enchantments
+    const craftingSpeedBonus = getEnchantmentBonus('crafting_speed');
+    if (craftingSpeedBonus > 0) {
+        cookingSources.push({ source: "Ring Enchantments", value: `-${craftingSpeedBonus}s` });
+    }
+    
+    const cookingSpeedBonus = effects.cooking_speed || 0;
+    if (cookingSpeedBonus > 0) {
+        cookingSources.push({ source: "Perk Tree", value: `+${(cookingSpeedBonus * 100).toFixed(0)}% Speed` });
+    }
+    
+    if (globalSkillSpeedBonus > 0) {
+        cookingSources.push({ source: "Global Skill Speed", value: `+${(globalSkillSpeedBonus * 100).toFixed(0)}% Speed` });
+    }
+    
+    if (structureSpeedBonus > 0) {
+        cookingSources.push({ source: "Stronghold", value: `+${(structureSpeedBonus * 100).toFixed(0)}% Speed` });
+    }
+    
+    const cookingDescription = "Time between cooking actions.";
+    
+    createSkillSpeedRow(container, "🍳 Cooking:", finalCookingSpeed, "#ffa500", cookingDescription, cookingSources);
+    
+    // Blacksmithing (Smelting) Speed
+    const smeltingActionTimeMs = calculateSmeltingActionTime();
+    const finalSmeltingSpeed = smeltingActionTimeMs / 1000;
+    let smeltingSources = [];
+    
+    smeltingSources.push({ source: "Base Speed", value: `${baseSpeed}s` });
+    
+    // Crafting speed from ring enchantments (applies to both smelting and smithing)
+    if (craftingSpeedBonus > 0) {
+        smeltingSources.push({ source: "Ring Enchantments", value: `-${craftingSpeedBonus}s` });
+    }
+    
+    const smeltSpeedBonus = effects.smelt_speed || 0;
+    if (smeltSpeedBonus > 0) {
+        smeltingSources.push({ source: "Perk Tree", value: `+${(smeltSpeedBonus * 100).toFixed(0)}% Speed` });
+    }
+    
+    if (globalSkillSpeedBonus > 0) {
+        smeltingSources.push({ source: "Global Skill Speed", value: `+${(globalSkillSpeedBonus * 100).toFixed(0)}% Speed` });
+    }
+    
+    if (structureSpeedBonus > 0) {
+        smeltingSources.push({ source: "Stronghold", value: `+${(structureSpeedBonus * 100).toFixed(0)}% Speed` });
+    }
+    
+    const smeltingDescription = "Time between smelting actions.";
+    
+    createSkillSpeedRow(container, "🛠️ Blacksmithing:", finalSmeltingSpeed, "#b8860b", smeltingDescription, smeltingSources);
 }
 
 function createSkillSpeedRow(container, label, speed, color, description, sources, aoeData = null) {
@@ -389,6 +492,9 @@ export function getEnchantedStatsHtml(slotKey) {
     // We already checked enchantedStats above, so we know they exist
     const enchantments = playerData.enchantedStats[equipmentSlot];
     
+    // Debug logging to check enchantments
+    console.log(`[getEnchantedStatsHtml] Slot: ${slotKey}, Equipment: ${equippedItemName}, Enchantments:`, enchantments);
+    
     const enchantedLines = enchantments.map(enchantment => {
         // Use wizard tier color for Wizard Tower enchantments, otherwise use normal tier color
         const isWizardEnchantment = ['life_steal', 'fire_damage', 'ice_damage'].includes(enchantment.stat);
@@ -423,6 +529,12 @@ export function showCharacterSection() {
     console.log('Showing character section');
     showSection('character-section');
     
+    // Clear any existing live activity update interval
+    if (liveActivityUpdateInterval) {
+        clearInterval(liveActivityUpdateInterval);
+        liveActivityUpdateInterval = null;
+    }
+    
     // Clear previous content to prevent duplication
     const charInfoTarget = document.getElementById('char-info-target');
     if (charInfoTarget) {
@@ -447,7 +559,14 @@ export function showCharacterSection() {
         // Set up back button event listener
         const backBtn = header.querySelector('#character-back-btn');
         if (backBtn) {
-            backBtn.addEventListener('click', () => showSection('main-menu-section'));
+            backBtn.addEventListener('click', () => {
+                // Clear interval when leaving character section
+                if (liveActivityUpdateInterval) {
+                    clearInterval(liveActivityUpdateInterval);
+                    liveActivityUpdateInterval = null;
+                }
+                showSection('main-menu-section');
+            });
         }
 
         ensureSkillsInitialized();
@@ -532,6 +651,13 @@ export function showCharacterSection() {
         }
         if (!hasActivePermits) activePermitsList.innerHTML = "<p style='padding:8px; text-align:center;'><i>No active permits.</i></p>";
 
+        // Live Activity & Timers Section
+        const liveActivityCard = document.createElement('div');
+        liveActivityCard.className = 'character-section-card';
+        liveActivityCard.innerHTML = `<div class="character-section-title"><span class="character-section-icon">⏱️</span> Live Activity & Timers</div><div id="live-activity-list-target" class="character-section-grid"></div>`;
+        leftCol.appendChild(liveActivityCard);
+        setTimeout(() => populateLiveActivityDisplay(), 0);
+
         // Built Structures Section
         const structuresCard = document.createElement('div');
         structuresCard.className = 'character-section-card';
@@ -579,12 +705,28 @@ export function showCharacterSection() {
         charInfoTarget.appendChild(mainCard);
         // Hide equip selection dialog
         hideEquipSelection();
+        
+        // Set up live activity update interval (update every 5 seconds)
+        liveActivityUpdateInterval = setInterval(() => {
+            try {
+                populateLiveActivityDisplay();
+            } catch (e) {
+                console.warn('Error updating live activity display:', e);
+            }
+        }, 5000);
     }
     
     // Also set up the main back button (at the bottom of the page)
     const mainBackButton = document.getElementById('character-back-button');
     if (mainBackButton) {
-        mainBackButton.addEventListener('click', () => showSection('main-menu-section'));
+        mainBackButton.addEventListener('click', () => {
+            // Clear interval when leaving character section
+            if (liveActivityUpdateInterval) {
+                clearInterval(liveActivityUpdateInterval);
+                liveActivityUpdateInterval = null;
+            }
+            showSection('main-menu-section');
+        });
     }
 }
 
@@ -762,6 +904,7 @@ export function getPlayerCombatStats() {
         }
     
         // Calculate defense and block stats
+        let baseDefense = 0;
         let defense = 0;
         sources.defense.push({ source: "Base", value: "0%" });
     
@@ -771,12 +914,12 @@ export function getPlayerCombatStats() {
         let blockAmount = 0;
         sources.blockAmount.push({ source: "Base", value: "0" });
     
-        // Add armor defense stats
+        // Calculate BASE defense from equipment primary stats (armor + helmet)
         const equippedChestplateKey = playerData.equipment.armor || playerData.equipment.chestplate; // Support both keys for backward compatibility
         if (equippedChestplateKey !== "none" && ARMOR_DATA[equippedChestplateKey]) {
             const chestItem = ARMOR_DATA[equippedChestplateKey];
             if (typeof chestItem.defense === 'number') {
-                defense += chestItem.defense;
+                baseDefense += chestItem.defense;
                 sources.defense.push({ source: titleCase(equippedChestplateKey), value: `+${(chestItem.defense * 100).toFixed(0)}%` });
             }
     
@@ -787,16 +930,16 @@ export function getPlayerCombatStats() {
             
             if (chestItem.block_amount) {
                 blockAmount += chestItem.block_amount;
-                sources.blockAmount.push({ source: titleCase(equippedChestplateKey), value: `+${chestItem.block_amount}` });
+                sources.blockAmount.push({ source: titleCase(equippedChestplateKey), value: `+${chestItem.block_amount}%` });
             }
         }
         
-        // Add helmet defense stats
+        // Add helmet defense stats to base
         const equippedHelmetKey = playerData.equipment.helmet;
         if (equippedHelmetKey !== "none" && HELMET_DATA[equippedHelmetKey]) {
             const helmetItem = HELMET_DATA[equippedHelmetKey];
             if (typeof helmetItem.defense === 'number') {
-                defense += helmetItem.defense;
+                baseDefense += helmetItem.defense;
                 sources.defense.push({ source: titleCase(equippedHelmetKey), value: `+${(helmetItem.defense * 100).toFixed(0)}%` });
             }
     
@@ -807,33 +950,70 @@ export function getPlayerCombatStats() {
             
             if (helmetItem.block_amount) {
                 blockAmount += helmetItem.block_amount;
-                sources.blockAmount.push({ source: titleCase(equippedHelmetKey), value: `+${helmetItem.block_amount}` });
+                sources.blockAmount.push({ source: titleCase(equippedHelmetKey), value: `+${helmetItem.block_amount}%` });
             }
         }
-    
-        // Add global defense and block bonuses from Perk Tree
+
+        // Start with base defense from equipment
+        defense = baseDefense;
+
+        // Add perk defense bonuses as percentages of base defense
         if (perkEffects.defense) {
-            defense += perkEffects.defense;
-            sources.defense.push({ source: 'Perk Tree', value: `+${(perkEffects.defense * 100).toFixed(0)}%` });
+            const perkBonus = baseDefense * perkEffects.defense;
+            defense += perkBonus;
+            sources.defense.push({ source: 'Perk Tree', value: `+${(perkBonus * 100).toFixed(1)}%` });
         }
         if (perkEffects.block) {
             blockChance += perkEffects.block;
             sources.blockChance.push({ source: 'Perk Tree', value: `+${(perkEffects.block * 100).toFixed(0)}%` });
         }
         if (perkEffects.block_amount) {
-            blockAmount += perkEffects.block_amount;
-            sources.blockAmount.push({ source: 'Perk Tree', value: `+${perkEffects.block_amount}` });
-        }
-        
-        // Apply enchantment bonuses using the centralized function
-        const defenseEnchantmentBonus = getEnchantmentBonus('defense_percent');
-        if (defenseEnchantmentBonus > 0) {
-            defense += defenseEnchantmentBonus;
-            sources.defense.push({ source: "Enchantments", value: `+${(defenseEnchantmentBonus * 100).toFixed(2)}%` });
+            blockAmount += (perkEffects.block_amount * 100); // Convert decimal to whole number format
+            sources.blockAmount.push({ source: 'Perk Tree', value: `+${(perkEffects.block_amount * 100).toFixed(0)}%` });
         }
 
-        // Apply enchanted stats from all equipment slots
-        const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe'];
+        // Now calculate enchanted defense bonuses as percentages of base defense
+        // Each enchantment is a percentage of the base defense, applied sequentially
+        const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe', 'left_ring', 'right_ring'];
+        enchantableSlots.forEach(slotKey => {
+            const enchantments = playerData.enchantedStats[slotKey];
+            if (enchantments && enchantments.length > 0) {
+                // Filter and sort defense enchantments to apply them in order
+                const defenseEnchantments = enchantments.filter(e => e.stat === 'defense_percent');
+                defenseEnchantments.forEach(enchantment => {
+                    if (baseDefense > 0) { // Only apply if there's base defense to calculate from
+                        const enchantmentBonus = baseDefense * enchantment.value;
+                        defense += enchantmentBonus;
+                        const sourceLabel = `Enchanted ${slotKey.charAt(0).toUpperCase() + slotKey.slice(1)}`;
+                        sources.defense.push({ 
+                            source: sourceLabel, 
+                            value: `+${(enchantmentBonus * 100).toFixed(2)}% (${(enchantment.value * 100).toFixed(0)}% of base)` 
+                        });
+                    }
+                });
+            }
+        });
+
+        // Apply legacy enchantment bonuses for backward compatibility
+        // Only apply if no new enchantments exist (to avoid double-counting)
+        let hasNewDefenseEnchantments = false;
+        enchantableSlots.forEach(slotKey => {
+            const enchantments = playerData.enchantedStats[slotKey];
+            if (enchantments && enchantments.some(e => e.stat === 'defense_percent')) {
+                hasNewDefenseEnchantments = true;
+            }
+        });
+        
+        if (!hasNewDefenseEnchantments) {
+            const defenseEnchantmentBonus = getEnchantmentBonus('defense_percent');
+            if (defenseEnchantmentBonus > 0 && baseDefense > 0) {
+                const legacyBonus = baseDefense * defenseEnchantmentBonus;
+                defense += legacyBonus;
+                sources.defense.push({ source: "Legacy Enchantments", value: `+${(legacyBonus * 100).toFixed(2)}% (${(defenseEnchantmentBonus * 100).toFixed(0)}% of base)` });
+            }
+        }
+
+        // Apply remaining enchanted stats from all equipment slots (non-defense)
         enchantableSlots.forEach(slotKey => {
             const enchantments = playerData.enchantedStats[slotKey];
             if (enchantments && enchantments.length > 0) {
@@ -859,8 +1039,7 @@ export function getPlayerCombatStats() {
                             sources.critChance.push({ source: sourceLabel, value: `+${Math.floor(enchantment.value * 100)}%` });
                             break;
                         case 'defense_percent':
-                            defense += enchantment.value;
-                            sources.defense.push({ source: sourceLabel, value: `+${Math.floor(enchantment.value * 100)}%` });
+                            // Defense is now handled separately above to apply percentage-based calculation
                             break;
                         case 'hp_flat':
                             // HP is handled separately via getMaxHp function, but we can add a note
@@ -923,7 +1102,7 @@ export function getPlayerCombatStats() {
                 sources: sources.blockChance 
             },
             blockAmount: { 
-                value: `${blockAmount}`, 
+                value: `${blockAmount.toFixed(0)}%`, 
                 sources: sources.blockAmount 
             },
             attackSpeed: {
@@ -1169,10 +1348,16 @@ export function populateEquipmentDisplay() {
             axe: "none",
             pickaxe: "none",
             helmet: "none",
-            armor: "none"
+            armor: "none",
+            left_ring: "none",
+            right_ring: "none"
         };
         savePlayerData();
     }
+    
+    // Ensure ring slots exist in existing saves
+    if (!playerData.equipment.left_ring) playerData.equipment.left_ring = "none";
+    if (!playerData.equipment.right_ring) playerData.equipment.right_ring = "none";
     
     const slots = [
         // Row 1: Weapon, Axe, Pickaxe
@@ -1245,6 +1430,25 @@ export function populateEquipmentDisplay() {
             stats += getEnchantedStatsHtml('helmet');
             return stats;
           }
+        },
+        // Row 3: Left Ring, Right Ring
+        { key: 'left_ring', name: 'Left Ring', data: RING_DATA, 
+          colorClassGetter: (itemData) => itemData.color, 
+          statGetter: (itemData) => {
+            if (!itemData) return "N/A";
+            let stats = `+${itemData.hp_bonus} HP<br>+${(itemData.crit_chance * 100).toFixed(1)}% Crit<br>+${(itemData.str_percentage * 100).toFixed(1)}% Str`;
+            stats += getEnchantedStatsHtml('left_ring');
+            return stats;
+          }
+        },
+        { key: 'right_ring', name: 'Right Ring', data: RING_DATA, 
+          colorClassGetter: (itemData) => itemData.color, 
+          statGetter: (itemData) => {
+            if (!itemData) return "N/A";
+            let stats = `+${itemData.hp_bonus} HP<br>+${(itemData.crit_chance * 100).toFixed(1)}% Crit<br>+${(itemData.str_percentage * 100).toFixed(1)}% Str`;
+            stats += getEnchantedStatsHtml('right_ring');
+            return stats;
+          }
         }
     ];
 
@@ -1300,7 +1504,7 @@ export function populateEquipmentDisplay() {
                     // Get count from itemEnchantments if available
                     const itemKey = `${slotKey}:${equippedItemName}`;
                     if (playerData.itemEnchantments && playerData.itemEnchantments[itemKey] && playerData.itemEnchantments[itemKey].count) {
-                        enchantmentInfo += ` (${playerData.itemEnchantments[itemKey].count}/12)`;
+                        enchantmentInfo += ` (${playerData.itemEnchantments[itemKey].count}/${MAX_ENCHANTMENTS})`;
                     }
                     enchantmentInfo += `</div>`;
                 }
@@ -1362,7 +1566,11 @@ export function showEquipSelection(slot) {
     const listDiv = document.getElementById('equip-item-list-target');
     if (listDiv) listDiv.innerHTML = '';
     const titleEl = document.getElementById('equip-item-type-title-target');
-    if (titleEl) titleEl.textContent = `Equip ${titleCase(slot)}`;
+    // Fix display names for ring slots
+    const displayName = slot === 'left_ring' ? 'Left Ring' : 
+                       slot === 'right_ring' ? 'Right Ring' : 
+                       titleCase(slot);
+    if (titleEl) titleEl.textContent = `Equip ${displayName}`;
     let foundItems = false;
     
     // Map slot to the correct item data source and ensure consistent slot naming
@@ -1371,26 +1579,16 @@ export function showEquipSelection(slot) {
                              dataSlot === 'axe' ? TOOL_DATA.axe :
                              dataSlot === 'pickaxe' ? TOOL_DATA.pickaxe :
                              dataSlot === 'armor' ? ARMOR_DATA :
-                             dataSlot === 'helmet' ? HELMET_DATA : {};
+                             dataSlot === 'helmet' ? HELMET_DATA :
+                             dataSlot === 'left_ring' ? RING_DATA :
+                             dataSlot === 'right_ring' ? RING_DATA : {};
     
     // First, show unenchanted items
     Object.entries(playerData.inventory).forEach(([itemName, qty]) => {
         if (qty > 0 && relevantItemSource[itemName]) {
-            // Count how many are enchanted
-            let enchantedCount = 0;
-            const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe'];
-            
-            if (enchantableSlots.includes(dataSlot) && playerData.itemEnchantments) {
-                Object.entries(playerData.itemEnchantments).forEach(([enchantKey, enchantData]) => {
-                    const [slotKey, enchantedItemName] = enchantKey.split(':');
-                    if (slotKey === dataSlot && enchantedItemName === itemName && 
-                        enchantData.enchantments && enchantData.enchantments.length > 0) {
-                        enchantedCount++;
-                    }
-                });
-            }
-            
-            const unenchantedQty = qty - enchantedCount;
+            // For unenchanted items, we always show them if they're in inventory
+            // The inventory already handles equipped items properly (removes them when equipped)
+            const unenchantedQty = qty;
             
             // Show unenchanted versions if any
             if (unenchantedQty > 0) {
@@ -1413,6 +1611,8 @@ export function showEquipSelection(slot) {
                         const speedPercent = Math.round((1 - itemDataForSlot.speed_multiplier) * 100);
                         statsDisplay += `<br>Speed: +${speedPercent}%`;
                     }
+                } else if ((slot === 'left_ring' || slot === 'right_ring') && itemDataForSlot.hp_bonus != null) {
+                    statsDisplay = `+${itemDataForSlot.hp_bonus} HP<br>+${(itemDataForSlot.crit_chance * 100).toFixed(1)}% Crit<br>+${(itemDataForSlot.str_percentage * 100).toFixed(1)}% Str`;
                 }
                 // Render image icons for axes, pickaxes, swords, armor, and helmets in equip selection
                 let iconHtmlSel;
@@ -1435,6 +1635,8 @@ export function showEquipSelection(slot) {
                     } else {
                         iconHtmlSel = itemDataForSlot.emoji || '❔';
                     }
+                } else if (slot === 'left_ring' || slot === 'right_ring') {
+                    iconHtmlSel = itemDataForSlot.emoji || '💍';
                 } else {
                     iconHtmlSel = itemDataForSlot.emoji || '❔';
                 }
@@ -1451,12 +1653,28 @@ export function showEquipSelection(slot) {
     });
     
     // Then, show enchanted items
-    const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe'];
+    const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe', 'left_ring', 'right_ring'];
     if (enchantableSlots.includes(dataSlot) && playerData.itemEnchantments) {
         Object.entries(playerData.itemEnchantments).forEach(([enchantKey, enchantData]) => {
-            const [slotKey, enchantedItemName] = enchantKey.split(':');
-            if (slotKey === dataSlot && enchantData.enchantments && enchantData.enchantments.length > 0 &&
-                relevantItemSource[enchantedItemName] && playerData.inventory[enchantedItemName] > 0) {
+            const keyParts = enchantKey.split(':');
+            const slotKey = keyParts[0];
+            const enchantedItemName = keyParts[1];
+            
+            // For rings, check if it's any ring slot since they share inventory
+            const isRingSlot = dataSlot === 'left_ring' || dataSlot === 'right_ring';
+            const isMatchingRingSlot = slotKey === 'left_ring' || slotKey === 'right_ring';
+            const slotsMatch = isRingSlot ? isMatchingRingSlot : (slotKey === dataSlot);
+            
+            // Only show this enchanted item if:
+            // 1. It matches the slot we're equipping for
+            // 2. It has enchantments
+            // 3. The base item type exists in the data
+            // 4. Either: the item is in inventory, OR it's currently equipped in the slot we're selecting for
+            const isCurrentlyEquippedInThisSlot = playerData.equipment[dataSlot] === enchantedItemName;
+            const isAvailableInInventory = playerData.inventory[enchantedItemName] > 0;
+            
+            if (slotsMatch && enchantData.enchantments && enchantData.enchantments.length > 0 &&
+                relevantItemSource[enchantedItemName] && (isAvailableInInventory || isCurrentlyEquippedInThisSlot)) {
                 foundItems = true;
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'inventory-item enchanted-item';
@@ -1486,7 +1704,7 @@ export function showEquipSelection(slot) {
                     const statDisplay = formatEnchantmentStat(enchantment.stat, enchantment.value);
                     enchantmentDisplay += `<div class="${colorClass}">${statDisplay}</div>`;
                 });
-                enchantmentDisplay += `<div>Enchantments: ${enchantData.count}/12</div></div>`;
+                enchantmentDisplay += `<div>Enchantments: ${enchantData.count}/${MAX_ENCHANTMENTS}</div></div>`;
                 
                 // Render image icons
                 let iconHtmlSel;
@@ -1513,11 +1731,14 @@ export function showEquipSelection(slot) {
                     iconHtmlSel = itemDataForSlot.emoji || '❔';
                 }
                 
+                const quantityDisplay = isCurrentlyEquippedInThisSlot ? "Equipped" : "x1";
+                const namePrefix = isCurrentlyEquippedInThisSlot ? "✨ " : "";
+                
                 itemDiv.innerHTML = `
                     <div class="item-icon">${iconHtmlSel}</div>
                     <div class="item-info">
-                        <div class="item-name ${itemDataForSlot.color || 'fore-white'}">${titleCase(enchantedItemName)} (Enchanted)</div>
-                        <div class="item-quantity">x1</div>
+                        <div class="item-name ${itemDataForSlot.color || 'fore-white'}">${namePrefix}${titleCase(enchantedItemName)} (Enchanted)</div>
+                        <div class="item-quantity">${quantityDisplay}</div>
                         <div class="item-details" style="font-size:0.8em;color:#aaa;">
                             ${statsDisplay}
                             ${enchantmentDisplay}
@@ -1542,7 +1763,7 @@ export function hideEquipSelection() {
 // Equip an item in a specific slot
 export function equipItem(slot, itemName) {
     if (!playerData.equipment) {
-        playerData.equipment = { weapon:'none', axe:'none', pickaxe:'none', helmet:'none', armor:'none' };
+        playerData.equipment = { weapon:'none', axe:'none', pickaxe:'none', helmet:'none', armor:'none', left_ring:'none', right_ring:'none' };
     }
     // Handle slot name mapping
     const equipmentSlot = slot;
@@ -1588,14 +1809,31 @@ export function equipItem(slot, itemName) {
     }
     
     logMessage(`Equipped ${titleCase(itemName)} to ${slot}.`, 'fore-green', '🔧');
+    
+    // Track equipment achievement
+    if (itemName !== 'none') {
+        trackEquipmentEquipped(itemName);
+    }
+    
     savePlayerData();
     updateHud();
     
     // Force a complete re-render with a minimal delay to ensure state is updated
     setTimeout(() => {
         populateEquipmentDisplay();
+        populateCombatStatsDisplay(); // Update combat stats when equipment changes
+        // Update skill speed overview since attack speed depends on equipped weapon
+        const skillSpeedContainer = document.querySelector('.character-skill-speed-overview');
+        if (skillSpeedContainer) {
+            populateSkillSpeedOverview(skillSpeedContainer);
+        }
         if (typeof window.populateInventoryDisplay === 'function') window.populateInventoryDisplay();
-    }, 0);
+        // Check if enchanting section is visible and update it
+        const enchantingSection = document.getElementById('enchanting-section');
+        if (enchantingSection && !enchantingSection.classList.contains('hidden')) {
+            updateEnchantingDisplay();
+        }
+    }, 10);
     
     hideEquipSelection();
 }
@@ -1603,7 +1841,7 @@ export function equipItem(slot, itemName) {
 // Equip an enchanted item in a specific slot
 export function equipItemEnchanted(slot, itemName, enchantKey) {
     if (!playerData.equipment) {
-        playerData.equipment = { weapon:'none', axe:'none', pickaxe:'none', helmet:'none', armor:'none' };
+        playerData.equipment = { weapon:'none', axe:'none', pickaxe:'none', helmet:'none', armor:'none', left_ring:'none', right_ring:'none' };
     }
     // Handle slot name mapping
     const equipmentSlot = slot;
@@ -1647,10 +1885,32 @@ export function equipItemEnchanted(slot, itemName, enchantKey) {
     }
     
     logMessage(`Equipped ${titleCase(itemName)} (Enchanted) to ${slot}.`, 'fore-purple', '✨');
+    
+    // Track equipment achievement
+    if (itemName !== 'none') {
+        trackEquipmentEquipped(itemName);
+    }
+    
     savePlayerData();
     updateHud();
-    populateEquipmentDisplay();
-    if (typeof window.populateInventoryDisplay === 'function') window.populateInventoryDisplay();
+    
+    // Force a complete re-render with a minimal delay to ensure state is updated
+    setTimeout(() => {
+        populateEquipmentDisplay();
+        populateCombatStatsDisplay(); // Update combat stats when equipment changes
+        // Update skill speed overview since attack speed depends on equipped weapon
+        const skillSpeedContainer = document.querySelector('.character-skill-speed-overview');
+        if (skillSpeedContainer) {
+            populateSkillSpeedOverview(skillSpeedContainer);
+        }
+        if (typeof window.populateInventoryDisplay === 'function') window.populateInventoryDisplay();
+        // Check if enchanting section is visible and update it
+        const enchantingSection = document.getElementById('enchanting-section');
+        if (enchantingSection && !enchantingSection.classList.contains('hidden')) {
+            updateEnchantingDisplay();
+        }
+    }, 10);
+    
     hideEquipSelection();
 }
 
@@ -1701,4 +1961,202 @@ function updateCharacterInfo() {
     `;
     
     characterInfoTarget.innerHTML = html;
+}
+
+/**
+ * Populates the Live Activity & Timers display with current auto-actions and rates
+ */
+function populateLiveActivityDisplay() {
+    const liveActivityList = document.getElementById('live-activity-list-target');
+    if (!liveActivityList) return;
+
+    liveActivityList.innerHTML = '';
+    let hasActivity = false;
+
+    // Check Combat Auto-Attack
+    try {
+        if (isAutoAttacking && currentMonsterTarget) {
+            hasActivity = true;
+            const combatRow = document.createElement('div');
+            combatRow.className = 'stat-row';
+            combatRow.innerHTML = `
+                <span class="stat-name">⚔️ Auto-Combat:</span>
+                <span class="stat-value fore-red">Fighting ${titleCase(currentMonsterTarget)}</span>
+            `;
+            liveActivityList.appendChild(combatRow);
+        }
+    } catch (e) {
+        // Combat module might not be loaded yet
+    }
+
+    // Check Auto-Mining
+    try {
+        const miningActive = playerData?.skills?.mining?.is_active || false;
+        if (miningActive) {
+            hasActivity = true;
+            const miningRow = document.createElement('div');
+            miningRow.className = 'stat-row';
+            miningRow.innerHTML = `
+                <span class="stat-name">⛏️ Auto-Mining:</span>
+                <span class="stat-value fore-lightblack_ex">Active</span>
+            `;
+            liveActivityList.appendChild(miningRow);
+        }
+    } catch (e) {
+        // Mining module issues
+    }
+
+    // Check Auto-Woodcutting
+    try {
+        const woodcuttingActive = playerData?.skills?.woodcutting?.is_active || false;
+        if (woodcuttingActive) {
+            hasActivity = true;
+            const wcRow = document.createElement('div');
+            wcRow.className = 'stat-row';
+            wcRow.innerHTML = `
+                <span class="stat-name">🌲 Auto-Woodcutting:</span>
+                <span class="stat-value fore-green">Active</span>
+            `;
+            liveActivityList.appendChild(wcRow);
+        }
+    } catch (e) {
+        // Woodcutting module issues
+    }
+
+    // Check Auto-Harvesting (Farming)
+    try {
+        let hasAutoHarvesting = false;
+        let harvestingPlots = 0;
+        let totalHourlyRate = 0;
+
+        if (playerData?.farm_data?.crop_plots) {
+            // Check for crop managers (auto-harvesting)
+            Object.keys(playerData.farm_data.crop_plots).forEach(plotKey => {
+                const plot = playerData.farm_data.crop_plots[plotKey];
+                if (plot?.workers?.manager) {
+                    hasAutoHarvesting = true;
+                    harvestingPlots++;
+
+                    // Calculate hourly rate for this plot
+                    if (plot.crop_type && SEED_DATA[plot.crop_type] && CROP_ITEMS[plot.crop_type]) {
+                        const seedData = SEED_DATA[plot.crop_type];
+                        const cropItem = CROP_ITEMS[plot.crop_type];
+                        
+                        // Calculate effective growth time with workers
+                        let growthTime = seedData.growth_time_ms;
+                        
+                        // Apply worker reductions
+                        if (plot.workers.farmhands) {
+                            const workerReduction = Math.min(plot.workers.farmhands.length, 10) * (2 * 60 * 1000); // 2min per worker, max 10
+                            growthTime -= workerReduction;
+                        }
+                        if (plot.workers.manager) {
+                            growthTime -= (5 * 60 * 1000); // 5min for manager
+                        }
+                        
+                        // Minimum 1 minute
+                        growthTime = Math.max(growthTime, 60 * 1000);
+                        
+                        // Calculate harvests per hour
+                        const harvestsPerHour = (60 * 60 * 1000) / growthTime;
+                        
+                        // Calculate value per harvest (yield * sell price)
+                        const yield_ = cropItem.yield || 1;
+                        const sellPrice = ITEM_SELL_PRICES[plot.crop_type] || 0;
+                        const valuePerHarvest = yield_ * sellPrice;
+                        
+                        totalHourlyRate += harvestsPerHour * valuePerHarvest;
+                    }
+                }
+            });
+        }
+
+        if (hasAutoHarvesting) {
+            hasActivity = true;
+            const farmingRow = document.createElement('div');
+            farmingRow.className = 'stat-row';
+            farmingRow.innerHTML = `
+                <span class="stat-name">🏞️ Auto-Harvesting:</span>
+                <span class="stat-value fore-green">${harvestingPlots} plot${harvestingPlots !== 1 ? 's' : ''}</span>
+            `;
+            liveActivityList.appendChild(farmingRow);
+
+            // Add hourly rate if significant
+            if (totalHourlyRate > 0) {
+                const rateRow = document.createElement('div');
+                rateRow.className = 'stat-row';
+                rateRow.innerHTML = `
+                    <span class="stat-name">💰 Hourly Rate:</span>
+                    <span class="stat-value fore-yellow">${Math.floor(totalHourlyRate).toLocaleString()}g/hr</span>
+                `;
+                liveActivityList.appendChild(rateRow);
+            }
+        }
+    } catch (e) {
+        console.warn('Error calculating farming rates:', e);
+    }
+
+    // Check Auto-Cooking
+    try {
+        const cookingActive = playerData?.skills?.cooking?.is_active || false;
+        if (cookingActive) {
+            hasActivity = true;
+            const cookingRow = document.createElement('div');
+            cookingRow.className = 'stat-row';
+            cookingRow.innerHTML = `
+                <span class="stat-name">🍳 Auto-Cooking:</span>
+                <span class="stat-value fore-yellow">Active</span>
+            `;
+            liveActivityList.appendChild(cookingRow);
+        }
+    } catch (e) {
+        // Cooking module issues
+    }
+
+    // Check Auto-Blacksmithing
+    try {
+        const blacksmithingActive = playerData?.skills?.blacksmithing?.is_active || false;
+        if (blacksmithingActive) {
+            hasActivity = true;
+            const bsRow = document.createElement('div');
+            bsRow.className = 'stat-row';
+            bsRow.innerHTML = `
+                <span class="stat-name">🛠️ Auto-Smithing:</span>
+                <span class="stat-value fore-orange">Active</span>
+            `;
+            liveActivityList.appendChild(bsRow);
+        }
+    } catch (e) {
+        // Blacksmithing module issues
+    }
+
+    // Guild Workers (if any are assigned)
+    try {
+        if (playerData?.guild_data?.workers) {
+            let activeWorkers = 0;
+            Object.values(playerData.guild_data.workers).forEach(worker => {
+                if (worker?.task?.type) {
+                    activeWorkers++;
+                }
+            });
+
+            if (activeWorkers > 0) {
+                hasActivity = true;
+                const guildRow = document.createElement('div');
+                guildRow.className = 'stat-row';
+                guildRow.innerHTML = `
+                    <span class="stat-name">🏛️ Guild Workers:</span>
+                    <span class="stat-value fore-blue">${activeWorkers} active</span>
+                `;
+                liveActivityList.appendChild(guildRow);
+            }
+        }
+    } catch (e) {
+        // Guild module issues
+    }
+
+    // If no activities are running
+    if (!hasActivity) {
+        liveActivityList.innerHTML = "<p style='padding:8px; text-align:center;'><i>No auto-actions currently running.</i></p>";
+    }
 } 

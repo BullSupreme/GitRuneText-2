@@ -5,12 +5,13 @@
 
 'use strict';
 
-import { playerData, getLevelFromXp, savePlayerData, logMessage, playSound, sounds } from './utils.js';
+import { playerData, getLevelFromXp, savePlayerData, logMessage, playSound, sounds, getEnchantmentBonus } from './utils.js';
 import { showSection, updateHud, setActiveSkill, clearActiveSkill } from './ui.js';
-import { SWORD_DATA, ARMOR_DATA, HELMET_DATA, BAR_DATA, getItemDetails } from './data.js';
+import { SWORD_DATA, ARMOR_DATA, HELMET_DATA, RING_DATA, BAR_DATA, getItemDetails } from './data.js';
 import { getSummedPyramidPerkEffects } from './perks.js';
+import { getStructurePerkEffect } from './builds.js';
 import { getGuildDoubleCraftingChance } from './guild.js';
-import { trackEquipmentCollection } from './achievements.js';
+import { trackEquipmentCollection, trackItemObtained, isAchievementCompleted } from './achievements.js';
 
 // State variables for blacksmithing
 export let isAutoSmelting = false;
@@ -21,13 +22,93 @@ export let maxSmeltableForCurrentTarget = 0;
 export let isAutoSmithing = false;
 export let autoSmithingInterval = null;
 export let currentSmithingTarget = null;
-export let currentSmithingCategory = 'weapons'; // 'weapons', 'armor', 'helmets'
+export let currentSmithingCategory = 'weapons'; // 'weapons', 'armor', 'helmets', 'accessories'
+
+/**
+ * Calculates the current smelting action time
+ */
+export function calculateSmeltingActionTime() {
+    const baseTime = 3000;
+    let interval = baseTime;
+    
+    // Apply crafting speed bonus from ring enchantments (reduce time in milliseconds)
+    const craftingSpeedBonus = getEnchantmentBonus('crafting_speed');
+    if (craftingSpeedBonus > 0) {
+        interval -= (craftingSpeedBonus * 1000); // Convert seconds to milliseconds
+    }
+    
+    // Calculate smelt interval with perks and structures
+    const effects = getSummedPyramidPerkEffects();
+    let totalSpeedBoost = (effects.smelt_speed || 0) + (effects.global_skill_speed_boost || 0);
+    
+    // Add global skill speed boost from structures
+    const structureSpeedBonus = getStructurePerkEffect('stronghold', 'global_skill_speed_boost') || 0;
+    totalSpeedBoost += structureSpeedBonus;
+    
+    interval *= (1 - totalSpeedBoost);
+    interval = Math.max(500, interval);
+    
+    return interval;
+}
+
+/**
+ * Calculates the current smithing action time
+ */
+export function calculateSmithingActionTime() {
+    const baseTime = 3000;
+    let interval = baseTime;
+    
+    // Apply crafting speed bonus from ring enchantments (reduce time in milliseconds)
+    const craftingSpeedBonus = getEnchantmentBonus('crafting_speed');
+    if (craftingSpeedBonus > 0) {
+        interval -= (craftingSpeedBonus * 1000); // Convert seconds to milliseconds
+    }
+    
+    // Apply speed bonuses from perks and structures (future enhancement)
+    const effects = getSummedPyramidPerkEffects();
+    let totalSpeedBoost = (effects.smith_speed || 0) + (effects.global_skill_speed_boost || 0);
+    
+    // Add global skill speed boost from structures
+    const structureSpeedBonus = getStructurePerkEffect('stronghold', 'global_skill_speed_boost') || 0;
+    totalSpeedBoost += structureSpeedBonus;
+    
+    if (totalSpeedBoost > 0) {
+        interval *= (1 - totalSpeedBoost);
+    }
+    
+    // Minimum interval should be 500ms
+    interval = Math.max(500, interval);
+    
+    return interval;
+}
 
 // Utility: Convert a string to Title Case
 function toTitleCase(str) {
     return str.replace(/\w\S*/g, (txt) =>
         txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
     );
+}
+
+// Helper function to get achievement ID for armor items
+function getArmorAchievementId(armorName) {
+    const achievementMap = {
+        'bronze chestplate': 'bronzeChestplateDiscovery',
+        'iron chestplate': 'ironChestplateDiscovery',
+        'steel chestplate': 'steelChestplateDiscovery',
+        'mithril chestplate': 'mithrilChestplateDiscovery',
+        'adamant chestplate': 'adamantChestplateDiscovery',
+        'rune chestplate': 'runeChestplateDiscovery',
+        'dragon chestplate': 'dragonChestplateDiscovery'
+    };
+    return achievementMap[armorName] || null;
+}
+
+// Helper function to get achievement ID for helmet items
+function getHelmetAchievementId(helmetName) {
+    const achievementMap = {
+        'full dragon helmet': 'fullDragonHelmetDiscovery'
+    };
+    return achievementMap[helmetName] || null;
 }
 
 /**
@@ -92,7 +173,10 @@ function updateSmeltingDisplay() {
             .map(([ore, amount]) => {
                 const oreDetails = getItemDetails(ore);
                 const oreEmoji = oreDetails?.emoji || '';
-                return `<span class='resource-ingredient'>${oreEmoji}${amount} <span class='resource-ingredient-name'>${toTitleCase(ore)}</span></span>`;
+                const playerHas = playerData.inventory[ore] || 0;
+                const hasEnough = playerHas >= amount;
+                const colorClass = hasEnough ? 'have-enough' : 'have-not-enough';
+                return `<span class='resource-ingredient'>${oreEmoji}${amount} <span class='resource-ingredient-name'>${toTitleCase(ore)}</span> (<span class="${colorClass}">${playerHas}</span>)</span>`;
             })
             .join(', ');
         barDiv.innerHTML = `
@@ -167,12 +251,8 @@ export function startAutoSmelting() {
     
     isAutoSmelting = true;
     
-    // Calculate smelt interval with perks
-    const effects = getSummedPyramidPerkEffects();
-    let interval = 3000;
-    const speedBoost = (effects.smelt_speed || 0) + (effects.global_skill_speed_boost || 0);
-    interval *= (1 - speedBoost);
-    interval = Math.max(500, interval);
+    // Use centralized smelting action time calculation
+    const interval = calculateSmeltingActionTime();
     autoSmeltingInterval = setInterval(() => {
         console.log(`[DEBUG] Smelt tick at ${new Date().toLocaleTimeString()}`);
         singleSmeltAction();
@@ -181,6 +261,13 @@ export function startAutoSmelting() {
     logMessage(`Auto-smelting ${currentSmeltingTarget} started.`, 'fore-cyan');
     updateHud();
     setActiveSkill('bs');
+    
+    // Add smelting class for animation
+    const hudElement = document.getElementById('hud-bs');
+    if (hudElement) {
+        hudElement.classList.add('smelting');
+        hudElement.classList.remove('smithing');
+    }
 }
 
 /**
@@ -202,6 +289,12 @@ export function stopAutoSmelting() {
     updateSmeltingDisplay();
     updateHud();
     clearActiveSkill();
+    
+    // Remove smelting class
+    const hudElement = document.getElementById('hud-bs');
+    if (hudElement) {
+        hudElement.classList.remove('smelting');
+    }
 }
 
 /**
@@ -247,6 +340,8 @@ export function singleSmeltAction() {
     
     // Add bar to inventory
     playerData.inventory[currentSmeltingTarget] = (playerData.inventory[currentSmeltingTarget] || 0) + barYield;
+    // Track item discovery for achievements
+    trackItemObtained(currentSmeltingTarget);
     // Grant XP (with xp_boost perks)
     const smeltEffects = getSummedPyramidPerkEffects();
     const xpBoost = smeltEffects.xp_boost_percentage_blacksmithing || 0;
@@ -322,6 +417,8 @@ export function updateSmithingRecipesDisplay() {
         populateSmithingArmor();
     } else if (currentSmithingCategory === 'helmets') {
         populateSmithingHelmets();
+    } else if (currentSmithingCategory === 'accessories') {
+        populateSmithingAccessories();
     }
 }
 
@@ -362,7 +459,10 @@ export function populateSwordSmeltingGrid() {
             .map(([item, amount]) => {
                 const itemDetails = getItemDetails(item);
                 const itemEmoji = itemDetails?.emoji || '';
-                return `<span class='resource-ingredient'>${itemEmoji}${amount} <span class='resource-ingredient-name'>${toTitleCase(item)}</span></span>`;
+                const playerHas = playerData.inventory[item] || 0;
+                const hasEnough = playerHas >= amount;
+                const colorClass = hasEnough ? 'have-enough' : 'have-not-enough';
+                return `<span class='resource-ingredient'>${itemEmoji}${amount} <span class='resource-ingredient-name'>${toTitleCase(item)}</span> (<span class="${colorClass}">${playerHas}</span>)</span>`;
             })
             .join(', ');
         div.innerHTML = `
@@ -407,6 +507,57 @@ function selectWeaponForAutoSmithing(swordName) {
 }
 
 /**
+ * Select armor for auto-smithing (toggle)
+ * @param {string} armorName - Name of the armor to smith
+ */
+function selectArmorForAutoSmithing(armorName) {
+    // If already auto-smithing this armor, stop
+    if (isAutoSmithing && currentSmithingTarget === armorName && currentSmithingCategory === 'armor') {
+        stopAutoSmithing();
+        return;
+    }
+    // Otherwise, set up new smithing target
+    currentSmithingTarget = armorName;
+    currentSmithingCategory = 'armor';
+    startAutoSmithing();
+    updateSmithingRecipesDisplay();
+}
+
+/**
+ * Select a helmet for auto-smithing (toggle)
+ * @param {string} helmetName - Name of the helmet to smith
+ */
+function selectHelmetForAutoSmithing(helmetName) {
+    // If already auto-smithing this helmet, stop
+    if (isAutoSmithing && currentSmithingTarget === helmetName && currentSmithingCategory === 'helmets') {
+        stopAutoSmithing();
+        return;
+    }
+    // Otherwise, set up new smithing target
+    currentSmithingTarget = helmetName;
+    currentSmithingCategory = 'helmets';
+    startAutoSmithing();
+    updateSmithingRecipesDisplay();
+}
+
+/**
+ * Select an accessory for auto-smithing (toggle)
+ * @param {string} accessoryName - Name of the accessory to smith
+ */
+function selectAccessoryForAutoSmithing(accessoryName) {
+    // If already auto-smithing this accessory, stop
+    if (isAutoSmithing && currentSmithingTarget === accessoryName && currentSmithingCategory === 'accessories') {
+        stopAutoSmithing();
+        return;
+    }
+    // Otherwise, set up new smithing target
+    currentSmithingTarget = accessoryName;
+    currentSmithingCategory = 'accessories';
+    startAutoSmithing();
+    updateSmithingRecipesDisplay();
+}
+
+/**
  * Craft a sword
  * @param {string} swordName - Name of the sword to craft
  */
@@ -441,6 +592,7 @@ export function craftSword(swordName) {
     // Add sword to inventory
     playerData.inventory[swordName] = (playerData.inventory[swordName] || 0) + swordYield;
     trackEquipmentCollection(swordName, 'weapon');
+    trackItemObtained(swordName);
     // Grant XP
     playerData.skills.blacksmithing.xp += swordData.xp_gain;
     // Play smithing sound
@@ -483,41 +635,89 @@ export function populateSmithingArmor() {
     if (!container) return;
     container.innerHTML = '';
     
+    let hasUnlockedArmor = false;
+    
     for (const [armorName, armorData] of Object.entries(ARMOR_DATA)) {
-        if (getLevelFromXp(playerData.skills.blacksmithing.xp) >= armorData.smith_level_req) {
-            const div = document.createElement('div');
-            div.className = 'skill-resource';
-            
-            const hasRequiredBars = Object.entries(armorData.recipe).every(([item, amount]) => {
-                return playerData.inventory[item] >= amount;
-            });
-
-            // Use image for armor icon
-            const iconHtml = `<img src="assets/${armorName.toLowerCase().replace(/ /g, '-')}.png" alt="${toTitleCase(armorName)}" class="inventory-item-icon">`;
-
-            div.innerHTML = `
-                <div class="resource-icon" style="color: ${armorData.color}">${iconHtml}</div>
-                <div class="resource-name">${armorName}</div>
-                <div class="resource-details">
-                    <div>Smith Level: ${armorData.smith_level_req}</div>
-                    <div>Recipe: ${Object.entries(armorData.recipe)
-                        .map(([item, amount]) => `${amount} ${item}`)
-                        .join(', ')}</div>
-                    <div>XP: ${armorData.xp_gain}</div>
-                </div>
-                <button class="skill-action-button" ${hasRequiredBars ? '' : 'disabled'}>
-                    ${hasRequiredBars ? 'Craft' : 'Insufficient Materials'}
-                </button>
-            `;
-            
-            // Add event listener to the button
-            const button = div.querySelector('.skill-action-button');
-            if (button) {
-                button.addEventListener('click', () => craftArmor(armorName));
-            }
-            
-            container.appendChild(div);
+        // Check if armor has been unlocked via achievement (unless in god mode)
+        const godMode = !!playerData.godModeActive;
+        
+        // Get the corresponding achievement ID for this armor
+        const achievementId = getArmorAchievementId(armorName);
+        const isUnlocked = godMode || isAchievementCompleted(achievementId);
+        
+        // Skip locked armor entirely - don't show them in the interface
+        if (!isUnlocked) {
+            continue;
         }
+        
+        hasUnlockedArmor = true;
+        
+        const meetsLevel = getLevelFromXp(playerData.skills.blacksmithing.xp) >= armorData.smith_level_req;
+        
+        // Calculate max craftable
+        let maxCraftable = Infinity;
+        Object.entries(armorData.recipe).forEach(([item, amount]) => {
+            const playerHas = playerData.inventory[item] || 0;
+            const canCraft = Math.floor(playerHas / amount);
+            maxCraftable = Math.min(maxCraftable, canCraft);
+        });
+        if (!isFinite(maxCraftable)) maxCraftable = 0;
+        
+        const hasRequiredBars = meetsLevel && maxCraftable > 0;
+        const inventoryCount = playerData.inventory[armorName] || 0;
+        
+        const div = document.createElement('div');
+        div.className = 'skill-resource mining-resource' + (!meetsLevel || maxCraftable === 0 ? ' greyed-out' : '');
+        div.style.cursor = hasRequiredBars ? 'pointer' : 'not-allowed';
+
+        // Use image for armor icon
+        const iconHtml = `<img src="assets/${armorName.toLowerCase().replace(/ /g, '-')}.png" alt="${toTitleCase(armorName)}" class="inventory-item-icon">`;
+        
+        // Combine Level and XP
+        const levelXp = `Level: ${armorData.smith_level_req}  <span class='resource-xp'>+${armorData.xp_gain} XP</span>`;
+        
+        // Recipe with colored text and emojis if available
+        const recipeHtml = Object.entries(armorData.recipe)
+            .map(([item, amount]) => {
+                const itemDetails = getItemDetails(item);
+                const itemEmoji = itemDetails?.emoji || '';
+                const playerHas = playerData.inventory[item] || 0;
+                const hasEnough = playerHas >= amount;
+                const colorClass = hasEnough ? 'have-enough' : 'have-not-enough';
+                return `<span class='resource-ingredient'>${itemEmoji}${amount} <span class='resource-ingredient-name'>${toTitleCase(item)}</span> (<span class="${colorClass}">${playerHas}</span>)</span>`;
+            })
+            .join(', ');
+
+        div.innerHTML = `
+            <div class="resource-icon" style="color: ${armorData.color}">${iconHtml}</div>
+            <div class="resource-name">${toTitleCase(armorName)}</div>
+            <div class="resource-details compact-details">
+                <div>${levelXp}</div>
+                <div class="resource-recipe">Recipe: ${recipeHtml}</div>
+                <div>Max: ${maxCraftable}</div>
+                <div>Defense: +${(armorData.defense * 100).toFixed(1)}%</div>
+                ${!meetsLevel ? `<div class='locked-label'>Locked (Level ${armorData.smith_level_req})</div>` : ''}
+                ${meetsLevel && !hasRequiredBars ? `<div class='locked-label'>Insufficient Materials</div>` : ''}
+            </div>
+            <div class="resource-inventory-count">${inventoryCount}</div>
+        `;
+        
+        // Add active class if currently auto-smithing this armor
+        if (isAutoSmithing && currentSmithingTarget === armorName && currentSmithingCategory === 'armor') {
+            div.classList.add('active-resource');
+        }
+        
+        // Add click event to the whole container if craftable
+        if (hasRequiredBars) {
+            div.addEventListener('click', () => selectArmorForAutoSmithing(armorName));
+        }
+        
+        container.appendChild(div);
+    }
+    
+    // Show message if no armor is unlocked
+    if (!hasUnlockedArmor) {
+        container.innerHTML = '<p class="no-items-message">No armor unlocked yet. Find chestplates as loot to unlock crafting!</p>';
     }
 }
 
@@ -529,42 +729,225 @@ export function populateSmithingHelmets() {
     if (!container) return;
     container.innerHTML = '';
     
+    let hasUnlockedHelmets = false;
+    
     for (const [helmetName, helmetData] of Object.entries(HELMET_DATA)) {
-        if (getLevelFromXp(playerData.skills.blacksmithing.xp) >= helmetData.smith_level_req) {
-            const div = document.createElement('div');
-            div.className = 'skill-resource';
-            
-            const hasRequiredBars = Object.entries(helmetData.recipe).every(([item, amount]) => {
-                return playerData.inventory[item] >= amount;
-            });
-
-            // Use image for helmet icon
-            const iconHtml = `<img src="assets/${helmetName.toLowerCase().replace(/ /g, '-')}.png" alt="${toTitleCase(helmetName)}" class="inventory-item-icon">`;
-
-            div.innerHTML = `
-                <div class="resource-icon" style="color: ${helmetData.color}">${iconHtml}</div>
-                <div class="resource-name">${helmetName}</div>
-                <div class="resource-details">
-                    <div>Smith Level: ${helmetData.smith_level_req}</div>
-                    <div>Recipe: ${Object.entries(helmetData.recipe)
-                        .map(([item, amount]) => `${amount} ${item}`)
-                        .join(', ')}</div>
-                    <div>XP: ${helmetData.xp_gain}</div>
-                </div>
-                <button class="skill-action-button" ${hasRequiredBars ? '' : 'disabled'}>
-                    ${hasRequiredBars ? 'Craft' : 'Insufficient Materials'}
-                </button>
-            `;
-            
-            // Add event listener to the button
-            const button = div.querySelector('.skill-action-button');
-            if (button) {
-                button.addEventListener('click', () => craftHelmet(helmetName));
-            }
-            
-            container.appendChild(div);
+        // Check if helmet has been unlocked via achievement (unless in god mode)
+        const godMode = !!playerData.godModeActive;
+        
+        // Get the corresponding achievement ID for this helmet
+        const achievementId = getHelmetAchievementId(helmetName);
+        const isUnlocked = godMode || isAchievementCompleted(achievementId);
+        
+        // Skip locked helmets entirely - don't show them in the interface
+        if (!isUnlocked) {
+            continue;
         }
+        
+        hasUnlockedHelmets = true;
+        
+        const meetsLevel = getLevelFromXp(playerData.skills.blacksmithing.xp) >= helmetData.smith_level_req;
+        
+        // Calculate max craftable
+        let maxCraftable = Infinity;
+        Object.entries(helmetData.recipe).forEach(([item, amount]) => {
+            const playerHas = playerData.inventory[item] || 0;
+            const canCraft = Math.floor(playerHas / amount);
+            maxCraftable = Math.min(maxCraftable, canCraft);
+        });
+        if (!isFinite(maxCraftable)) maxCraftable = 0;
+        
+        const hasRequiredBars = meetsLevel && maxCraftable > 0;
+        const inventoryCount = playerData.inventory[helmetName] || 0;
+        
+        const div = document.createElement('div');
+        div.className = 'skill-resource mining-resource' + (!meetsLevel || maxCraftable === 0 ? ' greyed-out' : '');
+        div.style.cursor = hasRequiredBars ? 'pointer' : 'not-allowed';
+
+        // Use image for helmet icon
+        let imageName = helmetName.toLowerCase().replace(/ /g, '-');
+        // Special case for Full Dragon Helmet
+        if (helmetName === 'full dragon helmet') {
+            imageName = 'Dragon-Full-Helmet';
+        }
+        const iconHtml = `<img src="assets/${imageName}.png" alt="${toTitleCase(helmetName)}" class="inventory-item-icon">`;
+        
+        // Combine Level and XP
+        const levelXp = `Level: ${helmetData.smith_level_req}  <span class='resource-xp'>+${helmetData.xp_gain} XP</span>`;
+        
+        // Recipe with colored text and emojis if available
+        const recipeHtml = Object.entries(helmetData.recipe)
+            .map(([item, amount]) => {
+                const itemDetails = getItemDetails(item);
+                const itemEmoji = itemDetails?.emoji || '';
+                const playerHas = playerData.inventory[item] || 0;
+                const hasEnough = playerHas >= amount;
+                const colorClass = hasEnough ? 'have-enough' : 'have-not-enough';
+                return `<span class='resource-ingredient'>${itemEmoji}${amount} <span class='resource-ingredient-name'>${toTitleCase(item)}</span> (<span class="${colorClass}">${playerHas}</span>)</span>`;
+            })
+            .join(', ');
+
+        div.innerHTML = `
+            <div class="resource-icon" style="color: ${helmetData.color}">${iconHtml}</div>
+            <div class="resource-name">${toTitleCase(helmetName)}</div>
+            <div class="resource-details compact-details">
+                <div>${levelXp}</div>
+                <div class="resource-recipe">Recipe: ${recipeHtml}</div>
+                <div>Max: ${maxCraftable}</div>
+                <div>Defense: +${(helmetData.defense * 100).toFixed(1)}%</div>
+                <div>Block: ${(helmetData.block_chance * 100).toFixed(1)}% chance, ${helmetData.block_amount} amount</div>
+                ${!meetsLevel ? `<div class='locked-label'>Locked (Level ${helmetData.smith_level_req})</div>` : ''}
+                ${meetsLevel && !hasRequiredBars ? `<div class='locked-label'>Insufficient Materials</div>` : ''}
+            </div>
+            <div class="resource-inventory-count">${inventoryCount}</div>
+        `;
+        
+        // Add active class if currently auto-smithing this helmet
+        if (isAutoSmithing && currentSmithingTarget === helmetName && currentSmithingCategory === 'helmets') {
+            div.classList.add('active-resource');
+        }
+        
+        // Add click event to the whole container if craftable
+        if (hasRequiredBars) {
+            div.addEventListener('click', () => selectHelmetForAutoSmithing(helmetName));
+        }
+        
+        container.appendChild(div);
     }
+    
+    // Show message if no helmets are unlocked
+    if (!hasUnlockedHelmets) {
+        container.innerHTML = '<p class="no-items-message">No helmets unlocked yet. Find helmets as loot to unlock crafting!</p>';
+    }
+}
+
+/**
+ * Populate the smithing accessories display
+ */
+export function populateSmithingAccessories() {
+    const container = document.getElementById('smithing-accessories-category-list');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    for (const [ringName, ringData] of Object.entries(RING_DATA)) {
+        const meetsLevel = getLevelFromXp(playerData.skills.blacksmithing.xp) >= ringData.smith_level_req;
+        
+        // Calculate max craftable
+        let maxCraftable = Infinity;
+        Object.entries(ringData.recipe).forEach(([item, amount]) => {
+            const playerHas = playerData.inventory[item] || 0;
+            const canCraft = Math.floor(playerHas / amount);
+            maxCraftable = Math.min(maxCraftable, canCraft);
+        });
+        if (!isFinite(maxCraftable)) maxCraftable = 0;
+        
+        const hasRequiredBars = meetsLevel && maxCraftable > 0;
+        const inventoryCount = playerData.inventory[ringName] || 0;
+        
+        const div = document.createElement('div');
+        div.className = 'skill-resource mining-resource' + (!meetsLevel || !hasRequiredBars ? ' greyed-out' : '');
+        div.style.cursor = hasRequiredBars ? 'pointer' : 'not-allowed';
+        
+        // Combine Level and XP
+        const levelXp = `Level: ${ringData.smith_level_req}  <span class='resource-xp'>+${ringData.xp_gain} XP</span>`;
+        
+        // Recipe with colored text and emojis if available
+        const recipeHtml = Object.entries(ringData.recipe)
+            .map(([item, amount]) => {
+                const itemDetails = getItemDetails(item);
+                const itemEmoji = itemDetails?.emoji || '';
+                const playerHas = playerData.inventory[item] || 0;
+                const hasEnough = playerHas >= amount;
+                const colorClass = hasEnough ? 'have-enough' : 'have-not-enough';
+                return `<span class='resource-ingredient'>${itemEmoji}${amount} <span class='resource-ingredient-name'>${toTitleCase(item)}</span> (<span class="${colorClass}">${playerHas}</span>)</span>`;
+            })
+            .join(', ');
+
+        div.innerHTML = `
+            <div class="resource-icon" style="color: ${ringData.color}">${ringData.emoji}</div>
+            <div class="resource-name">${toTitleCase(ringName)}</div>
+            <div class="resource-details compact-details">
+                <div>${levelXp}</div>
+                <div class="resource-recipe">Recipe: ${recipeHtml}</div>
+                <div>Max: ${maxCraftable}</div>
+                <div>Stats: +${ringData.hp_bonus} HP, +${(ringData.crit_chance * 100).toFixed(1)}% Crit, +${(ringData.str_percentage * 100).toFixed(1)}% Str</div>
+                ${!meetsLevel ? `<div class='locked-label'>Locked (Level ${ringData.smith_level_req})</div>` : ''}
+                ${meetsLevel && !hasRequiredBars ? `<div class='locked-label'>Insufficient Materials</div>` : ''}
+            </div>
+            <div class="resource-inventory-count">${inventoryCount}</div>
+        `;
+        
+        // Add active class if currently auto-smithing this accessory
+        if (isAutoSmithing && currentSmithingTarget === ringName && currentSmithingCategory === 'accessories') {
+            div.classList.add('active-resource');
+        }
+        
+        // Add click event to the whole container if craftable
+        if (hasRequiredBars) {
+            div.addEventListener('click', () => selectAccessoryForAutoSmithing(ringName));
+        }
+        
+        container.appendChild(div);
+    }
+}
+
+/**
+ * Craft ring item
+ * @param {string} ringName - Name of the ring to craft
+ */
+export function craftRing(ringName) {
+    const ringData = RING_DATA[ringName];
+    
+    // Check if player has required bars
+    const hasRequiredBars = Object.entries(ringData.recipe).every(([item, amount]) => {
+        return playerData.inventory[item] >= amount;
+    });
+
+    if (!hasRequiredBars) {
+        logMessage(`Insufficient materials to craft ${ringName}`, "fore-red");
+        return;
+    }
+
+    // Check smithing level
+    if (getLevelFromXp(playerData.skills.blacksmithing.xp) < ringData.smith_level_req) {
+        logMessage(`Insufficient smithing level to craft ${ringName}`, "fore-red");
+        return;
+    }
+
+    // Deduct materials
+    Object.entries(ringData.recipe).forEach(([item, amount]) => {
+        playerData.inventory[item] -= amount;
+    });
+
+    // Determine yield with double crafting chance
+    let ringYield = 1;
+    const doubleCraftChance = getGuildDoubleCraftingChance();
+    if (doubleCraftChance > 0 && Math.random() < doubleCraftChance) {
+        ringYield = 2;
+        logMessage(`Guild bonus: Double yield! Got ${ringYield} ${ringName}!`, 'fore-cyan', '✨');
+    }
+
+    // Add ring to inventory
+    playerData.inventory[ringName] = (playerData.inventory[ringName] || 0) + ringYield;
+    trackEquipmentCollection(ringName, 'ring');
+    trackItemObtained(ringName);
+    
+    // Grant XP
+    playerData.skills.blacksmithing.xp += ringData.xp_gain;
+    
+    // Play smithing sound
+    if (sounds && sounds.smithing) {
+        const smithingSound = typeof sounds.smithing === 'function' ? sounds.smithing() : sounds.smithing;
+        playSound(smithingSound);
+    }
+    
+    // Update UI
+    populateSmithingAccessories();
+    updateHud();
+    savePlayerData();
+    
+    // Log message
+    logMessage(`Crafted ${ringYield} ${ringName}! (+${ringData.xp_gain} Blacksmithing XP)`, "fore-yellow", "💍");
 }
 
 /**
@@ -606,6 +989,7 @@ export function craftArmor(armorName) {
     // Add armor to inventory
     playerData.inventory[armorName] = (playerData.inventory[armorName] || 0) + armorYield;
     trackEquipmentCollection(armorName, 'armor');
+    trackItemObtained(armorName);
     // Grant XP
     playerData.skills.blacksmithing.xp += armorData.xp_gain;
     
@@ -664,6 +1048,7 @@ export function craftHelmet(helmetName) {
     // Add helmet to inventory
     playerData.inventory[helmetName] = (playerData.inventory[helmetName] || 0) + helmetYield;
     trackEquipmentCollection(helmetName, 'helmet');
+    trackItemObtained(helmetName);
     // Grant XP
     playerData.skills.blacksmithing.xp += helmetData.xp_gain;
     
@@ -692,21 +1077,38 @@ export function showSmithingCategory(category) {
     const weaponsList = document.getElementById('smithing-weapons-category-list');
     const armorList = document.getElementById('smithing-armor-category-list');
     const helmetsList = document.getElementById('smithing-helmets-category-list');
+    const accessoriesList = document.getElementById('smithing-accessories-category-list');
     if (weaponsList) weaponsList.classList.add('hidden');
     if (armorList) armorList.classList.add('hidden');
     if (helmetsList) helmetsList.classList.add('hidden');
+    if (accessoriesList) accessoriesList.classList.add('hidden');
     // Show selected category
     if (category === 'weapons' && weaponsList) weaponsList.classList.remove('hidden');
     if (category === 'armor' && armorList) armorList.classList.remove('hidden');
     if (category === 'helmets' && helmetsList) helmetsList.classList.remove('hidden');
+    if (category === 'accessories' && accessoriesList) accessoriesList.classList.remove('hidden');
     currentSmithingCategory = category;
+    
+    // Populate the selected category
+    if (category === 'weapons') {
+        populateSmithingWeapons();
+    } else if (category === 'armor') {
+        populateSmithingArmor();
+    } else if (category === 'helmets') {
+        populateSmithingHelmets();
+    } else if (category === 'accessories') {
+        populateSmithingAccessories();
+    }
+    
     // Toggle tab buttons
     const weaponsTabBtn = document.getElementById('smithing-weapons-tab-btn');
     const armorTabBtn = document.getElementById('smithing-armor-tab-btn');
     const helmetsTabBtn = document.getElementById('smithing-helmets-tab-btn');
+    const accessoriesTabBtn = document.getElementById('smithing-accessories-tab-btn');
     if (weaponsTabBtn) weaponsTabBtn.classList.toggle('active-tab', category === 'weapons');
     if (armorTabBtn) armorTabBtn.classList.toggle('active-tab', category === 'armor');
     if (helmetsTabBtn) helmetsTabBtn.classList.toggle('active-tab', category === 'helmets');
+    if (accessoriesTabBtn) accessoriesTabBtn.classList.toggle('active-tab', category === 'accessories');
 }
 
 /**
@@ -745,7 +1147,10 @@ export function selectItemForSmithing(itemName, category) {
 export function startAutoSmithing() {
     if (isAutoSmithing || !currentSmithingTarget) return;
     isAutoSmithing = true;
-    // Smithing speed can be increased by buffs/perks in the future
+    
+    // Use centralized smithing action time calculation
+    const interval = calculateSmithingActionTime();
+    
     autoSmithingInterval = setInterval(() => {
         console.log(`[DEBUG] Smith tick at ${new Date().toLocaleTimeString()}`);
         if (!checkCanStillSmith()) {
@@ -753,10 +1158,17 @@ export function startAutoSmithing() {
             return;
         }
         singleSmithAction();
-    }, 3000); // 3s per smith (future: scale with buffs/perks)
+    }, interval);
     logMessage(`Auto-smithing ${currentSmithingTarget} started.`, 'fore-cyan');
     updateHud();
     setActiveSkill('bs');
+    
+    // Add smithing class for animation
+    const hudElement = document.getElementById('hud-bs');
+    if (hudElement) {
+        hudElement.classList.add('smithing');
+        hudElement.classList.remove('smelting');
+    }
 }
 
 /**
@@ -774,6 +1186,12 @@ export function stopAutoSmithing() {
     updateSmithingRecipesDisplay();
     updateHud();
     clearActiveSkill();
+    
+    // Remove smithing class
+    const hudElement = document.getElementById('hud-bs');
+    if (hudElement) {
+        hudElement.classList.remove('smithing');
+    }
 }
 
 /**
@@ -787,6 +1205,8 @@ export function singleSmithAction() {
         craftArmor(currentSmithingTarget);
     } else if (currentSmithingCategory === 'helmets') {
         craftHelmet(currentSmithingTarget);
+    } else if (currentSmithingCategory === 'accessories') {
+        craftRing(currentSmithingTarget);
     }
 }
 
@@ -804,6 +1224,8 @@ export function checkCanStillSmith() {
         itemData = ARMOR_DATA[currentSmithingTarget];
     } else if (currentSmithingCategory === 'helmets') {
         itemData = HELMET_DATA[currentSmithingTarget];
+    } else if (currentSmithingCategory === 'accessories') {
+        itemData = RING_DATA[currentSmithingTarget];
     }
     if (!itemData) return false;
     recipe = itemData.recipe;
@@ -819,6 +1241,7 @@ export function checkCanStillSmith() {
 export function updateSwordSmeltingUI() {
     populateSwordSmeltingGrid();
 }
+
 
 // Add document ready event listener
 document.addEventListener('DOMContentLoaded', () => {
@@ -892,4 +1315,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (armorTabBtn) armorTabBtn.addEventListener('click', () => showSmithingCategory('armor'));
     const helmetsTabBtn = document.getElementById('smithing-helmets-tab-btn');
     if (helmetsTabBtn) helmetsTabBtn.addEventListener('click', () => showSmithingCategory('helmets'));
+    const accessoriesTabBtn = document.getElementById('smithing-accessories-tab-btn');
+    if (accessoriesTabBtn) accessoriesTabBtn.addEventListener('click', () => showSmithingCategory('accessories'));
 });

@@ -34,6 +34,23 @@ for (let lvl = 80; lvl < LEVEL_PROGRESSION.length; lvl++) {
 // Member Level Progression (2x player skill XP)
 export const MEMBER_LEVEL_PROGRESSION = LEVEL_PROGRESSION.map(xp => xp * 2);
 
+// Dungeoneering Level Progression (goes to 120)
+export const DUNGEONEERING_LEVEL_PROGRESSION = [...LEVEL_PROGRESSION];
+// Extend to level 120
+for (let _lvl = 99; _lvl < 120; _lvl++) {
+    _points += Math.floor(_lvl * 2.5 + 500 * (2**(_lvl / 5.5)));
+    DUNGEONEERING_LEVEL_PROGRESSION.push(Math.floor(_points / 3));
+}
+
+// Function to get exp required for next level
+export function getExpToNextLevel(currentLevel, skillType = 'normal') {
+    if (skillType === 'dungeoneering') {
+        if (currentLevel >= 120) return 0;
+        return DUNGEONEERING_LEVEL_PROGRESSION[currentLevel];
+    }
+    if (currentLevel >= 99) return 0;
+    return LEVEL_PROGRESSION[currentLevel];
+}
 
 // Item Tiers and corresponding CSS classes
 export const TIERS = {
@@ -79,41 +96,41 @@ export const TOOL_DATA = {
                 "oak":    [{ "chance": 0.05, "amount": 1 }]
             }}
         },
-        "iron":    {"emoji": "🪓",    "price":50,    "level_req":15, "min_dmg":2,  "max_dmg":3,  "skill_type":"woodcutting", "color":"fore-lightblack_ex", "tier": TIERS.COMMON, "attack_speed": 3.00,
+        "iron":    {"emoji": "🪓",    "price":100,    "level_req":15, "min_dmg":2,  "max_dmg":3,  "skill_type":"woodcutting", "color":"fore-lightblack_ex", "tier": TIERS.COMMON, "attack_speed": 3.00,
             "yield_config": { "base": 1, "bonuses_by_tree": {
                 "normal": [{ "chance": 0.70, "amount": 1 }],
                 "oak":    [{ "chance": 0.25, "amount": 1 }]
             }}
         },
-        "steel":   {"emoji": "🪓",    "price":120,   "level_req":30, "min_dmg":3,  "max_dmg":5,  "skill_type":"woodcutting", "color":"fore-cyan", "tier": TIERS.UNCOMMON, "attack_speed": 3.00,
+        "steel":   {"emoji": "🪓",    "price":360,   "level_req":30, "min_dmg":3,  "max_dmg":5,  "skill_type":"woodcutting", "color":"fore-cyan", "tier": TIERS.UNCOMMON, "attack_speed": 3.00,
             "yield_config": { "base": 1, "bonuses_by_tree": {
                 "normal": [{ "chance": 0.85, "amount": 1 }, { "chance": 0.35, "amount": 1 }],
                 "oak":    [{ "chance": 0.80, "amount": 1 }, { "chance": 0.30, "amount": 1 }],
                 "willow": [{ "chance": 0.75, "amount": 1 }, { "chance": 0.25, "amount": 1 }]
             }}
         },
-        "mithril": {"emoji": "🪓",    "price":300,   "level_req":45, "min_dmg":5,  "max_dmg":8,  "skill_type":"woodcutting", "color":"fore-blue", "tier": TIERS.RARE, "attack_speed": 3.00,
+        "mithril": {"emoji": "🪓",    "price":3000,   "level_req":45, "min_dmg":5,  "max_dmg":8,  "skill_type":"woodcutting", "color":"fore-blue", "tier": TIERS.RARE, "attack_speed": 3.00,
             "yield_config": { "base": 2, "bonuses_by_tree": {
                 "normal": [{ "chance": 0.80, "amount": 1 }],
                 "oak":    [{ "chance": 0.70, "amount": 1 }],
                 "willow": [{ "chance": 0.60, "amount": 1 }]
             }}, "aoe_chance": 0.05, "aoe_targets": 1, "aoe_damage_percentage": 0.20
         },
-        "adamant": {"emoji": "🪓",    "price":750,   "level_req":60, "min_dmg":8,  "max_dmg":12, "skill_type":"woodcutting", "color":"fore-green", "tier": TIERS.RARE, "attack_speed": 3.00,
+        "adamant": {"emoji": "🪓",    "price":9750,   "level_req":60, "min_dmg":8,  "max_dmg":12, "skill_type":"woodcutting", "color":"fore-green", "tier": TIERS.RARE, "attack_speed": 3.00,
             "yield_config": { "base": 2, "bonuses_by_tree": {
                 "normal": [{ "chance": 0.90, "amount": 1 }, { "chance": 0.50, "amount": 1 }],
                 "oak":    [{ "chance": 0.85, "amount": 1 }, { "chance": 0.45, "amount": 1 }],
                 "willow": [{ "chance": 0.80, "amount": 1 }, { "chance": 0.40, "amount": 1 }]
             }}, "aoe_chance": 0.10, "aoe_targets": 1, "aoe_damage_percentage": 0.25
         },
-        "rune":    {"emoji": "🪓",    "price":2000,  "level_req":75, "min_dmg":12, "max_dmg":18, "skill_type":"woodcutting", "color":"fore-magenta", "tier": TIERS.EPIC, "attack_speed": 3.00,
+        "rune":    {"emoji": "🪓",    "price":40000,  "level_req":75, "min_dmg":12, "max_dmg":18, "skill_type":"woodcutting", "color":"fore-magenta", "tier": TIERS.EPIC, "attack_speed": 3.00,
             "yield_config": { "base": 2, "bonuses_by_tree": {
                 "normal": [{ "chance": 0.95, "amount": 1 }, { "chance": 0.75, "amount": 1 }],
                 "oak":    [{ "chance": 0.90, "amount": 1 }, { "chance": 0.70, "amount": 1 }],
                 "willow": [{ "chance": 0.85, "amount": 1 }, { "chance": 0.65, "amount": 1 }]
             }}, "aoe_chance": 0.15, "aoe_targets": 2, "aoe_damage_percentage": 0.30
         },
-        "dragon":  {"emoji": "🪓🔥",  "price":10000, "level_req":85, "min_dmg":18, "max_dmg":25, "skill_type":"woodcutting", "color":"fore-red", "tier": TIERS.LEGENDARY, "attack_speed": 3.00,
+        "dragon":  {"emoji": "🪓🔥",  "price":300000, "level_req":85, "min_dmg":18, "max_dmg":25, "skill_type":"woodcutting", "color":"fore-red", "tier": TIERS.LEGENDARY, "attack_speed": 3.00,
             "yield_config": { "base": 3, "bonuses_by_tree": {
                 "normal": [{ "chance": 0.90, "amount": 1 }, { "chance": 0.60, "amount": 1 }],
                 "oak":    [{ "chance": 0.85, "amount": 1 }, { "chance": 0.55, "amount": 1 }],
@@ -123,24 +140,24 @@ export const TOOL_DATA = {
     },
     "pickaxe": {
         "bronze":  {"emoji": "⛏️",    "price":10,    "level_req":1,  "min_dmg":1,  "max_dmg":2,  "skill_type":"mining", "color":"fore-yellow", "tier": TIERS.COMMON, "attack_speed": 3.00, "yield_config": { "base": 1, "bonuses": [{ "chance": 0.15, "amount": 1 }] } },
-        "iron":    {"emoji": "⛏️",    "price":40,    "level_req":15, "min_dmg":2,  "max_dmg":3,  "skill_type":"mining", "color":"fore-lightblack_ex", "tier": TIERS.COMMON, "attack_speed": 3.00, "yield_config": { "base": 1, "bonuses": [{ "chance": 0.60, "amount": 1 }] } },
-        "steel":   {"emoji": "⛏️",    "price":100,   "level_req":30, "min_dmg":3,  "max_dmg":5,  "skill_type":"mining", "color":"fore-cyan", "tier": TIERS.UNCOMMON, "attack_speed": 3.00, "yield_config": { "base": 1, "bonuses": [{ "chance": 0.75, "amount": 1 }, { "chance": 0.25, "amount": 1 }] } },
-        "mithril": {"emoji": "⛏️",    "price":280,   "level_req":45, "min_dmg":5,  "max_dmg":8,  "skill_type":"mining", "color":"fore-blue", "tier": TIERS.RARE, "attack_speed": 3.00, "yield_config": { "base": 2, "bonuses": [{ "chance": 0.50, "amount": 1 }] }, "aoe_chance": 0.05, "aoe_targets": 1, "aoe_damage_percentage": 0.20},
-        "adamant": {"emoji": "⛏️",    "price":700,   "level_req":60, "min_dmg":8,  "max_dmg":12, "skill_type":"mining", "color":"fore-green", "tier": TIERS.RARE, "attack_speed": 3.00, "yield_config": { "base": 2, "bonuses": [{ "chance": 0.70, "amount": 1 }, { "chance": 0.35, "amount": 1 }] }, "aoe_chance": 0.10, "aoe_targets": 1, "aoe_damage_percentage": 0.25},
-        "rune":    {"emoji": "⛏️",    "price":1900,  "level_req":75, "min_dmg":12, "max_dmg":18, "skill_type":"mining", "color":"fore-magenta", "tier": TIERS.EPIC, "attack_speed": 3.00, "yield_config": { "base": 2, "bonuses": [{ "chance": 0.85, "amount": 1 }, { "chance": 0.65, "amount": 1 }] }, "aoe_chance": 0.15, "aoe_targets": 2, "aoe_damage_percentage": 0.30},
-        "dragon":  {"emoji": "⛏️🔥",  "price":9500,  "level_req":85, "min_dmg":18, "max_dmg":25, "skill_type":"mining", "color":"fore-red", "tier": TIERS.LEGENDARY, "attack_speed": 3.00, "yield_config": { "base": 3, "bonuses": [{ "chance": 0.75, "amount": 1 }, { "chance": 0.45, "amount": 1 }] }, "aoe_chance": 0.20, "aoe_targets": 2, "aoe_damage_percentage": 0.35}
+        "iron":    {"emoji": "⛏️",    "price":80,    "level_req":15, "min_dmg":2,  "max_dmg":3,  "skill_type":"mining", "color":"fore-lightblack_ex", "tier": TIERS.COMMON, "attack_speed": 3.00, "yield_config": { "base": 1, "bonuses": [{ "chance": 0.60, "amount": 1 }] } },
+        "steel":   {"emoji": "⛏️",    "price":300,   "level_req":30, "min_dmg":3,  "max_dmg":5,  "skill_type":"mining", "color":"fore-cyan", "tier": TIERS.UNCOMMON, "attack_speed": 3.00, "yield_config": { "base": 1, "bonuses": [{ "chance": 0.75, "amount": 1 }, { "chance": 0.25, "amount": 1 }] } },
+        "mithril": {"emoji": "⛏️",    "price":2800,   "level_req":45, "min_dmg":5,  "max_dmg":8,  "skill_type":"mining", "color":"fore-blue", "tier": TIERS.RARE, "attack_speed": 3.00, "yield_config": { "base": 2, "bonuses": [{ "chance": 0.50, "amount": 1 }] }, "aoe_chance": 0.05, "aoe_targets": 1, "aoe_damage_percentage": 0.20},
+        "adamant": {"emoji": "⛏️",    "price":9100,   "level_req":60, "min_dmg":8,  "max_dmg":12, "skill_type":"mining", "color":"fore-green", "tier": TIERS.RARE, "attack_speed": 3.00, "yield_config": { "base": 2, "bonuses": [{ "chance": 0.70, "amount": 1 }, { "chance": 0.35, "amount": 1 }] }, "aoe_chance": 0.10, "aoe_targets": 1, "aoe_damage_percentage": 0.25},
+        "rune":    {"emoji": "⛏️",    "price":38000,  "level_req":75, "min_dmg":12, "max_dmg":18, "skill_type":"mining", "color":"fore-magenta", "tier": TIERS.EPIC, "attack_speed": 3.00, "yield_config": { "base": 2, "bonuses": [{ "chance": 0.85, "amount": 1 }, { "chance": 0.65, "amount": 1 }] }, "aoe_chance": 0.15, "aoe_targets": 2, "aoe_damage_percentage": 0.30},
+        "dragon":  {"emoji": "⛏️🔥",  "price":285000,  "level_req":85, "min_dmg":18, "max_dmg":25, "skill_type":"mining", "color":"fore-red", "tier": TIERS.LEGENDARY, "attack_speed": 3.00, "yield_config": { "base": 3, "bonuses": [{ "chance": 0.75, "amount": 1 }, { "chance": 0.45, "amount": 1 }] }, "aoe_chance": 0.20, "aoe_targets": 2, "aoe_damage_percentage": 0.35}
     }
 };
 
 // Weapon data
 export const SWORD_DATA = {
-    "bronze 2h sword":   {"emoji": "🗡️",   "smith_level_req":1,  "wield_level_req":1,  "min_dmg":5,   "max_dmg":8,   "skill_type":"attack", "color":"fore-yellow",        "lifesteal_chance": 0.02, "lifesteal_amount": 1,     "recipe": {"bronze bar": 5}, "xp_gain": 15, "tier": TIERS.COMMON, "price": 25, "sell_price": 15, "attack_speed": 3.00},
-    "iron 2h sword":     {"emoji": "🗡️",   "smith_level_req":15, "wield_level_req":15, "min_dmg":10,  "max_dmg":16,  "skill_type":"attack", "color":"fore-lightblack_ex", "lifesteal_chance": 0.03, "lifesteal_amount": [1,2], "recipe": {"iron bar": 5}, "xp_gain": 30, "tier": TIERS.COMMON, "price": 75, "sell_price": 45, "attack_speed": 3.00},
-    "steel 2h sword":    {"emoji": "🗡️",   "smith_level_req":30, "wield_level_req":30, "min_dmg":18,  "max_dmg":28,  "skill_type":"attack", "color":"fore-cyan",          "lifesteal_chance": 0.04, "lifesteal_amount": [2,3], "recipe": {"steel bar": 5}, "xp_gain": 45, "aoe_chance": 0.10, "aoe_targets": 1, "aoe_damage_percentage": 0.30, "tier": TIERS.UNCOMMON, "price": 200, "sell_price": 120, "attack_speed": 3.00},
-    "mithril 2h sword":  {"emoji": "🗡️",   "smith_level_req":45, "wield_level_req":45, "min_dmg":30,  "max_dmg":45,  "skill_type":"attack", "color":"fore-blue",          "lifesteal_chance": 0.05, "lifesteal_amount": [2,4], "recipe": {"mithril bar": 5}, "xp_gain": 60, "aoe_chance": 0.15, "aoe_targets": 2, "aoe_damage_percentage": 0.35, "tier": TIERS.RARE, "price": 500, "sell_price": 300, "attack_speed": 3.00},
-    "adamant 2h sword":  {"emoji": "🗡️",   "smith_level_req":60, "wield_level_req":60, "min_dmg":48,  "max_dmg":70,  "skill_type":"attack", "color":"fore-green",         "lifesteal_chance": 0.06, "lifesteal_amount": [3,5], "recipe": {"adamantite bar": 5}, "xp_gain": 80, "aoe_chance": 0.20, "aoe_targets": 2, "aoe_damage_percentage": 0.40, "tier": TIERS.RARE, "price": 1200, "sell_price": 720, "attack_speed": 3.00},
-    "rune 2h sword":     {"emoji": "🗡️",   "smith_level_req":75, "wield_level_req":75, "min_dmg":72,  "max_dmg":100, "skill_type":"attack", "color":"fore-magenta",       "lifesteal_chance": 0.07, "lifesteal_amount": [4,6], "recipe": {"runite bar": 5}, "xp_gain": 100, "aoe_chance": 0.25, "aoe_targets": 3, "aoe_damage_percentage": 0.45, "tier": TIERS.EPIC, crit_chance: 0.05, "price": 3000, "sell_price": 1800, "attack_speed": 3.00},
-    "dragon 2h sword":   {"emoji": "🗡️🔥", "smith_level_req":85, "wield_level_req":85, "min_dmg":100, "max_dmg":140, "skill_type":"attack", "color":"fore-red",           "lifesteal_chance": 0.08, "lifesteal_amount": [5,8], "recipe": {"dragon bar": 5, "dragon scale": 2}, "xp_gain": 150, "aoe_chance": 0.30, "aoe_targets": 3, "aoe_damage_percentage": 0.50, "tier": TIERS.LEGENDARY, crit_chance: 0.10, "price": 15000, "sell_price": 9000, "attack_speed": 3.00},
+    "bronze 2h sword":   {"emoji": "🗡️",   "smith_level_req":1,  "wield_level_req":1,  "min_dmg":5,   "max_dmg":8,   "skill_type":"attack", "color":"fore-yellow",        "lifesteal_chance": 0.02, "lifesteal_amount": 1,     "recipe": {"bronze bar": 5}, "xp_gain": 15, "tier": TIERS.COMMON, "price": 25, "sell_price": 17, "attack_speed": 3.00},
+    "iron 2h sword":     {"emoji": "🗡️",   "smith_level_req":15, "wield_level_req":15, "min_dmg":10,  "max_dmg":16,  "skill_type":"attack", "color":"fore-lightblack_ex", "lifesteal_chance": 0.03, "lifesteal_amount": [1,2], "recipe": {"iron bar": 5}, "xp_gain": 30, "tier": TIERS.COMMON, "price": 75, "sell_price": 110, "attack_speed": 2.90},
+    "steel 2h sword":    {"emoji": "🗡️",   "smith_level_req":30, "wield_level_req":30, "min_dmg":18,  "max_dmg":28,  "skill_type":"attack", "color":"fore-cyan",          "lifesteal_chance": 0.04, "lifesteal_amount": [2,3], "recipe": {"steel bar": 5}, "xp_gain": 45, "aoe_chance": 0.10, "aoe_targets": 1, "aoe_damage_percentage": 0.30, "tier": TIERS.UNCOMMON, "price": 200, "sell_price": 776, "attack_speed": 2.80},
+    "mithril 2h sword":  {"emoji": "🗡️",   "smith_level_req":45, "wield_level_req":45, "min_dmg":30,  "max_dmg":45,  "skill_type":"attack", "color":"fore-blue",          "lifesteal_chance": 0.05, "lifesteal_amount": [2,4], "recipe": {"mithril bar": 5}, "xp_gain": 60, "aoe_chance": 0.15, "aoe_targets": 2, "aoe_damage_percentage": 0.35, "tier": TIERS.RARE, "price": 500, "sell_price": 1755, "attack_speed": 2.70},
+    "adamant 2h sword":  {"emoji": "🗡️",   "smith_level_req":60, "wield_level_req":60, "min_dmg":48,  "max_dmg":70,  "skill_type":"attack", "color":"fore-green",         "lifesteal_chance": 0.06, "lifesteal_amount": [3,5], "recipe": {"adamantite bar": 5}, "xp_gain": 80, "aoe_chance": 0.20, "aoe_targets": 2, "aoe_damage_percentage": 0.40, "tier": TIERS.RARE, "price": 1200, "sell_price": 3087, "attack_speed": 2.70},
+    "rune 2h sword":     {"emoji": "🗡️",   "smith_level_req":75, "wield_level_req":75, "min_dmg":72,  "max_dmg":100, "skill_type":"attack", "color":"fore-magenta",       "lifesteal_chance": 0.07, "lifesteal_amount": [4,6], "recipe": {"runite bar": 5}, "xp_gain": 100, "aoe_chance": 0.25, "aoe_targets": 3, "aoe_damage_percentage": 0.45, "tier": TIERS.EPIC, crit_chance: 0.05, "price": 3000, "sell_price": 4400, "attack_speed": 2.60},
+    "dragon 2h sword":   {"emoji": "🗡️🔥", "smith_level_req":85, "wield_level_req":85, "min_dmg":100, "max_dmg":140, "skill_type":"attack", "color":"fore-red",           "lifesteal_chance": 0.08, "lifesteal_amount": [5,8], "recipe": {"dragon bar": 5, "dragon scale": 2}, "xp_gain": 150, "aoe_chance": 0.30, "aoe_targets": 3, "aoe_damage_percentage": 0.50, "tier": TIERS.LEGENDARY, crit_chance: 0.10, "price": 15000, "sell_price": 9000, "attack_speed": 2.50},
 };
 
 // Food/healing items data
@@ -160,7 +177,7 @@ export const FOOD_DATA = {
     "lobster":    {"name": "Cooked Lobster", "heal_amount": 12, "sell_price": 25, "price": 420, "emoji": "🦞", "tier": TIERS.UNCOMMON, "category": "food", "description": "Cooked lobster. Heals 12 HP." },
     "swordfish":  {"name": "Cooked Swordfish", "heal_amount": 14, "sell_price": 30, "price": 490, "emoji": "🐟", "tier": TIERS.UNCOMMON, "category": "food", "description": "Cooked swordfish. Heals 14 HP." },
     "shark":      {"name": "Cooked Shark", "heal_amount": 20, "sell_price": 45, "price": 700, "emoji": "🦈", "tier": TIERS.RARE, "category": "food", "description": "Cooked shark. Heals 20 HP." },
-    "apple":             {"heal_amount": 1,  "sell_price": 1, "emoji": "🍎", "tier": TIERS.COMMON, "category": "food", "noShop": true },
+    "apple":             {"heal_amount": 1,  "sell_price": 5, "emoji": "🍎", "tier": TIERS.COMMON, "category": "food", "noShop": true },
     "banana":            {"heal_amount": 2,  "sell_price": 1, "emoji": "🍌", "tier": TIERS.COMMON, "category": "food", "noShop": true },
     "cakeSlice":         {"heal_amount": 25, "sell_price": 20, "emoji": "🍰", "tier": TIERS.UNCOMMON, "category": "food", "noShop": true },
     "porkStew":          {"heal_amount": 30, "sell_price": 25, "emoji": "🍲", "tier": TIERS.UNCOMMON, "category": "food", "noShop": true },
@@ -318,26 +335,44 @@ export const COOKABLE_ITEMS = {
 
 // Armor data
 export const ARMOR_DATA = {
-    "bronze chestplate":  {"defense":0.03, "price":40,    "sell_price":24,  "level_req":5,  "color":"fore-yellow",        "emoji":"🛡️", "smith_level_req": 5, "recipe": {"bronze bar": 8}, "xp_gain": 20, "block_chance": 0.02, "block_amount": 1, "tier": TIERS.COMMON},
-    "iron chestplate":    {"defense":0.06, "price":100,   "sell_price":60,  "level_req":15, "color":"fore-lightblack_ex", "emoji":"🛡️", "smith_level_req":20, "recipe": {"iron bar": 8}, "xp_gain": 40, "block_chance": 0.03, "block_amount": 2, "tier": TIERS.COMMON},
-    "steel chestplate":   {"defense":0.09, "price":250,   "sell_price":150, "level_req":30, "color":"fore-cyan",          "emoji":"🛡️", "smith_level_req":35, "recipe": {"steel bar": 8}, "xp_gain": 60, "block_chance": 0.04, "block_amount": 3, "tier": TIERS.UNCOMMON},
-    "mithril chestplate": {"defense":0.12, "price":600,   "sell_price":360, "level_req":45, "color":"fore-blue",          "emoji":"🛡️", "smith_level_req":50, "recipe": {"mithril bar": 8}, "xp_gain": 80, "block_chance": 0.05, "block_amount": 4, "tier": TIERS.RARE},
-    "adamant chestplate": {"defense":0.15, "price":1500,  "sell_price":900, "level_req":60, "color":"fore-green",         "emoji":"🛡️", "smith_level_req":65, "recipe": {"adamantite bar": 8}, "xp_gain": 100, "block_chance": 0.06, "block_amount": 5, "tier": TIERS.RARE},
-    "rune chestplate":    {"defense":0.18, "price":5000,  "sell_price":3000, "level_req":75, "color":"fore-magenta",       "emoji":"🛡️", "smith_level_req":80, "recipe": {"runite bar": 8}, "xp_gain": 125, "block_chance": 0.07, "block_amount": 6, "tier": TIERS.EPIC},
-    "dragon chestplate":  {"defense":0.22, "price":20000, "sell_price":12000, "level_req":85, "color":"fore-red",           "emoji":"🛡️🔥","smith_level_req":85, "recipe": {"dragon bar": 8}, "xp_gain": 200, "block_chance": 0.08, "block_amount": 8, "tier": TIERS.LEGENDARY}
+    "bronze chestplate":  {"defense":0.03, "price":40,     "sell_price":24,   "level_req":5,  "color":"fore-yellow",        "emoji":"🛡️", "smith_level_req": 5, "recipe": {"bronze bar": 30}, "xp_gain": 20, "block_chance": 0.02, "block_amount": 1, "tier": TIERS.COMMON},
+    "iron chestplate":    {"defense":0.06, "price":300,    "sell_price":180,  "level_req":15, "color":"fore-lightblack_ex", "emoji":"🛡️", "smith_level_req":20, "recipe": {"iron bar": 40}, "xp_gain": 40, "block_chance": 0.03, "block_amount": 2, "tier": TIERS.COMMON},
+    "steel chestplate":   {"defense":0.09, "price":2200,   "sell_price":1320, "level_req":30, "color":"fore-cyan",          "emoji":"🛡️", "smith_level_req":35, "recipe": {"steel bar": 50}, "xp_gain": 60, "block_chance": 0.04, "block_amount": 3, "tier": TIERS.UNCOMMON},
+    "mithril chestplate": {"defense":0.12, "price":6200,   "sell_price":3720, "level_req":45, "color":"fore-blue",          "emoji":"🛡️", "smith_level_req":50, "recipe": {"mithril bar": 60}, "xp_gain": 80, "block_chance": 0.05, "block_amount": 4, "tier": TIERS.RARE},
+    "adamant chestplate": {"defense":0.15, "price":24000,  "sell_price":14400, "level_req":60, "color":"fore-green",         "emoji":"🛡️", "smith_level_req":65, "recipe": {"adamantite bar": 80}, "xp_gain": 100, "block_chance": 0.06, "block_amount": 5, "tier": TIERS.RARE},
+    "rune chestplate":    {"defense":0.18, "price":70000,  "sell_price":42000, "level_req":75, "color":"fore-magenta",       "emoji":"🛡️", "smith_level_req":80, "recipe": {"runite bar": 120}, "xp_gain": 125, "block_chance": 0.07, "block_amount": 6, "tier": TIERS.EPIC},
+    "dragon chestplate":  {"defense":0.22, "price":150000, "sell_price":90000, "level_req":85, "color":"fore-red",           "emoji":"🛡️🔥","smith_level_req":85, "recipe": {"dragon bar": 200}, "xp_gain": 200, "block_chance": 0.08, "block_amount": 8, "tier": TIERS.LEGENDARY}
 };
 
 // Helmet data
 export const HELMET_DATA = {
-    "full dragon helmet": {"defense":0.10, "price": 50000, "sell_price": 30000, "level_req": 85, "color":"fore-red", "emoji":"👑", "slotType": "helmet", "smith_level_req":85, "recipe": {"dragon bar": 3, "dragon gem": 1}, "xp_gain": 500, "block_chance": 0.06, "block_amount": 6, "tier": TIERS.LEGENDARY}
+    "full dragon helmet": {"defense":0.10, "price": 50000, "sell_price": 30000, "level_req": 85, "color":"fore-red", "emoji":"👑", "slotType": "helmet", "smith_level_req":85, "recipe": {"dragon bar": 150, "dragon gem": 50}, "xp_gain": 500, "block_chance": 0.06, "block_amount": 6, "tier": TIERS.LEGENDARY}
+};
+
+// Ring data (accessories)
+export const RING_DATA = {
+    "silver ring": {
+        "price": 300, "sell_price": 180, "level_req": 25, "color": "fore-lightgray", "emoji": "💍", 
+        "slotType": "ring", "smith_level_req": 25, "recipe": {"silver bar": 1}, "xp_gain": 40,
+        "hp_bonus": 25, "crit_chance": 0.01, "str_percentage": 0.01, "tier": TIERS.UNCOMMON,
+        "enchantment_slots": 1, "max_enchantments": 1
+    },
+    "gold ring": {
+        "price": 800, "sell_price": 480, "level_req": 50, "color": "fore-yellow", "emoji": "💍🌟", 
+        "slotType": "ring", "smith_level_req": 50, "recipe": {"gold bar": 1}, "xp_gain": 80,
+        "hp_bonus": 50, "crit_chance": 0.03, "str_percentage": 0.05, "tier": TIERS.RARE,
+        "enchantment_slots": 1, "max_enchantments": 1
+    }
 };
 
 // Bar data (crafting materials)
 export const BAR_DATA = {
     "bronze bar":     {"emoji": "<span class='fore-yellow'>🟧</span>",   "level_req": 1,  "xp_gain": 10,  "color": "fore-yellow",        "recipe": {"copper ore": 1, "tin ore": 1}, "tier": TIERS.COMMON},
     "iron bar":       {"emoji": "<span class='fore-white'>🔳</span>",   "level_req": 15, "xp_gain": 20,  "color": "fore-lightblack_ex", "recipe": {"iron ore": 1}, "tier": TIERS.COMMON},
+    "silver bar":     {"emoji": "<span class='fore-lightgray'>⬜</span>✨",   "level_req": 25, "xp_gain": 25,  "color": "fore-lightgray",     "recipe": {"silver ore": 5}, "tier": TIERS.UNCOMMON},
     "steel bar":      {"emoji": "<span class='fore-lightblack_ex'>⬜</span>",   "level_req": 30, "xp_gain": 30,  "color": "fore-cyan",          "recipe": {"iron ore": 1, "coal": 2}, "tier": TIERS.UNCOMMON},
     "mithril bar":    {"emoji": "<span class='fore-blue'>🟦</span>",   "level_req": 45, "xp_gain": 50,  "color": "fore-blue",          "recipe": {"mithril ore": 1, "coal": 4}, "tier": TIERS.RARE},
+    "gold bar":       {"emoji": "<span class='fore-yellow'>🟨</span>✨",   "level_req": 50, "xp_gain": 60,  "color": "fore-yellow",        "recipe": {"gold ore": 5}, "tier": TIERS.RARE},
     "adamantite bar": {"emoji": "<span class='fore-green'>🟩</span>",   "level_req": 60, "xp_gain": 70,  "color": "fore-green",         "recipe": {"adamantite ore": 1, "coal": 6}, "tier": TIERS.RARE},
     "runite bar":     {"emoji": "<span class='fore-magenta'>🟪</span>",   "level_req": 75, "xp_gain": 100, "color": "fore-magenta",       "recipe": {"runite ore": 1, "coal": 8}, "tier": TIERS.EPIC},
     "dragon bar":     {"emoji": "<span class='fore-red'>🟥</span>🔥",   "level_req": 85, "xp_gain": 150, "color": "fore-red",           "recipe": {"special dragon ore": 1, "coal": 10}, "tier": TIERS.LEGENDARY}
@@ -348,17 +383,13 @@ export const ORE_DATA = {
     "copper":    {"level_req": 1,  "xp": 15,  "item_name": "copper ore",     "color": "fore-orange", "emoji": "<span class='fore-orange'>🟠</span>", "tier": TIERS.COMMON},
     "tin":       {"level_req": 1,  "xp": 15,  "item_name": "tin ore",        "color": "fore-lightblack_ex", "emoji": "<span class='fore-lightblack_ex'>🪨</span>", "tier": TIERS.COMMON},
     "iron":      {"level_req": 15, "xp": 35,  "item_name": "iron ore",       "color": "fore-white",  "emoji": "<span class='fore-white'>⚪</span>", "tier": TIERS.COMMON},
+    "silver":    {"level_req": 25, "xp": 50,  "item_name": "silver ore",     "color": "fore-lightgray", "emoji": "<span class='fore-lightgray'>⚪</span>✨", "tier": TIERS.UNCOMMON, "isRandomDrop": true},
     "coal":      {"level_req": 30, "xp": 40,  "item_name": "coal",           "color": "fore-lightblack_ex", "emoji": "<span class='fore-lightblack_ex'>⚫</span>", "required_pickaxe_tier": "steel", "tier": TIERS.UNCOMMON},
     "mithril":   {"level_req": 45, "xp": 80,  "item_name": "mithril ore",    "color": "fore-blue",   "emoji": "<span class='fore-blue'>🔵</span>", "required_pickaxe_tier": "mithril", "tier": TIERS.RARE},
+    "gold":      {"level_req": 50, "xp": 100, "item_name": "gold ore",      "color": "fore-yellow", "emoji": "<span class='fore-yellow'>🟡</span>✨", "tier": TIERS.RARE, "isRandomDrop": true},
     "adamantite":{"level_req": 60, "xp": 120, "item_name": "adamantite ore", "color": "fore-green",  "emoji": "<span class='fore-green'>🟢</span>", "required_pickaxe_tier": "adamant", "tier": TIERS.RARE},
     "runite":    {"level_req": 75, "xp": 200, "item_name": "runite ore",     "color": "fore-magenta","emoji": "<span class='fore-magenta'>🟣</span>", "required_pickaxe_tier": "rune", "tier": TIERS.EPIC},
     "special dragon ore": {"level_req": 85, "xp":300,"item_name":"special dragon ore","color":"fore-red","emoji":"<span class='fore-red'>🔴</span>🔥", "required_pickaxe_tier": "dragon", "tier": TIERS.LEGENDARY},
-    "gem_vein": {"level_req": 10, "xp": 25, "item_name": "gems", "color": "fore-cyan", "emoji": "💠", "tier": TIERS.UNCOMMON},
-    "sapphire_deposit": {"level_req": 35, "xp": 60, "item_name": "sapphire", "color": "fore-blue", "emoji": "🔷", "required_pickaxe_tier": "steel", "tier": TIERS.RARE},
-    "emerald_deposit": {"level_req": 50, "xp": 80, "item_name": "emerald", "color": "fore-green", "emoji": "💚", "required_pickaxe_tier": "mithril", "tier": TIERS.RARE},
-    "ruby_deposit": {"level_req": 40, "xp": 70, "item_name": "ruby", "color": "fore-red", "emoji": "🔴", "required_pickaxe_tier": "steel", "tier": TIERS.RARE},
-    "diamond_deposit": {"level_req": 70, "xp": 150, "item_name": "diamond", "color": "fore-white", "emoji": "💎", "required_pickaxe_tier": "adamant", "tier": TIERS.EPIC},
-    "dragon_gem_vein": {"level_req": 90, "xp": 400, "item_name": "dragon gem", "color": "fore-red", "emoji": "💎🔥", "required_pickaxe_tier": "dragon", "tier": TIERS.LEGENDARY}
 };
 
 // Tree data (woodcutting resources)
@@ -455,6 +486,18 @@ export const STRUCTURE_DATA = {
         rent_value: 40,
         "tier": TIERS.RARE 
     },
+    "wizardTower": {
+        name: "Wizard Tower", emoji: "🧙‍♂️🏰",
+        cost: { "maple logs": 2000, "magic logs": 1000, "mithril bar": 200, "emerald": 50, "gold": 50000 },
+        perk_desc: "1% chance to find Ancient Tomes (5-20) on monster kills. Unlocks new enchantments: Life-steal, Fire (DoT), and Ice (30% attack slow).",
+        perks: [
+            { type: "ancient_tome_drop_chance", value: 0.01, min: 5, max: 20, description: "1% chance to find Ancient Tomes (5-20) on monster kills" },
+            { type: "unlock_enchantments", enchantments: ["life-steal", "fire", "ice"], description: "Unlocks new enchantments: Life-steal, Fire (DoT), and Ice (30% attack slow)" }
+        ],
+        requires_structure: "mansion",
+        rent_value: 80,
+        "tier": TIERS.EPIC
+    },
     "castle": {
         name: "Castle", emoji: "🏰",
         cost: { "willow logs": 5000, "maple logs": 2000, "yew logs": 1000, "magic logs": 300, "mithril bar": 300, "adamantite bar": 100 },
@@ -475,23 +518,13 @@ export const STRUCTURE_DATA = {
         },
         perk_desc: "A bastion of ultimate power. Grants +10% to all damage dealt, +25 Max HP, heals 5% of Max HP on monster kill, and all skill actions are 10% faster.",
         perks: [
-            { type: "global_damage_boost", value: 0.10 }, { type: "max_hp_bonus_flat", value: 25 }, 
-            { type: "heal_on_kill_percent", value: 0.05 }, { type: "global_skill_speed_boost", value: 0.10 }
+            { type: "global_damage_boost", value: 0.10, description: "+10% damage boost to all attacks" }, 
+            { type: "max_hp_bonus_flat", value: 25, description: "+25 maximum health points" }, 
+            { type: "heal_on_kill_percent", value: 0.05, description: "Heal 5% of max HP when killing a monster" }, 
+            { type: "global_skill_speed_boost", value: 0.10, description: "All skill actions are 10% faster" }
         ],
         requires_structure: "castle", rent_value: 250,
         "tier": TIERS.LEGENDARY
-    },
-    "wizardTower": {
-        name: "Wizard Tower", emoji: "🧙‍♂️🏰",
-        cost: { "maple logs": 2000, "magic logs": 1000, "mithril bar": 200, "emerald": 50, "gold": 50000 },
-        perk_desc: "1% chance to find Ancient Tomes (5-20) on monster kills. Unlocks new enchantments: Life-steal, Fire (DoT), and Ice (30% attack slow).",
-        perks: [
-            { type: "ancient_tome_drop_chance", value: 0.01, min: 5, max: 20, description: "1% chance to find Ancient Tomes (5-20) on monster kills" },
-            { type: "unlock_enchantments", enchantments: ["life-steal", "fire", "ice"], description: "Unlocks new enchantments: Life-steal, Fire (DoT), and Ice (30% attack slow)" }
-        ],
-        requires_structure: "mansion",
-        rent_value: 80,
-        "tier": TIERS.EPIC
     }
 };
 
@@ -800,13 +833,13 @@ export const GUILD_UPGRADE_DATA = {
 // Monster data
 export const MONSTER_DATA = {
     "chicken":     {"name":"Chicken", "level_req":1, "min_dmg": 0, "max_dmg": 1, "hp":5,    "attack_xp":5,   "gold_drop": [0,1], "color":"fore-white", "emoji":"🐔", "drops":[{"item_name":"egg","base_chance":0.9, "quantity":[1,2], "always_drop_one":true},{"item_name":"raw meat","base_chance":0.7, "quantity":[1,1]},{"item_name":"feathers","base_chance":0.5, "quantity":[1,3]}]},
-    "goblin":      {"name":"Goblin", "level_req":5, "min_dmg": 1, "max_dmg": 3, "hp":20,   "attack_xp":15,  "gold_drop": [1,5], "color":"fore-green", "emoji":"👺", "drops":[{"item_name":"goblin beads","base_chance":0.5, "quantity":[1,1]}, {"item_name":"bronze chestplate",  "base_chance":0.02, "quantity":[1,1]}]},
+    "goblin":      {"name":"Goblin", "level_req":5, "min_dmg": 1, "max_dmg": 3, "hp":20,   "attack_xp":15,  "gold_drop": [1,5], "color":"fore-green", "emoji":"👺", "drops":[{"item_name":"goblin beads","base_chance":0.5, "quantity":[1,1]}, {"item_name":"bronze chestplate",  "base_chance":0.01, "quantity":[1,1]}]},
     "wolf":        {"name":"Wolf", "level_req":10, "min_dmg": 2, "max_dmg": 4, "hp":35,   "attack_xp":25,  "gold_drop": [3,8], "color":"fore-lightblack_ex", "emoji":"🐺", "drops":[{"item_name":"raw meat","base_chance":0.8, "quantity":[1,2]},{"item_name":"wolf fang","base_chance":0.3, "quantity":[1,1]}]},
-    "bear":        {"name":"Bear", "level_req":20, "min_dmg": 4, "max_dmg": 8, "hp":70,   "attack_xp":50,  "gold_drop": [10,25],"color":"fore-yellow","emoji":"🐻", "drops":[{"item_name":"raw meat","base_chance":0.9, "quantity":[2,3]},{"item_name":"bear claw","base_chance":0.25, "quantity":[1,1]},{"item_name":"cooked meat","base_chance":0.1, "quantity":[1,1]}, {"item_name":"iron chestplate",    "base_chance":0.025, "quantity":[1,1]}]},
-    "ogre":        {"name":"Ogre", "level_req":30, "min_dmg": 6, "max_dmg": 12, "hp":120,  "attack_xp":90,  "gold_drop": [20,50],"color":"fore-green", "emoji":"👹", "drops":[{"item_name":"ogre club fragment","base_chance":0.4, "quantity":[1,1]},{"item_name":"cooked meat","base_chance":0.3, "quantity":[1,2]}, {"item_name":"steel chestplate",   "base_chance":0.03, "quantity":[1,1]}]},
-    "troll":       {"name":"Troll", "level_req":40, "min_dmg": 8, "max_dmg": 15, "hp":200,  "attack_xp":150, "gold_drop": [40,100],"color":"fore-cyan","emoji":"🧌", "drops":[{"item_name":"troll hide","base_chance":0.35, "quantity":[1,1]},{"item_name":"health potion (s)","base_chance":0.15, "quantity":[1,1]}, {"item_name":"mithril chestplate", "base_chance":0.02, "quantity":[1,1]}]},
-    "giant":       {"name":"Giant", "level_req":55, "min_dmg": 10, "max_dmg": 20, "hp":350,  "attack_xp":280, "gold_drop": [75,150],"color":"fore-blue","emoji":"🗿", "drops":[{"item_name":"giant's toe","base_chance":0.2, "quantity":[1,1]},{"item_name":"cooked meat","base_chance":0.5, "quantity":[2,4]}, {"item_name":"adamant chestplate", "base_chance":0.025, "quantity":[1,1]}]},
-    "demon":       {"name":"Demon", "level_req":70, "min_dmg": 15, "max_dmg": 25, "hp":500,  "attack_xp":500, "gold_drop": [150,300],"color":"fore-magenta","emoji":"😈", "drops":[{"item_name":"demon heart","base_chance":0.04, "quantity":[1,1]},{"item_name":"health potion (s)","base_chance":0.3, "quantity":[1,2]}, {"item_name":"rune chestplate",    "base_chance":0.015, "quantity":[1,1]}]},
+    "bear":        {"name":"Bear", "level_req":20, "min_dmg": 4, "max_dmg": 8, "hp":70,   "attack_xp":50,  "gold_drop": [10,25],"color":"fore-yellow","emoji":"🐻", "drops":[{"item_name":"raw meat","base_chance":0.9, "quantity":[2,3]},{"item_name":"bear claw","base_chance":0.25, "quantity":[1,1]},{"item_name":"cooked meat","base_chance":0.1, "quantity":[1,1]}, {"item_name":"iron chestplate",    "base_chance":0.01, "quantity":[1,1]}]},
+    "ogre":        {"name":"Ogre", "level_req":30, "min_dmg": 6, "max_dmg": 12, "hp":120,  "attack_xp":90,  "gold_drop": [20,50],"color":"fore-green", "emoji":"👹", "drops":[{"item_name":"ogre club fragment","base_chance":0.4, "quantity":[1,1]},{"item_name":"cooked meat","base_chance":0.3, "quantity":[1,2]}, {"item_name":"steel chestplate",   "base_chance":0.01, "quantity":[1,1]}]},
+    "troll":       {"name":"Troll", "level_req":40, "min_dmg": 8, "max_dmg": 15, "hp":200,  "attack_xp":150, "gold_drop": [40,100],"color":"fore-cyan","emoji":"🧌", "drops":[{"item_name":"troll hide","base_chance":0.35, "quantity":[1,1]},{"item_name":"health potion (s)","base_chance":0.15, "quantity":[1,1]}, {"item_name":"mithril chestplate", "base_chance":0.01, "quantity":[1,1]}]},
+    "giant":       {"name":"Giant", "level_req":55, "min_dmg": 10, "max_dmg": 20, "hp":350,  "attack_xp":280, "gold_drop": [75,150],"color":"fore-blue","emoji":"🗿", "drops":[{"item_name":"giant's toe","base_chance":0.2, "quantity":[1,1]},{"item_name":"cooked meat","base_chance":0.5, "quantity":[2,4]}, {"item_name":"adamant chestplate", "base_chance":0.01, "quantity":[1,1]}]},
+    "demon":       {"name":"Demon", "level_req":70, "min_dmg": 15, "max_dmg": 25, "hp":500,  "attack_xp":500, "gold_drop": [150,300],"color":"fore-magenta","emoji":"😈", "drops":[{"item_name":"demon heart","base_chance":0.04, "quantity":[1,1]},{"item_name":"health potion (s)","base_chance":0.3, "quantity":[1,2]}, {"item_name":"rune chestplate",    "base_chance":0.01, "quantity":[1,1]}]},
     "dark_dragon": {"name":"Dark Dragon", "level_req":85, "min_dmg": 20, "max_dmg": 35, "hp":1200, "attack_xp":2500,"gold_drop": [500,2000],"color":"fore-red","emoji":"🐉", "drops":[{"item_name":"dragon gem","base_chance":0.02, "quantity":[1,1]},{"item_name":"health potion (s)","base_chance":0.5, "quantity":[2,3]}, {"item_name":"dragon chestplate",  "base_chance":0.01, "quantity":[1,1]}, {"item_name":"special dragon ore", "base_chance":0.1, "quantity":[1,2]}, {"item_name":"dragon scale", "base_chance":0.15, "quantity":[1,2]}, {"item_name":"ancient_tomes", "base_chance":0.05, "quantity":[15,30]}]}
 };
 export const ALL_MONSTER_NAMES = Object.keys(MONSTER_DATA);
@@ -885,24 +918,24 @@ export const DEFAULT_PLAYER = {
 
 // Item sell prices (if not defined in FOOD_DATA or other specific data objects)
 export const ITEM_SELL_PRICES = {
-    "normal logs": 1,
-    "oak logs": 3,
-    "willow logs": 5,
-    "copper ore": 2,
-    "tin ore": 2,
-    "iron ore": 4,
-    "coal": 6,
-    "mithril ore": 10,
-    "adamantite ore": 15,
-    "runite ore": 25,
-    "special dragon ore": 50,
-    "bronze bar": 5,
-    "iron bar": 10,
-    "steel bar": 20,
-    "mithril bar": 35,
-    "adamantite bar": 50,
-    "runite bar": 80,
-    "dragon bar": 150,
+    "normal logs": 10,
+    "oak logs": 30,
+    "willow logs": 50,
+    "copper ore": 1,
+    "tin ore": 1,
+    "iron ore": 8,
+    "coal": 60,
+    "mithril ore": 50,
+    "adamantite ore": 150,
+    "runite ore": 250,
+    "special dragon ore": 500,
+    "bronze bar": 3,
+    "iron bar": 20,
+    "steel bar": 141,
+    "mithril bar": 319,
+    "adamantite bar": 561,
+    "runite bar": 800,
+    "dragon bar": 1500,
     "burnt meat": 0,
     "burnt shrimp": 0,
     "burnt fish": 0,
@@ -922,11 +955,11 @@ export const ITEM_SELL_PRICES = {
     "egg": 0,
     "water": 0,
     "feathers": 1,
-    "goblin beads": 2,
-    "wolf fang": 5,
-    "bear claw": 8,
+    "goblin beads": 5,
+    "wolf fang": 10,
+    "bear claw": 15,
     "ogre club fragment": 15,
-    "troll hide": 20,
+    "troll hide": 30,
     "giant's toe": 30
 };
 
@@ -976,7 +1009,7 @@ export function getItemDetails(itemName) {
 
     const sources = [
         TOOL_DATA.axe, TOOL_DATA.pickaxe,
-        SWORD_DATA, ARMOR_DATA, HELMET_DATA,
+        SWORD_DATA, ARMOR_DATA, HELMET_DATA, RING_DATA,
         FOOD_DATA, COOKABLE_ITEMS, BAR_DATA, ORE_DATA,
         STRUCTURE_DATA, PERMIT_MASTER_LIST, PERK_DATA, // PERK_DATA added
         FARM_ANIMAL_DATA, // Farm animals
@@ -991,6 +1024,7 @@ export function getItemDetails(itemName) {
             else if (source === SWORD_DATA) type = "sword";
             else if (source === ARMOR_DATA) type = "armor";
             else if (source === HELMET_DATA) type = "helmet";
+            else if (source === RING_DATA) type = "ring";
             else if (source === FOOD_DATA) type = "food";
             else if (source === COOKABLE_ITEMS) type = "cookable";
             else if (source === BAR_DATA) type = "bar";
@@ -1209,18 +1243,18 @@ export const ITEM_DATA = {
     "ancient_tomes": {"name": "Ancient Tomes", "description": "Books filled with forgotten lore.", "sell_price": 0, "emoji": "📚", "stackable": true, "category": "quest_item", "tier": TIERS.UNCOMMON, "noShop": true},
     "mana_crystals": {"name": "Mana Crystals", "description": "Crystals humming with arcane energy.", "sell_price": 10, "emoji": "🔮", "stackable": true, "category": "material", "tier": TIERS.COMMON},
     "silk": {"name": "Silk", "description": "Fine, luxurious silk threads.", "sell_price": 20, "emoji": "🧵", "stackable": true, "category": "material", "tier": TIERS.COMMON},
+    "spider silk": {"name": "Spider Silk", "description": "Strong silk thread spun by spiders.", "sell_price": 15, "emoji": "🕸️", "stackable": true, "category": "material", "tier": TIERS.UNCOMMON},
     "stone": {"name": "Stone", "description": "A sturdy piece of rock.", "sell_price": 1, "emoji": "🪨", "stackable": true, "category": "material", "tier": TIERS.COMMON}, 
     "gems": {"name": "Assorted Gems", "description": "A collection of various gemstones.", "sell_price": 0, "emoji": "💠", "stackable": true, "category": "material", "tier": TIERS.UNCOMMON, "noShop": true}, 
     "assorted_gems": {"name": "Assorted Gems", "description": "A collection of various gemstones.", "sell_price": 0, "price": 100, "emoji": "💠", "stackable": true, "category": "material", "tier": TIERS.UNCOMMON, "requiresStructure": "wizardTower"}, 
     "dragon gem": {"name": "Dragon Gem", "description": "A fiery gem, pulsating with power.", "sell_price": 1000, "emoji": "💎🔥", "stackable": true, "category": "rare_material", "tier": TIERS.EPIC, "noShop": true},
     "demon heart": {"name": "Demon Heart", "description": "The still-beating heart of a powerful demon.", "sell_price": 0, "emoji": "❤️‍🔥", "stackable": true, "category": "quest_item", "tier": TIERS.LEGENDARY, "noShop": true}, 
-    "maple logs": {"name": "Maple Logs", "description": "Sturdy logs from a maple tree.", "sell_price": 8, "emoji": "🍁", "stackable": true, "category": "log", "tier": TIERS.COMMON, "noShop": true},
-    "gold ore": {"name": "Gold Ore", "description": "Ore flecked with glittering gold.", "sell_price": 20, "emoji": "🌟", "stackable": true, "category": "ore", "tier": TIERS.UNCOMMON},
-    "egg": { "name": "Egg", "description": "A fresh chicken egg.", "sell_price": 0, "emoji": "🥚", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON, "noShop": true },
-    "raw pork": { "name": "Raw Pork", "description": "Uncooked pork meat.", "sell_price": 5, "price": 5, "emoji": "🥓", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
-    "sheep milk": { "name": "Sheep Milk", "description": "Fresh milk from a sheep.", "sell_price": 4, "emoji": "🥛", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON, "noShop": true },
-    "wool": { "name": "Wool", "description": "Soft sheep wool.", "sell_price": 8, "emoji": "🧶", "stackable": true, "category": "material", "tier": TIERS.COMMON },
-    "milk": { "name": "Milk", "description": "Fresh cow's milk.", "sell_price": 6, "emoji": "🥛", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
+    "maple logs": {"name": "Maple Logs", "description": "Sturdy logs from a maple tree.", "sell_price": 80, "emoji": "🍁", "stackable": true, "category": "log", "tier": TIERS.COMMON, "noShop": true},
+    "egg": { "name": "Egg", "description": "A fresh chicken egg.", "sell_price": 2, "emoji": "🥚", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON, "noShop": true },
+    "raw pork": { "name": "Raw Pork", "description": "Uncooked pork meat.", "sell_price": 4, "price": 5, "emoji": "🥓", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
+    "sheep milk": { "name": "Sheep Milk", "description": "Fresh milk from a sheep.", "sell_price": 3, "emoji": "🥛", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON, "noShop": true },
+    "wool": { "name": "Wool", "description": "Soft sheep wool.", "sell_price": 6, "emoji": "🧶", "stackable": true, "category": "material", "tier": TIERS.COMMON },
+    "milk": { "name": "Milk", "description": "Fresh cow's milk.", "sell_price": 4, "emoji": "🥛", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
     "water": { "name": "Water", "description": "Clear, fresh water.", "sell_price": 1, "price": 5, "emoji": "💧", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
     "flour": { "name": "Flour", "description": "Finely ground wheat, essential for baking.", "sell_price": 3, "emoji": "🍚", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
     "raw meat": { "name": "Raw Meat", "description": "Uncooked meat that needs cooking.", "sell_price": 0, "price": 5, "emoji": "🥩", "stackable": true, "category": "food_ingredient", "tier": TIERS.COMMON },
@@ -1244,14 +1278,15 @@ export const ITEM_DATA = {
     "burnt soup": { "name": "Burnt Soup", "description": "Overcooked soup that's not fit for consumption.", "sell_price": 0, "emoji": "⚫", "stackable": true, "category": "material", "tier": TIERS.COMMON, "noShop": true },
     "burnt meat": { "name": "Burnt Meat", "description": "Oops, too much fire!", "sell_price": 0, "emoji": "⚫", "stackable": true, "category": "material", "tier": TIERS.COMMON, "noShop": true },
     "burnt pork": { "name": "Burnt Pork", "description": "Overcooked pork!", "sell_price": 0, "emoji": "⚫", "stackable": true, "category": "material", "tier": TIERS.COMMON, "noShop": true },
-    "goblin beads": {"name": "Goblin Beads", "description": "Crude beads favored by goblins.", "sell_price": 5, "price": 20, "emoji": "📿", "stackable": true, "category": "material", "tier": TIERS.COMMON},
-    "wolf fang": {"name": "Wolf Fang", "description": "A sharp fang from a wolf.", "sell_price": 10, "price": 50, "emoji": "🦷", "stackable": true, "category": "material", "tier": TIERS.COMMON},
-    "bear claw": {"name": "Bear Claw", "description": "A formidable claw from a bear.", "sell_price": 15, "price": 75, "emoji": "🐾", "stackable": true, "category": "material", "tier": TIERS.COMMON},
-    "troll hide": {"name": "Troll Hide", "description": "Thick, tough hide from a troll.", "sell_price": 30, "price": 150, "emoji": "🟫", "stackable": true, "category": "material", "tier": TIERS.UNCOMMON},
     "ogre club fragment": {"name": "Ogre Club Fragment", "description": "A piece of a mighty ogre's club.", "sell_price": 15, "emoji": "🪵", "stackable": true, "category": "material", "tier": TIERS.UNCOMMON, "noShop": true},
+    "goblin beads": {"name": "Goblin Beads", "description": "Crude beads favored by goblins.", "sell_price": 5, "emoji": "📿", "stackable": true, "category": "material", "tier": TIERS.COMMON, "noShop": true},
+    "wolf fang": {"name": "Wolf Fang", "description": "A sharp fang from a wolf.", "sell_price": 10, "emoji": "🦷", "stackable": true, "category": "material", "tier": TIERS.COMMON, "noShop": true},
+    "bear claw": {"name": "Bear Claw", "description": "A formidable claw from a bear.", "sell_price": 15, "emoji": "🐾", "stackable": true, "category": "material", "tier": TIERS.COMMON, "noShop": true},
+    "troll hide": {"name": "Troll Hide", "description": "Thick, tough hide from a troll.", "sell_price": 30, "emoji": "🟫", "stackable": true, "category": "material", "tier": TIERS.UNCOMMON, "noShop": true},
+    "gold ore": {"name": "Gold Ore", "description": "Ore flecked with glittering gold.", "sell_price": 20, "emoji": "🌟", "stackable": true, "category": "ore", "tier": TIERS.UNCOMMON, "noShop": true},
+    "silver ore": {"name": "Silver Ore", "description": "Ore containing veins of silver.", "sell_price": 10, "emoji": "🥈", "stackable": true, "category": "ore", "tier": TIERS.UNCOMMON, "noShop": true},
     "bird nest": {"name": "Bird Nest", "description": "A small, empty bird's nest.", "sell_price": 2, "emoji": "🪹", "stackable": true, "category": "material", "tier": TIERS.COMMON},
     "hardwood sap": {"name": "Hardwood Sap", "description": "Sticky sap from a hardwood tree.", "sell_price": 4, "emoji": "💧", "stackable": true, "category": "material", "tier": TIERS.COMMON},
-    "silver ore": {"name": "Silver Ore", "description": "Ore containing veins of silver.", "sell_price": 10, "emoji": "🥈", "stackable": true, "category": "ore", "tier": TIERS.UNCOMMON},
     "herbs": {"name": "Herbs", "description": "A bundle of common herbs.", "sell_price": 1, "emoji": "🌿", "stackable": true, "category": "material", "tier": TIERS.COMMON},
     "rope": {"name": "Rope", "description": "A sturdy length of rope.", "sell_price": 5, "emoji": "🪢", "stackable": true, "category": "material", "tier": TIERS.COMMON},
     "elixir of power": {
@@ -1274,6 +1309,12 @@ export const ITEM_DATA = {
     "rare chest": {"name": "Rare Chest", "description": "An ornate silver chest containing valuable items.", "sell_price": 0, "emoji": "💼", "stackable": true, "category": "chest", "tier": TIERS.RARE, "noShop": true},
     "epic chest": {"name": "Epic Chest", "description": "A jeweled golden chest filled with epic treasures.", "sell_price": 0, "emoji": "🎁", "stackable": true, "category": "chest", "tier": TIERS.EPIC, "noShop": true},
     "legendary chest": {"name": "Legendary Chest", "description": "A mystical dragon chest containing legendary artifacts.", "sell_price": 0, "emoji": "🏆", "stackable": true, "category": "chest", "tier": TIERS.LEGENDARY, "noShop": true},
+    // Missing wood types
+    "yew logs": {"name": "Yew Logs", "description": "Dense hardwood logs from ancient yew trees.", "sell_price": 120, "emoji": "🌲", "stackable": true, "category": "log", "tier": TIERS.COMMON, "noShop": true},
+    "magic logs": {"name": "Magic Logs", "description": "Logs infused with magical energy.", "sell_price": 200, "emoji": "✨🌲", "stackable": true, "category": "log", "tier": TIERS.COMMON, "noShop": true},
+    "divine logs": {"name": "Divine Logs", "description": "Rare logs blessed by divine power.", "sell_price": 350, "emoji": "🪄🌲", "stackable": true, "category": "log", "tier": TIERS.COMMON, "noShop": true},
+    "hardwood": {"name": "Hardwood", "description": "Dense, high-quality wood.", "sell_price": 25, "emoji": "🌳", "stackable": true, "category": "log", "tier": TIERS.UNCOMMON, "noShop": true},
+    // Tool combinations that appear in inventory
 };
 
 // Farm worker data
@@ -1341,7 +1382,7 @@ export const SEED_DATA = {
     "carrotSeeds": {
         name: "Carrot Seeds",
         description: "Seeds to grow carrots. Plant in a Small Crop Plot.",
-        sell_price: 2,
+        sell_price: 1,
         emoji: "🥕🌱",
         stackable: true,
         category: "seed",
@@ -1369,7 +1410,7 @@ export const SEED_DATA = {
     "appleSapling": {
         name: "Apple Sapling",
         description: "A young apple tree sapling. Plant in a Large Crop Plot.",
-        sell_price: 10, 
+        sell_price: 3, 
         emoji: "🌳🌱",
         stackable: true,
         category: "seed",
@@ -1383,7 +1424,7 @@ export const SEED_DATA = {
     "potatoSeeds": {
         name: "Potato Seeds",
         description: "Seeds to grow potatoes. Plant in a Small Crop Plot.",
-        sell_price: 3,
+        sell_price: 2,
         emoji: "🥔🌱",
         stackable: true,
         category: "seed",
@@ -1400,7 +1441,7 @@ export const CROP_ITEMS = {
     "carrots": {
         name: "Carrots",
         description: "Crunchy orange carrots. Used as animal feed and in cooking.",
-        sell_price: 3,
+        sell_price: 2,
         emoji: "🥕",
         stackable: true,
         category: "food_ingredient",
@@ -1418,7 +1459,7 @@ export const CROP_ITEMS = {
     "potato": {
         name: "Potato",
         description: "A starchy, nutritious tuber. Can be cooked into various dishes.",
-        sell_price: 4,
+        sell_price: 3,
         emoji: "🥔",
         stackable: true,
         category: "food_ingredient",
@@ -1427,7 +1468,7 @@ export const CROP_ITEMS = {
     "apple": { // Added missing apple item from appleSapling crop
         name: "Apple",
         description: "A crisp, juicy apple.",
-        sell_price: 1, // Matches FOOD_DATA
+        sell_price: 5, // Higher value - rare crop used in expensive recipes
         heal_amount: 1, // Matches FOOD_DATA
         emoji: "🍎",
         stackable: true,
@@ -2013,6 +2054,8 @@ if (typeof GUILD_UPGRADE_DATA === 'object') {
 }
 
 // Enchanting System Data
+export const MAX_ENCHANTMENTS = 12;
+
 export const ENCHANTING_TIER_DATA = {
     "common_enchant": {
         name: "Common Enchant",
@@ -2277,4 +2320,105 @@ export const ENCHANTMENT_STAT_TIER_COLORS = {
     epic: "tier-epic-stat",
     legendary: "tier-legendary-stat",
     wizard: "tier-wizard-stat" // Special pink tier for Wizard Tower enchantments
+};
+
+// Ring Enchanting Configuration - Different from regular enchanting
+export const RING_GEM_DATA = {
+    "sapphire": {
+        name: "Sapphire",
+        emoji: "🔷",
+        tier: "rare",
+        minStats: 1,
+        maxStats: 3,
+        statRanges: {
+            "str_percent": [0.02, 0.08],
+            "hp_flat": [5, 25],
+            "hp_percent": [0.02, 0.08],
+            "crit_chance": [0.01, 0.05],
+            "crit_damage": [0.02, 0.08],
+            "aoe_damage": [0.02, 0.08],
+            "aoe_chance": [0.01, 0.05],
+            "crafting_speed": [0.2, 0.8]
+        }
+    },
+    "emerald": {
+        name: "Emerald", 
+        emoji: "💚",
+        tier: "rare",
+        minStats: 2,
+        maxStats: 4,
+        statRanges: {
+            "str_percent": [0.03, 0.10],
+            "hp_flat": [8, 35],
+            "hp_percent": [0.03, 0.10],
+            "crit_chance": [0.02, 0.07],
+            "crit_damage": [0.03, 0.10],
+            "aoe_damage": [0.03, 0.10],
+            "aoe_chance": [0.02, 0.07],
+            "crafting_speed": [0.3, 1.0]
+        }
+    },
+    "ruby": {
+        name: "Ruby",
+        emoji: "🔴", 
+        tier: "rare",
+        minStats: 3,
+        maxStats: 5,
+        statRanges: {
+            "str_percent": [0.04, 0.12],
+            "hp_flat": [10, 45],
+            "hp_percent": [0.04, 0.12],
+            "crit_chance": [0.03, 0.09],
+            "crit_damage": [0.04, 0.12],
+            "aoe_damage": [0.04, 0.12],
+            "aoe_chance": [0.03, 0.09],
+            "crafting_speed": [0.4, 1.2]
+        }
+    },
+    "diamond": {
+        name: "Diamond",
+        emoji: "💎",
+        tier: "epic", 
+        minStats: 4,
+        maxStats: 6,
+        statRanges: {
+            "str_percent": [0.05, 0.15],
+            "hp_flat": [15, 60],
+            "hp_percent": [0.05, 0.15],
+            "crit_chance": [0.04, 0.12],
+            "crit_damage": [0.05, 0.15],
+            "aoe_damage": [0.05, 0.15],
+            "aoe_chance": [0.04, 0.12],
+            "crafting_speed": [0.5, 1.5]
+        }
+    },
+    "dragon gem": {
+        name: "Dragon Gem",
+        emoji: "💎🔥",
+        tier: "legendary",
+        minStats: 5,
+        maxStats: 7,
+        statRanges: {
+            "str_percent": [0.08, 0.20],
+            "hp_flat": [25, 80],
+            "hp_percent": [0.08, 0.20],
+            "crit_chance": [0.06, 0.15],
+            "crit_damage": [0.08, 0.20],
+            "aoe_damage": [0.08, 0.20],
+            "aoe_chance": [0.06, 0.15],
+            "crafting_speed": [0.8, 2.0]
+        }
+    }
+};
+
+// Ring stat names for display
+export const RING_STAT_NAMES = {
+    "str_percent": "Str %",
+    "hp_flat": "+ Base HP",
+    "hp_percent": "% of Max HP", 
+    "crit_chance": "% Crit Chance",
+    "crit_damage": "% Crit Damage (Add)",
+    "aoe_damage": "% AOE Damage (Add)",
+    "aoe_chance": "% AOE Chance (Add)",
+    "crafting_speed": "s Crafting Speed"
 };

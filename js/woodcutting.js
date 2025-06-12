@@ -11,6 +11,7 @@ import { trackStatistic } from './achievements.js';
 import { showSection, updateHud, setActiveSkill, clearActiveSkill } from './ui.js';
 import { stopAllAutoActions } from './actions.js';
 import { getSummedPyramidPerkEffects } from './perks.js';
+import { getStructurePerkEffect } from './builds.js';
 import { TREE_DATA, TOOL_DATA, ITEM_DATA } from './data.js';
 
 // Woodcutting state variables
@@ -55,7 +56,7 @@ export function calculateWoodcuttingActionTime() {
         } else {
             // Fallback to tier-based multipliers
             const tierMultipliers = {
-                bronze: 1.0, iron: 0.9, steel: 0.85, mithril: 0.8, adamant: 0.75, rune: 0.7, dragon: 0.6
+                bronze: 1.0, iron: 0.967, steel: 0.933, mithril: 0.9, adamant: 0.9, rune: 0.867, dragon: 0.833
             };
             const tier = equippedAxeName.toLowerCase();
             if (tierMultipliers[tier]) {
@@ -65,8 +66,15 @@ export function calculateWoodcuttingActionTime() {
     }
     
     const speedEffects = getSummedPyramidPerkEffects();
-    if (speedEffects.gather_speed) {
-        interval *= (1 - speedEffects.gather_speed);
+    let totalSpeedBoost = speedEffects.gather_speed || 0;
+    
+    // Add global skill speed boost from perks and structures
+    totalSpeedBoost += speedEffects.global_skill_speed_boost || 0;
+    const structureSpeedBoost = getStructurePerkEffect('stronghold', 'global_skill_speed_boost') || 0;
+    totalSpeedBoost += structureSpeedBoost;
+    
+    if (totalSpeedBoost > 0) {
+        interval *= (1 - totalSpeedBoost);
     }
     
     // Apply gathering speed enchantments from axe
@@ -111,7 +119,7 @@ export function updateWoodcuttingDisplay() {
     
     if (availableTreesContainer) {
         // Clear the container
-        availableTreesContainer.innerHTML = '<div class="section-title" style="text-align:left; font-size:1.2em; border:none; padding-bottom:5px;">Available Trees</div>';
+        availableTreesContainer.innerHTML = '';
         
         // Get the player's equipped axe
         const equippedAxeName = playerData.equipment ? playerData.equipment.axe || "none" : "none";
@@ -135,6 +143,7 @@ export function updateWoodcuttingDisplay() {
             const treeDiv = document.createElement('div');
             treeDiv.className = 'action-list-item';
             treeDiv.id = `wc-tree-${treeName.replace(/\s+/g, '-')}`;
+            treeDiv.setAttribute('data-tree-type', treeName);
             
             // Check if the player can chop this tree
             const canChop = wcLvl >= tree.level && currentAxeTierName !== "none" &&
@@ -163,6 +172,19 @@ export function updateWoodcuttingDisplay() {
             // Add active class if this is currently selected tree
             if (isAutoWoodcutting && currentWoodcuttingTarget === treeName) {
                 treeDiv.classList.add('active-action-item');
+                
+                // Add equipped axe data for animation purposes
+                const equippedAxe = playerData.equipment?.axe || 'none';
+                console.log('Setting axe animation for:', treeName, 'with axe:', equippedAxe);
+                if (equippedAxe !== 'none') {
+                    treeDiv.setAttribute('data-equipped-axe', equippedAxe);
+                }
+                
+                // Set animation duration based on woodcutting speed
+                const actionTime = calculateWoodcuttingActionTime();
+                const animationDuration = actionTime / 1000; // Convert ms to seconds
+                treeDiv.style.setProperty('--axe-animation-duration', `${animationDuration}s`);
+                console.log('Setting axe animation duration:', animationDuration, 'seconds (action time:', actionTime, 'ms)');
             }
             
             availableTreesContainer.appendChild(treeDiv);

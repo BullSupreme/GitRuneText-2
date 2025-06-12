@@ -17,7 +17,8 @@ import {
     resetGame,
     applyCheat,
     toggleMute,
-    logMessage
+    logMessage,
+    cleanupCorruptedEnchantments
 } from './utils.js';
 
 // Import functions from other modules
@@ -69,6 +70,9 @@ function initGame() {
     // Load saved data
     loadPlayerData();
     
+    // Clean up any corrupted enchantment data
+    cleanupCorruptedEnchantments();
+    
     // Set up UI elements and event listeners
     initGameUi();
     setupInventoryEvents(); // Setup inventory specific events
@@ -89,12 +93,19 @@ function initGame() {
     
     // Set up main menu events (back buttons, etc.)
     setupMainMenuEvents();
+    setupDungeoneeringEvents();
     
     // Initialize farming module (tab events, overview render)
     initFarmingModule();
     
     // Initialize water collection from well
     initWaterCollection();
+    
+    // Initialize dungeoneering
+    import('./dungeoneering.js').then(module => {
+        module.initDungeoneering();
+        module.checkDungeoneeringUnlock();
+    });
     
     // Start intervals for recurring game mechanics
     startGameIntervals();
@@ -431,6 +442,27 @@ function setupActionsMenuEvents() {
     const farmingMenuActionButton = document.getElementById('farming-menu-action-button');
     if (farmingMenuActionButton) {
         farmingMenuActionButton.addEventListener('click', () => showFarmingMenu());
+    }
+}
+
+/**
+ * Sets up event listeners for the dungeoneering section
+ */
+function setupDungeoneeringEvents() {
+    // Dungeoneering menu back button
+    const dungeoneeringBackButton = document.getElementById('dungeoneering-back-button');
+    if (dungeoneeringBackButton) {
+        dungeoneeringBackButton.addEventListener('click', () => {
+            showCombat();
+        });
+    }
+    
+    // Dungeoneering footer back button
+    const dungeoneeringFooterBackButton = document.getElementById('dungeoneering-footer-back-btn');
+    if (dungeoneeringFooterBackButton) {
+        dungeoneeringFooterBackButton.addEventListener('click', () => {
+            showCombat();
+        });
     }
 }
 

@@ -1,0 +1,842 @@
+/* === Cooking Section CSS === */
+
+/* Cooking Section Layout */
+#cooking-section {
+    /* Uses .section, .compact-nav, .permit-status, .resource-list base styles */
+}
+
+/* Cooking XP Bar Colors */
+.skill-xp-bar.ck { 
+    background-color: #ffeb3b; /* Cooking Yellow */
+}
+
+/* Cooking Skill Hover Effects */
+@keyframes cookingGlow {
+    0%, 100% { 
+        box-shadow: 0 0 10px 2px rgba(255, 235, 59, 0.8), 0 0 15px 5px rgba(255, 255, 255, 0.5); 
+    }
+    50% { 
+        box-shadow: 0 0 20px 5px rgba(255, 235, 59, 1), 0 0 25px 10px rgba(255, 255, 255, 0.7); 
+    }
+}
+
+.skill-stat-container[data-skill="cooking"]:hover { 
+    border: 1px solid #ffeb3b; 
+    animation: cookingGlow 2s infinite alternate; 
+    background-color: rgba(255, 235, 59, 0.2); 
+}
+
+.skill-stat-container[data-skill="cooking"]:hover .stat-label { 
+    color: #ffeb3b; 
+}
+
+/* Cooking Button Themes */
+.btn-cook { 
+    background-color: #eea236 !important; 
+} 
+
+.btn-cook:hover { 
+    background-color: #f0ad4e !important; 
+}
+
+.btn-eat { 
+    background-color: #4cae4c !important; 
+} 
+
+.btn-eat:hover { 
+    background-color: #5cb85c !important; 
+}
+
+/* Available Food List */
+#available-food-list {
+    /* Uses .resource-list base styles for cookable items */
+}
+
+/* Food Inventory List */
+#food-inventory-list {
+    /* Uses .resource-list base styles for food owned */
+    margin-top: 20px;
+}
+
+/* Cooking Recipe Cards - Also applies to action-list-item in cooking section */
+.cooking-recipe,
+#cooking-section #available-food-list .action-list-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px 18px;
+    margin: 8px 0;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #2a2006 60%, #3a2f0a 100%);
+    border: 1.5px solid #ffb74d;
+    min-height: 48px;
+    font-size: 1.08em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: background 0.22s, box-shadow 0.22s, border-color 0.22s, transform 0.18s;
+    cursor: pointer;
+}
+
+.cooking-recipe:hover,
+#cooking-section #available-food-list .action-list-item:hover {
+    background: linear-gradient(90deg, #3a2f0a 60%, #4a3f0e 100%);
+    border-color: #ffeb3b;
+    box-shadow: 0 4px 12px rgba(255, 235, 59, 0.3);
+    transform: translateY(-1px);
+}
+
+.cooking-recipe.selected,
+.cooking-recipe.active-action-item,
+#cooking-section #available-food-list .action-list-item.selected,
+#cooking-section #available-food-list .action-list-item.active-action-item {
+    background: rgba(76, 175, 80, 0.25) !important;
+    border-color: #4caf50 !important;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.5) !important;
+    transform: none !important;
+}
+
+.cooking-recipe:active:not(.selected):not(.active-action-item),
+#cooking-section #available-food-list .action-list-item:active:not(.selected):not(.active-action-item) {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(255, 235, 59, 0.2);
+    background: linear-gradient(90deg, #4a3f0e 60%, #5a4f1e 100%);
+}
+
+/* Food Info Container */
+.food-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+/* Food Icon Styling */
+.food-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: rgba(255, 235, 59, 0.1);
+    border: 1px solid rgba(255, 235, 59, 0.3);
+    font-size: 24px;
+}
+
+.food-icon img {
+    width: 32px !important;
+    height: 32px !important;
+    object-fit: contain;
+}
+
+/* Food Details */
+.food-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.food-name {
+    font-weight: bold;
+    color: #fff;
+    font-size: 1em;
+}
+
+.food-level-req {
+    font-size: 0.85em;
+    color: #ffeb3b;
+}
+
+.food-ingredients {
+    font-size: 0.8em;
+    color: #ffc107;
+}
+
+.food-healing {
+    font-size: 0.8em;
+    color: #4caf50;
+}
+
+.food-xp {
+    font-size: 0.8em;
+    color: #76d76c;
+}
+
+/* Cooking Actions Container */
+.cooking-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Food Inventory Count */
+.food-inventory-count {
+    background-color: rgba(255, 235, 59, 0.2);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: bold;
+    border: 1px solid rgba(255, 235, 59, 0.3);
+}
+
+/* Cooking Action List Item Layout Fix */
+#cooking-section .action-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    min-height: 60px;
+}
+
+/* Left side container - use CSS Grid for 2-line layout */
+#cooking-section .action-list-item .action-item-left {
+    flex: 1;
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 4px 6px;
+    align-items: baseline;
+    min-width: 0;
+}
+
+/* First line: emoji and level */
+#cooking-section .action-list-item .action-item-emoji {
+    grid-row: 1;
+    grid-column: 1;
+    font-size: 1.2em;
+}
+
+#cooking-section .action-list-item .action-item-level {
+    grid-row: 1;
+    grid-column: 2;
+    color: #ffeb3b;
+    font-size: 0.8em;
+    background-color: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Second line: name and XP */
+#cooking-section .action-list-item .action-item-name {
+    grid-row: 2;
+    grid-column: 1 / 3;
+    font-weight: bold;
+    color: #fff;
+}
+
+#cooking-section .action-list-item .action-item-xp {
+    grid-row: 2;
+    grid-column: 3;
+    color: #76d76c;
+    font-size: 0.9em;
+    justify-self: start;
+    margin-left: 8px;
+}
+
+/* Third line: max craft info */
+#cooking-section .action-list-item .resource-max-craft {
+    grid-row: 3;
+    grid-column: 1 / -1;
+    font-size: 0.85em;
+    color: #aaa;
+}
+
+/* Right side container */
+#cooking-section .action-list-item .action-item-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+    margin-right: 80px;
+}
+
+#cooking-section .action-list-item .resource-inventory-count {
+    background-color: rgba(255, 235, 59, 0.2);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    font-weight: bold;
+    border: 1px solid rgba(255, 235, 59, 0.3);
+    min-width: 50px;
+    text-align: center;
+}
+
+/* Recipe requirements styling */
+#cooking-section .action-list-item .recipe-requirements {
+    font-size: 0.85em;
+    color: #ffc107;
+    text-align: right;
+}
+
+#cooking-section .action-list-item .resource-max-craft {
+    font-size: 0.85em;
+    color: #aaa;
+}
+
+/* Cooking Animation States */
+.cooking-recipe.cooking-active {
+    animation: cookingPulse 2s infinite;
+    border-color: #ff9800;
+}
+
+@keyframes cookingPulse {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(255, 152, 0, 0.8), 0 0 30px rgba(255, 193, 7, 0.6);
+    }
+}
+
+/* Steam Animation for Cooking */
+@keyframes steamRise {
+    0% {
+        opacity: 0.7;
+        transform: translateY(0) scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-10px) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px) scale(1.2);
+    }
+}
+
+.cooking-recipe.cooking-active .food-icon::after {
+    content: '=�';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    animation: steamRise 1.5s ease-out infinite;
+}
+
+/* Cooking Progress Indicator */
+.cooking-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background-color: #ff9800;
+    border-radius: 0 0 12px 12px;
+    transition: width 0.1s linear;
+}
+
+/* Auto Cooking Status */
+.auto-cooking-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background-color: #ff9800;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+    display: none;
+}
+
+.cooking-recipe.auto-active .auto-cooking-indicator {
+    display: block;
+}
+
+/* Cooking Permit Status */
+#cooking-permit-status {
+    text-align: center;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: rgba(255, 235, 59, 0.1);
+    border: 1px solid rgba(255, 235, 59, 0.3);
+    border-radius: 8px;
+}
+
+/* Cooking Loot Notifications */
+.cooking-loot-notification {
+    position: absolute;
+    top: -30px;
+    right: 10px;
+    background-color: rgba(255, 193, 7, 0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+    pointer-events: none;
+    animation: lootFloat 2s ease-out forwards;
+    z-index: 100;
+}
+
+@keyframes lootFloat {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* Cooking Fire/Heat Indicator */
+.cooking-heat-indicator {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    display: flex;
+    gap: 2px;
+}
+
+.heat-level {
+    width: 4px;
+    height: 8px;
+    border-radius: 2px;
+    background-color: #666;
+    transition: background-color 0.3s;
+}
+
+.heat-level.active {
+    background-color: #ff5722;
+    animation: heatFlicker 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes heatFlicker {
+    0% {
+        background-color: #ff5722;
+        box-shadow: 0 0 3px #ff5722;
+    }
+    100% {
+        background-color: #ff9800;
+        box-shadow: 0 0 5px #ff9800;
+    }
+}
+
+/* Food Quality Indicators */
+.food-quality {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 0.7em;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.food-quality.common {
+    background-color: rgba(158, 158, 158, 0.8);
+    color: white;
+}
+
+.food-quality.uncommon {
+    background-color: rgba(76, 175, 80, 0.8);
+    color: white;
+}
+
+.food-quality.rare {
+    background-color: rgba(33, 150, 243, 0.8);
+    color: white;
+}
+
+.food-quality.epic {
+    background-color: rgba(156, 39, 176, 0.8);
+    color: white;
+}
+
+/* Cooking Tools Display */
+.cooking-tools-display {
+    margin-top: 15px;
+    padding: 12px;
+    background-color: rgba(255, 235, 59, 0.1);
+    border: 1px solid rgba(255, 235, 59, 0.3);
+    border-radius: 8px;
+}
+
+.cooking-tools-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #ffeb3b;
+    margin-bottom: 8px;
+}
+
+.current-cookware {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background-color: rgba(255, 235, 59, 0.05);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 235, 59, 0.2);
+}
+
+.cookware-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.cookware-info {
+    flex: 1;
+}
+
+.cookware-name {
+    font-weight: bold;
+    color: #fff;
+}
+
+.cookware-bonus {
+    font-size: 0.85em;
+    color: #ffc107;
+}
+
+/* Cooking Speed Bonus Indicator */
+.cooking-speed-bonus {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(255, 193, 7, 0.9);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 0.7em;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+/* Food Type Categories */
+.cooking-recipe.meat-dish {
+    border-color: #d32f2f;
+}
+
+.cooking-recipe.meat-dish:hover {
+    border-color: #f44336;
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+.cooking-recipe.fish-dish {
+    border-color: #1976d2;
+}
+
+.cooking-recipe.fish-dish:hover {
+    border-color: #2196f3;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.cooking-recipe.vegetable-dish {
+    border-color: #388e3c;
+}
+
+.cooking-recipe.vegetable-dish:hover {
+    border-color: #4caf50;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.cooking-recipe.bread-dish {
+    border-color: #f57c00;
+}
+
+.cooking-recipe.bread-dish:hover {
+    border-color: #ff9800;
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+/* Burning Effect for Failed Cooking */
+.cooking-recipe.burned {
+    background: linear-gradient(90deg, #1a0a0a 60%, #2a1414 100%);
+    border-color: #424242;
+    opacity: 0.7;
+}
+
+.cooking-recipe.burned .food-icon::after {
+    content: '=�';
+    color: #666;
+    animation: none;
+}
+
+/* Successful Cooking Effect */
+.cooking-success-flash {
+    animation: cookingSuccess 0.8s ease-out;
+}
+
+@keyframes cookingSuccess {
+    0% {
+        box-shadow: 0 0 0 rgba(76, 175, 80, 0.8);
+    }
+    50% {
+        box-shadow: 0 0 20px 5px rgba(76, 175, 80, 0.8);
+    }
+    100% {
+        box-shadow: 0 0 0 rgba(76, 175, 80, 0.8);
+    }
+}
+
+/* Responsive Design for Cooking */
+@media (max-width: 768px) {
+    .cooking-recipe {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 12px;
+    }
+    
+    .cooking-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .food-inventory-count {
+        position: static;
+        margin-top: 5px;
+        align-self: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .cooking-recipe {
+        padding: 10px;
+    }
+    
+    .food-info {
+        gap: 8px;
+    }
+    
+    .food-icon {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .food-icon img {
+        width: 24px !important;
+        height: 24px !important;
+    }
+}
+
+/* === Improved Food Modal === */
+.food-modal {
+    background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+    border: 2px solid #444;
+    border-radius: 12px;
+    padding: 25px;
+    min-width: 600px;
+    max-width: 800px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    position: relative;
+}
+
+.food-modal h3 {
+    color: #ffeb3b;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* HP Bar Section */
+.food-modal-hp-section {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.hp-bar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.hp-bar-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #e0e0e0;
+    font-weight: bold;
+}
+
+.food-modal-hp-section .hp-bar {
+    background-color: #333;
+    border: 1px solid #555;
+    border-radius: 12px;
+    height: 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+.food-modal-hp-section .hp-bar-fill,
+#food-modal-hp-fill {
+    height: 100%;
+    background-color: #4caf50 !important;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    border-radius: 12px;
+    width: 0; /* Default width, JS will set actual width */
+}
+
+/* Food Items Grid */
+.food-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 12px;
+    background: rgba(0,0,0,0.1);
+    border: 1px solid #333;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.food-item-card {
+    background: linear-gradient(135deg, #333 0%, #2a2a2a 100%);
+    border: 2px solid #444;
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    transition: all 0.2s ease;
+    height: auto;
+    position: relative;
+}
+
+.food-item-card:hover {
+    border-color: #ffeb3b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 235, 59, 0.2);
+}
+
+/* Tier colors for food items */
+.food-item-card.common { border-color: #777; }
+.food-item-card.uncommon { border-color: #4caf50; }
+.food-item-card.rare { border-color: #2196f3; }
+.food-item-card.epic { border-color: #9c27b0; }
+.food-item-card.legendary { 
+    border-color: #ff9800; 
+    box-shadow: 0 0 8px rgba(255, 152, 0, 0.3);
+}
+
+.food-item-icon {
+    font-size: 1.8em;
+    margin-bottom: 4px;
+}
+
+.food-item-info {
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+}
+
+.food-item-name {
+    font-weight: bold;
+    color: #e0e0e0;
+    font-size: 0.85em;
+    text-align: center;
+    line-height: 1.1;
+}
+
+.food-item-quantity {
+    color: #bbb;
+    font-size: 0.75em;
+}
+
+.food-item-heal {
+    color: #4caf50;
+    font-size: 0.75em;
+    font-weight: bold;
+}
+
+.food-eat-btn {
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 4px;
+    width: 90%;
+    max-width: 100px;
+}
+
+.food-eat-btn:hover {
+    background: linear-gradient(135deg, #45a049 0%, #4caf50 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(76, 175, 80, 0.3);
+}
+
+.empty-food-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #aaa;
+    font-style: italic;
+    padding: 40px 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+}
+
+/* Modal buttons */
+.food-modal-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #444;
+}
+
+.food-modal-buttons .close-button {
+    background: linear-gradient(135deg, #666 0%, #777 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 100px;
+}
+
+.food-modal-buttons .close-button:hover {
+    background: linear-gradient(135deg, #777 0%, #888 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* Responsive design for food modal */
+@media (max-width: 768px) {
+    .food-modal {
+        min-width: 95vw;
+        max-width: 95vw;
+        padding: 20px;
+    }
+    
+    .food-items-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+    }
+    
+    .food-item-card {
+        min-height: 100px;
+        padding: 10px;
+    }
+    
+    .food-item-icon {
+        font-size: 2em;
+    }
+}

@@ -1,0 +1,937 @@
+/* =================================================================== */
+/* GUILD SYSTEM CSS - Extracted from style-backup-2025-06-04.css     */
+/* =================================================================== */
+
+/* --- Guild Hall Section --- */
+#guild-hall-section {
+    padding: 1rem; /* Override default section padding for custom layout */
+}
+
+#guild-hall-section .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    background: linear-gradient(to bottom, #1a1a1d 0%, #2d2d30 100%);
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+#guild-hall-section .tab {
+    background: linear-gradient(135deg, #3e3e42 0%, #2d2d30 100%);
+    color: #b0b0b0;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+#guild-hall-section .tab::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+#guild-hall-section .tab:hover {
+    background: linear-gradient(135deg, #4a4a4e 0%, #3e3e42 100%);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+#guild-hall-section .tab:hover::before {
+    left: 100%;
+}
+
+#guild-hall-section .tab.active {
+    background: linear-gradient(135deg, #4b8bff 0%, #0e639c 100%);
+    color: white;
+    border-color: #4b8bff;
+    box-shadow: 0 4px 12px rgba(75, 139, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: translateY(0);
+}
+
+#guild-hall-section .tab.active:hover {
+    transform: translateY(0);
+    box-shadow: 0 4px 15px rgba(75, 139, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* --- Guild Members Section --- */
+.guild-members-section {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem 1rem;
+    background: linear-gradient(135deg, #23272f 80%, #2e3542 100%);
+    border-radius: 18px;
+    box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.18);
+}
+
+.guild-members-section .section-title,
+.missions-section .section-title {
+    font-family: 'Cinzel', 'Georgia', serif;
+    font-size: 2rem;
+    color: #ffd700;
+    margin-bottom: 1.2rem;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px #000a;
+    border-bottom: none; /* Override generic .section-title border */
+    text-align: left;
+}
+
+/* --- Guild Member Cards --- */
+.guild-member-card {
+    background: rgba(34, 40, 49, 0.98);
+    border: 2px solid #44485a;
+    border-radius: 14px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.12);
+    margin-bottom: 1rem;
+    padding: 1rem;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.guild-member-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 32px 0 #0006;
+    border-color: #4caf50;
+    opacity: 1;
+}
+
+.member-main-content {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+}
+
+.member-info-panel {
+    flex-grow: 1;
+}
+
+.member-header {
+    display: flex;
+    flex-direction: column;
+}
+
+.member-header-name-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.member-name {
+    font-family: 'Cinzel', 'Georgia', serif;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #4caf50;
+    letter-spacing: 1px;
+    text-shadow: 0 1px 4px #000a;
+}
+
+.member-status {
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.2em 0.5em;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.member-status.idle {
+    background: #2d3d2d;
+    color: #90ee90;
+    border: 1px solid #4caf50;
+}
+
+.member-status.busy {
+    background: #3d3d2d;
+    color: #ffd700;
+    border: 1px solid #ff9800;
+}
+
+.member-title {
+    font-family: 'Montserrat', 'Arial', sans-serif;
+    font-size: 1.05rem;
+    font-style: italic;
+    color: #bfc9d1;
+    opacity: 0.7;
+    margin-left: 0.7em;
+}
+
+/* --- Member Tier Label --- */
+.member-tier-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+}
+
+/* --- Member Stats and Badges --- */
+.member-stats {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+
+.member-stat-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 1.01rem;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 0.15em 0.7em 0.15em 0.5em;
+    background: linear-gradient(90deg, #2e3a2e 60%, #3e4e3e 100%);
+    color: #aaffaa;
+    box-shadow: 0 1px 4px #0002;
+    border: 1.5px solid #3a5a3a;
+    letter-spacing: 0.5px;
+}
+
+.member-stat-badge.level {
+    background: linear-gradient(90deg, #ffe066 60%, #ffd700 100%);
+    color: #7a5c00;
+    border-color: #ffe066;
+    text-shadow: 0 1px 2px #fff8;
+}
+
+.member-stat-badge.xp {
+    background: linear-gradient(90deg, #b0b0ff 60%, #7ecfff 100%);
+    color: #1a3a7a;
+    border-color: #b0b0ff;
+}
+
+.member-stat-badge.task {
+    background: linear-gradient(90deg, #f7c6ff 60%, #e0aaff 100%);
+    color: #6a217a;
+    border-color: #e0aaff;
+}
+
+.member-secondary-stats {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+
+.member-secondary-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.98rem;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 0.13em 0.6em 0.13em 0.4em;
+    background: linear-gradient(90deg, #2e3a49 60%, #3e4e5e 100%);
+    color: #7ecfff;
+    box-shadow: 0 1px 4px #0002;
+    border: 1.5px solid #3a4a5a;
+    letter-spacing: 0.5px;
+}
+
+.member-secondary-badge.bonus {
+    background: linear-gradient(90deg, #ffe066 60%, #ffd700 100%);
+    color: #7a5c00;
+    border-color: #ffe066;
+    text-shadow: 0 1px 2px #fff8;
+}
+
+/* --- Member Controls and Task Buttons --- */
+.member-controls-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
+    min-width: 180px;
+}
+
+.member-task-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.member-task-buttons .task-btn {
+    font-family: 'Montserrat', 'Arial', sans-serif;
+    font-size: 1.0rem;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 0.5em 1em;
+    background: linear-gradient(90deg, #23234a 60%, #3e3e7a 100%);
+    color: #4caf50;
+    border: 2px solid #4caf50;
+    box-shadow: 0 1px 4px #0003;
+    transition: background 0.15s, color 0.15s, border 0.15s;
+    width: 100%;
+}
+
+.member-task-buttons .task-btn:hover {
+    background: linear-gradient(90deg, #4caf50 60%, #aaffaa 100%);
+    color: #23234a;
+    border-color: #23234a;
+    opacity: 1;
+}
+
+.member-task-buttons .task-btn.active-member-task {
+    background: linear-gradient(90deg, #4caf50 60%, #aaffaa 100%) !important;
+    color: #23234a !important;
+    border-color: #23234a !important;
+}
+
+.small-btn {
+    font-size: 0.92rem;
+    padding: 0.25em 0.7em;
+    margin: 0.5em 0 0.2em 0;
+    border-radius: 8px;
+    background: #23272e;
+    color: #ffcb7d;
+    border: 1.5px solid #44485a;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.10);
+    transition: background 0.15s, color 0.15s;
+    cursor: pointer;
+}
+
+.small-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.small-btn:hover:not(:disabled) {
+    background: #2d313a;
+    color: #ffe6b3;
+}
+
+.member-stats .small-btn {
+    display: block;
+    width: 65%;
+    margin-top: 0.5em;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* --- Member Tooltips --- */
+.has-tooltip {
+    position: relative;
+}
+
+.member-tooltip {
+    display: none;
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #23272f;
+    color: #ffe066;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 1rem;
+    font-family: 'Montserrat', 'Arial', sans-serif;
+    font-weight: 500;
+    box-shadow: 0 4px 16px #000a;
+    border: 2px solid #44485a;
+    white-space: pre-line;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 100;
+    transition: opacity 0.18s, transform 0.18s;
+    min-width: 180px;
+    max-width: 320px;
+    text-align: center;
+}
+
+.member-tooltip.show {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(-6px);
+}
+
+.member-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 7px;
+    border-style: solid;
+    border-color: #23272f transparent transparent transparent;
+}
+
+/* --- Missions Section --- */
+.missions-section {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem 1rem;
+    background: linear-gradient(135deg, #23272f 80%, #2e3542 100%);
+    border-radius: 18px;
+    box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.18);
+}
+
+.mission-card {
+    background: rgba(34, 40, 49, 0.98);
+    border: 2px solid #44485a;
+    border-radius: 14px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.12);
+    margin-bottom: 1.5rem;
+    padding: 1.2rem 1.5rem;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    position: relative;
+}
+
+.mission-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 32px 0 #0006;
+    border-color: #ffd700;
+    opacity: 1;
+}
+
+.mission-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.2rem;
+}
+
+.mission-title {
+    font-family: 'Cinzel', 'Georgia', serif;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffe066;
+    letter-spacing: 1px;
+    text-shadow: 0 1px 4px #000a;
+}
+
+.mission-difficulty {
+    font-size: 1rem;
+    font-family: 'Montserrat', 'Arial', sans-serif;
+    color: #b0b0ff;
+    background: #23234a;
+    border-radius: 8px;
+    padding: 0.2em 0.8em;
+    font-weight: 600;
+    box-shadow: 0 1px 4px #0003;
+}
+
+.mission-description {
+    font-family: 'Montserrat', 'Arial', sans-serif;
+    font-size: 1.08rem;
+    color: #bfc9d1;
+    margin-bottom: 0.3rem;
+    margin-top: 0.1rem;
+    line-height: 1.5;
+}
+
+/* --- Mission Rewards --- */
+.mission-rewards {
+    margin-top: 0.2rem;
+    margin-bottom: 0.2rem;
+}
+
+.rewards-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffe066;
+    margin-bottom: 0.1rem;
+}
+
+.rewards-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.1rem;
+}
+
+.reward {
+    display: inline-flex;
+    align-items: center;
+    font-size: 1.05rem;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 0.18em 0.7em 0.18em 0.5em;
+    background: linear-gradient(90deg, #2e3a2e 60%, #3e4e3e 100%);
+    color: #aaffaa;
+    box-shadow: 0 1px 4px #0002;
+    border: 1.5px solid #3a5a3a;
+    letter-spacing: 0.5px;
+}
+
+.reward.gold-reward {
+    background: linear-gradient(90deg, #ffe066 60%, #ffd700 100%);
+    color: #7a5c00;
+    border-color: #ffe066;
+    text-shadow: 0 1px 2px #fff8;
+}
+
+.reward.exp-reward {
+    background: linear-gradient(90deg, #b0b0ff 60%, #7ecfff 100%);
+    color: #1a3a7a;
+    border-color: #b0b0ff;
+}
+
+.reward.item-reward {
+    background: linear-gradient(90deg, #f7c6ff 60%, #e0aaff 100%);
+    color: #6a217a;
+    border-color: #e0aaff;
+}
+
+/* --- Mission Actions --- */
+.mission-actions {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.7rem;
+}
+
+.mission-actions button {
+    font-family: 'Montserrat', 'Arial', sans-serif;
+    font-size: 1.08rem;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 0.4em 1.2em;
+    background: linear-gradient(90deg, #23234a 60%, #3e3e7a 100%);
+    color: #ffe066;
+    border: 2px solid #ffe066;
+    box-shadow: 0 1px 4px #0003;
+    transition: background 0.15s, color 0.15s, border 0.15s;
+}
+
+.mission-actions button:hover {
+    background: linear-gradient(90deg, #ffe066 60%, #ffd700 100%);
+    color: #23234a;
+    border-color: #23234a;
+    opacity: 1;
+}
+
+/* --- Mission Progress Bar --- */
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #333;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 8px 0 4px;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: #2196f3;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+/* --- Guild Upgrades Section --- */
+.guild-upgrades-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem 1.5rem;
+    justify-content: flex-start;
+    margin-top: 1.5rem;
+}
+
+.guild-upgrade-card {
+    background: rgba(34, 40, 49, 0.98);
+    border: 2.5px solid #44485a;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.13);
+    padding: 1.3rem 1.7rem;
+    margin-bottom: 1.5rem;
+    min-width: 320px;
+    max-width: 420px;
+    flex: 1 1 340px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    position: relative;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+
+.guild-upgrade-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 32px 0 #0007;
+    border-color: #7ecfff;
+    opacity: 1;
+}
+
+.guild-upgrade-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.7rem;
+    margin-bottom: 0.2rem;
+}
+
+.guild-upgrade-emoji {
+    font-size: 2.1rem;
+    margin-right: 0.5rem;
+}
+
+.guild-upgrade-title {
+    font-family: 'Cinzel', 'Georgia', serif;
+    font-size: 1.35rem;
+    font-weight: bold;
+    color: #ffd700;
+    letter-spacing: 1px;
+    text-shadow: 0 1px 4px #000a;
+    flex: 1 1 auto;
+}
+
+.guild-upgrade-level {
+    font-size: 1.1rem;
+    font-family: 'Montserrat', 'Arial', sans-serif;
+    color: #b0b0ff;
+    background: #23234a;
+    border-radius: 8px;
+    padding: 0.2em 0.8em;
+    font-weight: 600;
+    box-shadow: 0 1px 4px #0003;
+}
+
+.guild-upgrade-description {
+    font-family: 'Montserrat', 'Arial', sans-serif;
+    font-size: 1.08rem;
+    color: #bfc9d1;
+    margin-bottom: 0.2rem;
+    margin-top: 0.1rem;
+    line-height: 1.5;
+}
+
+.guild-upgrade-effect-current {
+    font-size: 1.01rem;
+    color: #aaffaa;
+    background: linear-gradient(90deg, #2e3a2e 60%, #3e4e3e 100%);
+    border-radius: 8px;
+    padding: 0.18em 0.7em 0.18em 0.5em;
+    margin-bottom: 0.2rem;
+    border: 1.5px solid #3a5a3a;
+    box-shadow: 0 1px 4px #0002;
+}
+
+.guild-upgrade-next {
+    margin-top: 0.2rem;
+    background: linear-gradient(90deg, #23234a 60%, #3e3e7a 100%);
+    border-radius: 8px;
+    padding: 0.7em 1em;
+    color: #b0b0ff;
+    border: 1.5px solid #44485a;
+    box-shadow: 0 1px 4px #0002;
+    font-size: 1.01rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+}
+
+.guild-upgrade-next-level {
+    font-weight: bold;
+    color: #ffe066;
+    font-size: 1.08rem;
+}
+
+.guild-upgrade-next-req {
+    font-size: 0.98rem;
+    color: #ffd700;
+}
+
+.guild-upgrade-next-cost {
+    font-size: 0.98rem;
+    color: #aaffaa;
+}
+
+.guild-upgrade-next-effect {
+    font-size: 0.98rem;
+    color: #b0b0ff;
+}
+
+.guild-upgrade-max-level {
+    font-size: 1.05rem;
+    color: #aaffaa;
+    font-weight: bold;
+    margin-top: 0.5em;
+    text-align: center;
+}
+
+.guild-upgrade-purchase-btn {
+    margin-top: 0.7em;
+    font-family: 'Montserrat', 'Arial', sans-serif;
+    font-size: 1.08rem;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 0.4em 1.2em;
+    background: linear-gradient(90deg, #23234a 60%, #3e3e7a 100%);
+    color: #ffe066;
+    border: 2px solid #ffe066;
+    box-shadow: 0 1px 4px #0003;
+    transition: background 0.15s, color 0.15s, border 0.15s;
+    width: 100%;
+}
+
+.guild-upgrade-purchase-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #44485a;
+    color: #b0b0ff;
+    border-color: #44485a;
+}
+
+.guild-upgrade-purchase-btn:not(:disabled):hover {
+    background: linear-gradient(90deg, #ffe066 60%, #ffd700 100%);
+    color: #23234a;
+    border-color: #23234a;
+    opacity: 1;
+}
+
+/* --- Guild Action Buttons --- */
+.guild-action-button {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+    margin: 20px auto;
+    display: block;
+}
+
+.guild-action-button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.guild-action-button:hover {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.guild-action-button:hover::after {
+    width: 300px;
+    height: 300px;
+}
+
+.guild-action-button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 10px rgba(34, 197, 94, 0.3);
+}
+
+/* Specific styling for Recruit button */
+#recruit-member-button {
+    padding-left: 48px; /* Make room for the emoji */
+}
+
+/* Pulsing animation for attention */
+@keyframes pulse {
+    0% { box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2); }
+    50% { box-shadow: 0 4px 25px rgba(34, 197, 94, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+    100% { box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2); }
+}
+
+.guild-action-button:not(:hover) {
+    animation: pulse 3s infinite;
+}
+
+/* --- Guild Log Styles --- */
+.guild-log-header {
+    margin-bottom: 20px;
+    text-align: center;
+    border-bottom: 2px solid #3f3f46;
+    padding-bottom: 15px;
+}
+
+.guild-log-header h3 {
+    margin: 0 0 5px 0;
+    color: #ffcb7d;
+    font-size: 1.3em;
+}
+
+.guild-log-subtitle {
+    margin: 0;
+    color: #999;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+.guild-log-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #3f3f46;
+    border-radius: 5px;
+    background: #1e1e1e;
+    padding: 10px;
+}
+
+.guild-log-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    background: #2d2d30;
+    border-left: 3px solid #3f3f46;
+    transition: all 0.2s ease;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.guild-log-entry:hover {
+    background: #3e3e42;
+    border-left-color: #4caf50;
+}
+
+.guild-log-timestamp {
+    color: #999;
+    font-weight: bold;
+    min-width: 70px;
+    flex-shrink: 0;
+}
+
+.guild-log-icon {
+    font-size: 1.1em;
+    flex-shrink: 0;
+    width: 20px;
+    text-align: center;
+}
+
+.guild-log-message {
+    color: #e0e0e0;
+    flex-grow: 1;
+    line-height: 1.4;
+}
+
+/* Guild Log Entry Types */
+.guild-log-assignment {
+    border-left-color: #2196f3;
+}
+
+.guild-log-assignment .guild-log-message {
+    color: #81c784;
+}
+
+.guild-log-tick {
+    border-left-color: #4caf50;
+}
+
+.guild-log-tick .guild-log-message {
+    color: #e0e0e0;
+}
+
+.guild-log-mission {
+    border-left-color: #9c27b0;
+}
+
+.guild-log-mission .guild-log-message {
+    color: #ba68c8;
+}
+
+.guild-log-task-completion {
+    border-left-color: #ffb74d;
+}
+
+.guild-log-task-completion .guild-log-message {
+    color: #ffb74d;
+}
+
+.guild-log-recruitment {
+    border-left-color: #4caf50;
+}
+
+.guild-log-recruitment .guild-log-message {
+    color: #81c784;
+}
+
+.guild-log-dismissal {
+    border-left-color: #f44336;
+}
+
+.guild-log-dismissal .guild-log-message {
+    color: #ef5350;
+}
+
+.guild-log-mission-complete {
+    border-left-color: #ff9800;
+}
+
+.guild-log-mission-complete .guild-log-message {
+    color: #ffb74d;
+}
+
+.guild-log-empty {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+    font-style: italic;
+}
+
+.guild-log-empty p {
+    margin: 0;
+}
+
+/* --- Responsive Design for Guild --- */
+@media (max-width: 768px) {
+    .guild-member-card .member-main-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .guild-member-card .member-controls-wrapper {
+        width: 100%;
+    }
+    
+    .guild-member-card .member-task-buttons {
+        width: 100%;
+    }
+    
+    .mission-card {
+        padding: 1rem 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .mission-title {
+        font-size: 1.15rem;
+    }
+    
+    .member-name {
+        font-size: 1.1rem;
+    }
+    
+    .member-tooltip {
+        font-size: 0.95rem;
+        min-width: 120px;
+        padding: 7px 8px;
+    }
+}

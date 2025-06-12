@@ -12,8 +12,12 @@ import {
     SWORD_DATA,
     ARMOR_DATA,
     HELMET_DATA,
+    RING_DATA,
     ITEM_DATA,
-    TOOL_DATA
+    TOOL_DATA,
+    RING_GEM_DATA,
+    RING_STAT_NAMES,
+    MAX_ENCHANTMENTS
 } from './data.js';
 import { 
     playerData, 
@@ -26,17 +30,19 @@ import {
     titleCase,
     playSound,
     sounds,
-    formatEnchantmentStat
+    formatEnchantmentStat,
+    getMaxHp,
+    getEnchantmentBonus
 } from './utils.js';
 import { trackStatistic } from './achievements.js';
 import { showSection } from './ui.js';
-import { getEnchantedStatsHtml } from './characterinfo.js';
+import { getEnchantedStatsHtml, showEquipSelection, populateEquipmentDisplay } from './characterinfo.js';
 
 // Current enchanting state
 let selectedEquipmentSlot = null;
 let currentEnchantmentPreview = null;
 let selectedEnchantmentTier = null;
-const MAX_ENCHANTMENTS = 12;
+let currentEnchantingState = 'overview'; // 'overview' or 'detail'
 
 /**
  * Shows the enchanting menu and initializes the UI
@@ -45,43 +51,36 @@ export function showEnchantingMenu() {
     showSection('enchanting-section');
     updateEnchantingDisplay();
     setupGemConversionEvents(); // Setup gems button event
+    setupEnchantingStateEvents(); // Setup new state transition events
 }
 
 /**
  * Updates the entire enchanting display
  */
 export function updateEnchantingDisplay() {
+    console.log('[Enchanting] Updating display, current equipment:', playerData.equipment);
     updateEnchantingStatus();
     populateEquipmentSlots();
     
-    // Reset to default state
+    // Reset to overview state
     selectedEquipmentSlot = null;
     currentEnchantmentPreview = null;
-    hideAllRightPanels();
-    document.getElementById('enchanting-no-selection').style.display = 'block';
+    showOverviewState();
 }
 
 /**
  * Updates the enchanting status display (skill level, etc.)
  */
 function updateEnchantingStatus() {
-    const statusDisplay = document.getElementById('enchanting-status-display');
-    if (!statusDisplay) return;
-
     const enchantingSkill = playerData.skills.enchanting;
     const level = getLevelFromXp(enchantingSkill.xp);
     
-    statusDisplay.innerHTML = `
-        <div class="permit-status-content" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;">
-            <div>
-                <span class="permit-status-label">Enchanting Level:</span>
-                <span class="permit-status-value">${level}</span>
-                <span class="permit-status-label">XP:</span>
-                <span class="permit-status-value">${formatNumber(enchantingSkill.xp)}</span>
-            </div>
-            <button id="gems-conversion-btn" class="action-button">Gems</button>
-        </div>
-    `;
+    // Update the level and XP values in the nav header
+    const levelElement = document.getElementById('enchanting-level-value');
+    const xpElement = document.getElementById('enchanting-xp-value');
+    
+    if (levelElement) levelElement.textContent = level;
+    if (xpElement) xpElement.textContent = formatNumber(enchantingSkill.xp);
 }
 
 /**
@@ -98,48 +97,129 @@ function populateEquipmentSlots() {
         { key: 'placeholder', name: 'Placeholder', data: {}, isPlaceholder: true },
         { key: 'weapon', name: 'Weapon', data: SWORD_DATA, 
           colorClassGetter: (itemData) => itemData ? itemData.color : 'fore-white',
-          statGetter: (itemData) => {
+          statGetter: (itemData, equippedItemName) => {
             if (!itemData) return "N/A";
             let stats = `Dmg: ${itemData.min_dmg}-${itemData.max_dmg}`;
-            stats += getEnchantedStatsHtml('weapon');
+            // Only show enchantments if they're currently active on the equipped item
+            const activeEnchantments = playerData.enchantedStats && playerData.enchantedStats['weapon'] || [];
+            if (activeEnchantments.length > 0) {
+              const enchantedLines = activeEnchantments.map(ench => {
+                const colorClass = ENCHANTMENT_STAT_TIER_COLORS[ench.tier] || '';
+                const statDisplay = formatEnchantmentStat(ench.stat, ench.value);
+                return `<span class="${colorClass}">${statDisplay}</span>`;
+              }).join('');
+              stats += `<br><div class="enchant-stats-container">${enchantedLines}</div>`;
+            }
             return stats;
           }
         },
         { key: 'helmet', name: 'Helmet', data: HELMET_DATA, 
           colorClassGetter: (itemData) => itemData ? itemData.color : 'fore-white',
-          statGetter: (itemData) => {
+          statGetter: (itemData, equippedItemName) => {
             if (!itemData) return "N/A";
             let stats = `Def: ${(itemData.defense * 100).toFixed(0)}%`;
-            stats += getEnchantedStatsHtml('helmet');
+            // Only show enchantments if they're currently active on the equipped item
+            const activeEnchantments = playerData.enchantedStats && playerData.enchantedStats['helmet'] || [];
+            if (activeEnchantments.length > 0) {
+              const enchantedLines = activeEnchantments.map(ench => {
+                const colorClass = ENCHANTMENT_STAT_TIER_COLORS[ench.tier] || '';
+                const statDisplay = formatEnchantmentStat(ench.stat, ench.value);
+                return `<span class="${colorClass}">${statDisplay}</span>`;
+              }).join('');
+              stats += `<br><div class="enchant-stats-container">${enchantedLines}</div>`;
+            }
             return stats;
           }
         },
         { key: 'axe', name: 'Axe', data: TOOL_DATA.axe, 
           colorClassGetter: (itemData) => itemData ? itemData.color : 'fore-white',
-          statGetter: (itemData) => {
+          statGetter: (itemData, equippedItemName) => {
             if (!itemData) return "N/A";
             let stats = `Yield: ${itemData.yield_config?.base || 0}`;
-            stats += getEnchantedStatsHtml('axe');
+            // Only show enchantments if they're currently active on the equipped item
+            const activeEnchantments = playerData.enchantedStats && playerData.enchantedStats['axe'] || [];
+            if (activeEnchantments.length > 0) {
+              const enchantedLines = activeEnchantments.map(ench => {
+                const colorClass = ENCHANTMENT_STAT_TIER_COLORS[ench.tier] || '';
+                const statDisplay = formatEnchantmentStat(ench.stat, ench.value);
+                return `<span class="${colorClass}">${statDisplay}</span>`;
+              }).join('');
+              stats += `<br><div class="enchant-stats-container">${enchantedLines}</div>`;
+            }
             return stats;
           }
         },
         { key: 'armor', name: 'Chestplate', data: ARMOR_DATA, 
           colorClassGetter: (itemData) => itemData ? itemData.color : 'fore-white',
-          statGetter: (itemData) => {
+          statGetter: (itemData, equippedItemName) => {
             if (!itemData) return "N/A";
             let stats = `Def: ${(itemData.defense * 100).toFixed(0)}%`;
-            stats += getEnchantedStatsHtml('chestplate');
+            // Only show enchantments if they're currently active on the equipped item
+            const activeEnchantments = playerData.enchantedStats && playerData.enchantedStats['armor'] || [];
+            if (activeEnchantments.length > 0) {
+              const enchantedLines = activeEnchantments.map(ench => {
+                const colorClass = ENCHANTMENT_STAT_TIER_COLORS[ench.tier] || '';
+                const statDisplay = formatEnchantmentStat(ench.stat, ench.value);
+                return `<span class="${colorClass}">${statDisplay}</span>`;
+              }).join('');
+              stats += `<br><div class="enchant-stats-container">${enchantedLines}</div>`;
+            }
             return stats;
           }
         },
         { key: 'pickaxe', name: 'Pickaxe', data: TOOL_DATA.pickaxe, 
           colorClassGetter: (itemData) => itemData ? itemData.color : 'fore-white',
-          statGetter: (itemData) => {
+          statGetter: (itemData, equippedItemName) => {
             if (!itemData) return "N/A";
             let stats = `Yield: ${itemData.yield_config?.base || 0}`;
-            stats += getEnchantedStatsHtml('pickaxe');
+            // Only show enchantments if they're currently active on the equipped item
+            const activeEnchantments = playerData.enchantedStats && playerData.enchantedStats['pickaxe'] || [];
+            if (activeEnchantments.length > 0) {
+              const enchantedLines = activeEnchantments.map(ench => {
+                const colorClass = ENCHANTMENT_STAT_TIER_COLORS[ench.tier] || '';
+                const statDisplay = formatEnchantmentStat(ench.stat, ench.value);
+                return `<span class="${colorClass}">${statDisplay}</span>`;
+              }).join('');
+              stats += `<br><div class="enchant-stats-container">${enchantedLines}</div>`;
+            }
             return stats;
           }
+        },
+        { key: 'left_ring', name: 'Left Ring', data: RING_DATA, 
+          colorClassGetter: (itemData) => itemData ? itemData.color : 'fore-white',
+          statGetter: (itemData, equippedItemName) => {
+            if (!itemData) return "N/A";
+            let stats = `+${itemData.hp_bonus} HP<br>+${(itemData.crit_chance * 100).toFixed(1)}% Crit<br>+${(itemData.str_percentage * 100).toFixed(1)}% Str`;
+            const activeEnchantments = getActiveEnchantments('left_ring');
+            if (activeEnchantments.length > 0) {
+              const enchantedLines = activeEnchantments.map(ench => {
+                const colorClass = ENCHANTMENT_STAT_TIER_COLORS[ench.tier] || '';
+                const statDisplay = formatEnchantmentStat(ench.stat, ench.value);
+                return `<span class="${colorClass}">${statDisplay}</span>`;
+              }).join('');
+              stats += `<br><div class="enchant-stats-container">${enchantedLines}</div>`;
+            }
+            return stats;
+          },
+          isRing: true
+        },
+        { key: 'right_ring', name: 'Right Ring', data: RING_DATA, 
+          colorClassGetter: (itemData) => itemData ? itemData.color : 'fore-white',
+          statGetter: (itemData, equippedItemName) => {
+            if (!itemData) return "N/A";
+            let stats = `+${itemData.hp_bonus} HP<br>+${(itemData.crit_chance * 100).toFixed(1)}% Crit<br>+${(itemData.str_percentage * 100).toFixed(1)}% Str`;
+            const activeEnchantments = getActiveEnchantments('right_ring');
+            if (activeEnchantments.length > 0) {
+              const enchantedLines = activeEnchantments.map(ench => {
+                const colorClass = ENCHANTMENT_STAT_TIER_COLORS[ench.tier] || '';
+                const statDisplay = formatEnchantmentStat(ench.stat, ench.value);
+                return `<span class="${colorClass}">${statDisplay}</span>`;
+              }).join('');
+              stats += `<br><div class="enchant-stats-container">${enchantedLines}</div>`;
+            }
+            return stats;
+          },
+          isRing: true
         }
     ];
 
@@ -165,7 +245,15 @@ function populateEquipmentSlots() {
         }
 
         // Handle actual equipment slots
-        const equippedItemName = playerData.equipment[slotInfo.key];
+        const equippedItemName = playerData.equipment ? playerData.equipment[slotInfo.key] : 'none';
+        
+        // Ensure equipment slot exists
+        if (!playerData.equipment || playerData.equipment[slotInfo.key] === undefined) {
+            console.warn(`Equipment slot ${slotInfo.key} not found, defaulting to 'none'`);
+            if (!playerData.equipment) playerData.equipment = {};
+            playerData.equipment[slotInfo.key] = 'none';
+        }
+        
         const itemData = (equippedItemName === "none" || !slotInfo.data) ? 
                         null : slotInfo.data[equippedItemName];
         
@@ -176,12 +264,26 @@ function populateEquipmentSlots() {
 
         const itemNameDisplay = itemData ? titleCase(equippedItemName) : "None";
         const itemColor = itemData ? slotInfo.colorClassGetter(itemData) : "fore-white";
-        const itemStatsDisplay = slotInfo.statGetter ? slotInfo.statGetter(itemData) : "N/A";
-        // Get enchantments for the currently equipped item
-        const itemKey = getItemEnchantmentKey(slotInfo.key, equippedItemName);
-        const itemEnchantData = playerData.itemEnchantments[itemKey] || { enchantments: [], count: 0 };
-        const enchantments = itemEnchantData.enchantments;
-        const enchantmentCount = itemEnchantData.count;
+        const itemStatsDisplay = slotInfo.statGetter ? slotInfo.statGetter(itemData, equippedItemName) : "N/A";
+        // Check if enchantments are currently active on this slot
+        const activeEnchantments = playerData.enchantedStats && playerData.enchantedStats[slotInfo.key] || [];
+        const isCurrentlyEnchanted = activeEnchantments.length > 0;
+        
+        // Only show enchantment count if enchantments are currently active
+        let enchantmentCount = 0;
+        if (isCurrentlyEnchanted) {
+            const itemKey = findExistingEnchantmentKey(slotInfo.key, equippedItemName);
+            if (itemKey && playerData.itemEnchantments[itemKey]) {
+                const itemEnchantData = playerData.itemEnchantments[itemKey];
+                enchantmentCount = itemEnchantData.count || 0;
+            } else {
+                // Fallback count if we can't find the itemEnchantments entry
+                enchantmentCount = 1;
+            }
+        }
+        
+        // Note: enchantmentCount represents the number of enchantment SESSIONS, not the number of stats
+        // The enchantments array can have multiple stats per session, so its length may be different from count
         
         // Get icon (emoji or image)
         let iconHtml;
@@ -202,11 +304,13 @@ function populateEquipmentSlots() {
                     iconHtml = itemData.emoji || "❔";
                 }
             } else if (slotInfo.key === 'axe') {
-                const fileName = equippedItemName.replace(/ /g, '-');
+                const fileName = `${equippedItemName}-axe`;
                 iconHtml = `<img src="assets/${fileName}.png" class="inventory-item-icon" alt="${equippedItemName}" onerror="this.outerHTML='${itemData.emoji || '🪓'}';">`;
             } else if (slotInfo.key === 'pickaxe') {
-                const fileName = equippedItemName.replace(/ /g, '-');
+                const fileName = `${equippedItemName}-pickaxe`;
                 iconHtml = `<img src="assets/${fileName}.png" class="inventory-item-icon" alt="${equippedItemName}" onerror="this.outerHTML='${itemData.emoji || '⛏️'}';">`;
+            } else if (slotInfo.key === 'left_ring' || slotInfo.key === 'right_ring') {
+                iconHtml = itemData.emoji || "💍";
             } else {
                 iconHtml = itemData.emoji || "❔";
             }
@@ -215,7 +319,7 @@ function populateEquipmentSlots() {
         }
         
         // Only make clickable if item is equipped and enchantable
-        const isEnchantable = itemData && ['weapon', 'armor', 'helmet', 'axe', 'pickaxe'].includes(slotInfo.key);
+        const isEnchantable = itemData && ['weapon', 'armor', 'helmet', 'axe', 'pickaxe', 'left_ring', 'right_ring'].includes(slotInfo.key);
         if (isEnchantable) {
             slotDiv.addEventListener('click', () => selectEquipmentForEnchanting(slotInfo.key));
         } else {
@@ -228,8 +332,18 @@ function populateEquipmentSlots() {
                 <div class="enchanting-item-name ${itemColor}">${itemNameDisplay}</div>
                 <div class="enchanting-item-icon item-border ${itemData ? itemData.tier : ''}">${iconHtml}</div>
                 <div class="enchanting-item-stats">${itemStatsDisplay}</div>
-                ${enchantmentCount > 0 ? `<div class="enchanting-item-enchanted">Enchanted (${enchantmentCount}/${MAX_ENCHANTMENTS})</div>` : ''}
+                ${enchantmentCount > 0 ? `<div class="enchanting-item-enchanted">Enchanted (${enchantmentCount}/${slotInfo.isRing ? '1' : MAX_ENCHANTMENTS})</div>` : ''}
             </div>`;
+        
+        // Add equip button
+        const equipButton = document.createElement('button');
+        equipButton.className = 'menu-button equip-btn';
+        equipButton.innerHTML = `Equip ${slotInfo.name}`;
+        equipButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent triggering the enchanting menu
+            showEquipSelection(slotInfo.key);
+        });
+        slotDiv.appendChild(equipButton);
             
         gridContainer.appendChild(slotDiv);
     });
@@ -240,6 +354,7 @@ function populateEquipmentSlots() {
  */
 function selectEquipmentForEnchanting(slotKey) {
     selectedEquipmentSlot = slotKey;
+    selectedEnchantmentTier = null; // Clear any previously selected tier
     const equipmentName = playerData.equipment[slotKey];
     
     if (!equipmentName || equipmentName === 'none') {
@@ -247,11 +362,35 @@ function selectEquipmentForEnchanting(slotKey) {
         return;
     }
 
-    // Update visual selection state
-    updateEquipmentSelection(slotKey);
+    // Add selection animation to the clicked slot
+    const allSlots = document.querySelectorAll('.enchanting-equipment-slot');
+    allSlots.forEach(slot => slot.classList.remove('selecting'));
     
-    // Show the enchanting interface
-    displayEnchantingInterface(slotKey, equipmentName);
+    const slots = document.querySelectorAll('.enchanting-equipment-slot');
+    const slotKeys = ['placeholder', 'weapon', 'helmet', 'axe', 'armor', 'pickaxe', 'left_ring', 'right_ring'];
+    const slotIndex = slotKeys.indexOf(slotKey);
+    
+    if (slotIndex !== -1 && slots[slotIndex]) {
+        slots[slotIndex].classList.add('selecting');
+        
+        // Remove the animation class after animation completes
+        setTimeout(() => {
+            slots[slotIndex].classList.remove('selecting');
+        }, 600);
+    }
+
+    // Transition to detail state after a brief delay for animation
+    setTimeout(() => {
+        showDetailState(slotKey);
+        
+        // Check if this is a ring - rings use gem enchanting
+        if (slotKey === 'left_ring' || slotKey === 'right_ring') {
+            displayRingEnchantingInterface(slotKey, equipmentName);
+        } else {
+            // Show the normal enchanting interface
+            displayEnchantingInterface(slotKey, equipmentName);
+        }
+    }, 300);
 }
 
 /**
@@ -264,8 +403,8 @@ function updateEquipmentSelection(selectedSlotKey) {
     
     // Add selected class to the clicked slot
     const slots = document.querySelectorAll('.enchanting-equipment-slot');
-    // Match the order from the slots array: placeholder, weapon, helmet, axe, armor, pickaxe
-    const slotKeys = ['placeholder', 'weapon', 'helmet', 'axe', 'armor', 'pickaxe'];
+    // Match the order from the slots array: placeholder, weapon, helmet, axe, armor, pickaxe, left_ring, right_ring
+    const slotKeys = ['placeholder', 'weapon', 'helmet', 'axe', 'armor', 'pickaxe', 'left_ring', 'right_ring'];
     const slotIndex = slotKeys.indexOf(selectedSlotKey);
     
     if (slotIndex !== -1 && slots[slotIndex]) {
@@ -274,14 +413,305 @@ function updateEquipmentSelection(selectedSlotKey) {
 }
 
 /**
- * Hides all right panel sections
+ * Sets up event listeners for state transitions
+ */
+function setupEnchantingStateEvents() {
+    const backToOverviewBtn = document.getElementById('enchanting-back-to-overview');
+    if (backToOverviewBtn) {
+        backToOverviewBtn.addEventListener('click', showOverviewState);
+    }
+}
+
+/**
+ * Shows the equipment overview state
+ */
+function showOverviewState() {
+    currentEnchantingState = 'overview';
+    
+    const overviewState = document.getElementById('enchanting-overview-state');
+    const detailState = document.getElementById('enchanting-detail-state');
+    
+    if (overviewState && detailState) {
+        overviewState.classList.add('active');
+        detailState.classList.remove('active');
+    }
+    
+    // Clear the tier options container
+    const tierOptionsContainer = document.getElementById('enchanting-tier-options');
+    if (tierOptionsContainer) {
+        tierOptionsContainer.innerHTML = '';
+    }
+    
+    // Hide all right panels
+    hideAllRightPanels();
+    
+    // Clear any selected item and preview
+    selectedEquipmentSlot = null;
+    selectedEnchantmentTier = null;
+    currentEnchantmentPreview = null;
+}
+
+/**
+ * Shows the item detail state with enchanting options
+ */
+function showDetailState(slotKey) {
+    currentEnchantingState = 'detail';
+    
+    const overviewState = document.getElementById('enchanting-overview-state');
+    const detailState = document.getElementById('enchanting-detail-state');
+    
+    if (overviewState && detailState) {
+        overviewState.classList.remove('active');
+        detailState.classList.add('active');
+    }
+    
+    // Display the selected item in the left panel
+    displaySelectedItem(slotKey);
+}
+
+/**
+ * Displays the selected item in the detail panel
+ */
+function displaySelectedItem(slotKey) {
+    const equipmentName = playerData.equipment[slotKey];
+    const displayContainer = document.getElementById('enchanting-selected-item-display');
+    
+    if (!displayContainer || !equipmentName || equipmentName === 'none') return;
+    
+    // Find the slot info to get the display data
+    const slots = getEquipmentSlotsConfig();
+    const slotInfo = slots.find(slot => slot.key === slotKey);
+    
+    if (!slotInfo) return;
+    
+    const itemData = getItemDataForSlot(slotKey, equipmentName);
+    
+    // Check if enchantments are currently active on this slot
+    const activeEnchantments = playerData.enchantedStats && playerData.enchantedStats[slotKey] || [];
+    const isCurrentlyEnchanted = activeEnchantments.length > 0;
+    
+    // Only show enchantment count if enchantments are currently active
+    let enchantmentCount = 0;
+    if (isCurrentlyEnchanted) {
+        const itemKey = findExistingEnchantmentKey(slotKey, equipmentName);
+        if (itemKey && playerData.itemEnchantments[itemKey]) {
+            const itemEnchantData = playerData.itemEnchantments[itemKey];
+            enchantmentCount = itemEnchantData.count || 0;
+        } else {
+            // Fallback count if we can't find the itemEnchantments entry
+            enchantmentCount = 1;
+        }
+    }
+    
+    const itemNameDisplay = itemData ? titleCase(equipmentName) : "None";
+    const itemColor = itemData ? slotInfo.colorClassGetter(itemData) : "fore-white";
+    const itemStatsDisplay = slotInfo.statGetter ? slotInfo.statGetter(itemData, equipmentName) : "N/A";
+    
+    // Get icon HTML
+    let iconHtml = getItemIconHtml(slotInfo, itemData, equipmentName);
+    
+    displayContainer.innerHTML = `
+        <div class="enchanting-equipment-slot ${itemData ? 'item-card-tier ' + itemData.tier : ''}" style="margin: 0; border: none; box-shadow: none;">
+            <div class="enchanting-slot-name">${slotInfo.name}</div>
+            <div class="enchanting-slot-item">
+                <div class="enchanting-item-name ${itemColor}">${itemNameDisplay}</div>
+                <div class="enchanting-item-icon item-border ${itemData ? itemData.tier : ''}">${iconHtml}</div>
+                <div class="enchanting-item-stats">${itemStatsDisplay}</div>
+                ${enchantmentCount > 0 ? `<div class="enchanting-item-enchanted">Enchanted (${enchantmentCount}/${slotInfo.isRing ? '1' : MAX_ENCHANTMENTS})</div>` : ''}
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Helper function to get equipment slots configuration
+ */
+function getEquipmentSlotsConfig() {
+    return [
+        { key: 'placeholder', name: 'Placeholder', data: {}, isPlaceholder: true },
+        { key: 'weapon', name: 'Weapon', data: SWORD_DATA, 
+          colorClassGetter: (itemData) => itemData ? itemData.color : 'fore-white',
+          statGetter: (itemData, equippedItemName) => {
+            if (!itemData) return "N/A";
+            let stats = `Dmg: ${itemData.min_dmg}-${itemData.max_dmg}`;
+            // Only show enchantments if they're currently active on the equipped item
+            const activeEnchantments = playerData.enchantedStats && playerData.enchantedStats['weapon'] || [];
+            if (activeEnchantments.length > 0) {
+              const enchantedLines = activeEnchantments.map(ench => {
+                const colorClass = ENCHANTMENT_STAT_TIER_COLORS[ench.tier] || '';
+                const statDisplay = formatEnchantmentStat(ench.stat, ench.value);
+                return `<span class="${colorClass}">${statDisplay}</span>`;
+              }).join('');
+              stats += `<br><div class="enchant-stats-container">${enchantedLines}</div>`;
+            }
+            return stats;
+          }
+        },
+        { key: 'helmet', name: 'Helmet', data: HELMET_DATA, 
+          colorClassGetter: (itemData) => itemData ? itemData.color : 'fore-white',
+          statGetter: (itemData, equippedItemName) => {
+            if (!itemData) return "N/A";
+            let stats = `Def: ${(itemData.defense * 100).toFixed(0)}%`;
+            // Only show enchantments if they're currently active on the equipped item
+            const activeEnchantments = playerData.enchantedStats && playerData.enchantedStats['helmet'] || [];
+            if (activeEnchantments.length > 0) {
+              const enchantedLines = activeEnchantments.map(ench => {
+                const colorClass = ENCHANTMENT_STAT_TIER_COLORS[ench.tier] || '';
+                const statDisplay = formatEnchantmentStat(ench.stat, ench.value);
+                return `<span class="${colorClass}">${statDisplay}</span>`;
+              }).join('');
+              stats += `<br><div class="enchant-stats-container">${enchantedLines}</div>`;
+            }
+            return stats;
+          }
+        },
+        { key: 'axe', name: 'Axe', data: TOOL_DATA.axe, 
+          colorClassGetter: (itemData) => itemData ? itemData.color : 'fore-white',
+          statGetter: (itemData, equippedItemName) => {
+            if (!itemData) return "N/A";
+            let stats = `Yield: ${itemData.yield_config?.base || 0}`;
+            // Only show enchantments if they're currently active on the equipped item
+            const activeEnchantments = playerData.enchantedStats && playerData.enchantedStats['axe'] || [];
+            if (activeEnchantments.length > 0) {
+              const enchantedLines = activeEnchantments.map(ench => {
+                const colorClass = ENCHANTMENT_STAT_TIER_COLORS[ench.tier] || '';
+                const statDisplay = formatEnchantmentStat(ench.stat, ench.value);
+                return `<span class="${colorClass}">${statDisplay}</span>`;
+              }).join('');
+              stats += `<br><div class="enchant-stats-container">${enchantedLines}</div>`;
+            }
+            return stats;
+          }
+        },
+        { key: 'armor', name: 'Chestplate', data: ARMOR_DATA, 
+          colorClassGetter: (itemData) => itemData ? itemData.color : 'fore-white',
+          statGetter: (itemData, equippedItemName) => {
+            if (!itemData) return "N/A";
+            let stats = `Def: ${(itemData.defense * 100).toFixed(0)}%`;
+            // Only show enchantments if they're currently active on the equipped item
+            const activeEnchantments = playerData.enchantedStats && playerData.enchantedStats['armor'] || [];
+            if (activeEnchantments.length > 0) {
+              const enchantedLines = activeEnchantments.map(ench => {
+                const colorClass = ENCHANTMENT_STAT_TIER_COLORS[ench.tier] || '';
+                const statDisplay = formatEnchantmentStat(ench.stat, ench.value);
+                return `<span class="${colorClass}">${statDisplay}</span>`;
+              }).join('');
+              stats += `<br><div class="enchant-stats-container">${enchantedLines}</div>`;
+            }
+            return stats;
+          }
+        },
+        { key: 'pickaxe', name: 'Pickaxe', data: TOOL_DATA.pickaxe, 
+          colorClassGetter: (itemData) => itemData ? itemData.color : 'fore-white',
+          statGetter: (itemData, equippedItemName) => {
+            if (!itemData) return "N/A";
+            let stats = `Yield: ${itemData.yield_config?.base || 0}`;
+            // Only show enchantments if they're currently active on the equipped item
+            const activeEnchantments = playerData.enchantedStats && playerData.enchantedStats['pickaxe'] || [];
+            if (activeEnchantments.length > 0) {
+              const enchantedLines = activeEnchantments.map(ench => {
+                const colorClass = ENCHANTMENT_STAT_TIER_COLORS[ench.tier] || '';
+                const statDisplay = formatEnchantmentStat(ench.stat, ench.value);
+                return `<span class="${colorClass}">${statDisplay}</span>`;
+              }).join('');
+              stats += `<br><div class="enchant-stats-container">${enchantedLines}</div>`;
+            }
+            return stats;
+          }
+        },
+        { key: 'left_ring', name: 'Left Ring', data: RING_DATA, 
+          colorClassGetter: (itemData) => itemData ? itemData.color : 'fore-white',
+          statGetter: (itemData, equippedItemName) => {
+            if (!itemData) return "N/A";
+            let stats = `+${itemData.hp_bonus} HP<br>+${(itemData.crit_chance * 100).toFixed(1)}% Crit<br>+${(itemData.str_percentage * 100).toFixed(1)}% Str`;
+            const activeEnchantments = getActiveEnchantments('left_ring');
+            if (activeEnchantments.length > 0) {
+              const enchantedLines = activeEnchantments.map(ench => {
+                const colorClass = ENCHANTMENT_STAT_TIER_COLORS[ench.tier] || '';
+                const statDisplay = formatEnchantmentStat(ench.stat, ench.value);
+                return `<span class="${colorClass}">${statDisplay}</span>`;
+              }).join('');
+              stats += `<br><div class="enchant-stats-container">${enchantedLines}</div>`;
+            }
+            return stats;
+          },
+          isRing: true
+        },
+        { key: 'right_ring', name: 'Right Ring', data: RING_DATA, 
+          colorClassGetter: (itemData) => itemData ? itemData.color : 'fore-white',
+          statGetter: (itemData, equippedItemName) => {
+            if (!itemData) return "N/A";
+            let stats = `+${itemData.hp_bonus} HP<br>+${(itemData.crit_chance * 100).toFixed(1)}% Crit<br>+${(itemData.str_percentage * 100).toFixed(1)}% Str`;
+            const activeEnchantments = getActiveEnchantments('right_ring');
+            if (activeEnchantments.length > 0) {
+              const enchantedLines = activeEnchantments.map(ench => {
+                const colorClass = ENCHANTMENT_STAT_TIER_COLORS[ench.tier] || '';
+                const statDisplay = formatEnchantmentStat(ench.stat, ench.value);
+                return `<span class="${colorClass}">${statDisplay}</span>`;
+              }).join('');
+              stats += `<br><div class="enchant-stats-container">${enchantedLines}</div>`;
+            }
+            return stats;
+          },
+          isRing: true
+        }
+    ];
+}
+
+/**
+ * Helper functions for item data and icons
+ */
+function getItemDataForSlot(slotKey, equipmentName) {
+    switch (slotKey) {
+        case 'weapon': return SWORD_DATA[equipmentName];
+        case 'armor': return ARMOR_DATA[equipmentName];
+        case 'helmet': return HELMET_DATA[equipmentName];
+        case 'axe': return TOOL_DATA.axe[equipmentName];
+        case 'pickaxe': return TOOL_DATA.pickaxe[equipmentName];
+        case 'left_ring':
+        case 'right_ring': return RING_DATA[equipmentName];
+        default: return null;
+    }
+}
+
+function getItemIconHtml(slotInfo, itemData, equippedItemName) {
+    if (!itemData) return "➖";
+    
+    if (slotInfo.key === 'weapon') {
+        const fileName = equippedItemName.replace(/ /g, '-').replace('-2h-sword','-2hsword');
+        return `<img src="assets/${fileName}.png" class="inventory-item-icon" alt="${equippedItemName}" onerror="this.outerHTML='${itemData.emoji || '⚔️'}';">`;
+    } else if (slotInfo.key === 'armor') {
+        const materialName = equippedItemName.toLowerCase().replace(/\s+chestplate$/, '');
+        const fileName = `${materialName.charAt(0).toUpperCase() + materialName.slice(1)}-ChestPlate.png`;
+        return `<img src="assets/${fileName}" class="inventory-item-icon" alt="${equippedItemName}" onerror="this.outerHTML='${itemData.emoji || '🛡️'}';">`;
+    } else if (slotInfo.key === 'helmet') {
+        if (equippedItemName.toLowerCase().includes('dragon helmet')) {
+            return `<img src="assets/Dragon-Full-Helmet.png" class="inventory-item-icon" alt="${equippedItemName}" onerror="this.outerHTML='${itemData.emoji || '👑'}';">`;
+        } else {
+            return itemData.emoji || "❔";
+        }
+    } else if (slotInfo.key === 'axe') {
+        const fileName = `${equippedItemName}-axe`;
+        return `<img src="assets/${fileName}.png" class="inventory-item-icon" alt="${equippedItemName}" onerror="this.outerHTML='${itemData.emoji || '🪓'}';">`;
+    } else if (slotInfo.key === 'pickaxe') {
+        const fileName = `${equippedItemName}-pickaxe`;
+        return `<img src="assets/${fileName}.png" class="inventory-item-icon" alt="${equippedItemName}" onerror="this.outerHTML='${itemData.emoji || '⛏️'}';">`;
+    } else if (slotInfo.key === 'left_ring' || slotInfo.key === 'right_ring') {
+        return itemData.emoji || "💍";
+    } else {
+        return itemData.emoji || "❔";
+    }
+}
+
+/**
+ * Hides all right panel sections (legacy function for compatibility)
  */
 function hideAllRightPanels() {
-    document.getElementById('enchanting-no-selection').style.display = 'none';
-    document.getElementById('enchanting-selected-info').style.display = 'none';
-    document.getElementById('enchanting-current-stats').style.display = 'none';
-    document.getElementById('enchanting-options').style.display = 'none';
-    document.getElementById('enchanting-preview').style.display = 'none';
+    // This function is kept for compatibility with existing code
+    const panels = document.querySelectorAll('.enchanting-panel');
+    panels.forEach(panel => {
+        panel.classList.remove('active');
+    });
 }
 
 
@@ -289,9 +719,105 @@ function hideAllRightPanels() {
  * Displays the main enchanting interface with tier selection
  */
 function displayEnchantingInterface(slotKey, equipmentName) {
+    // Make sure we're in detail state
+    if (currentEnchantingState !== 'detail') {
+        showDetailState(slotKey);
+    }
+    
     hideAllRightPanels();
-    document.getElementById('enchanting-options').style.display = 'block';
+    document.getElementById('enchanting-options').classList.add('active');
     displayEnchantmentOptions(slotKey);
+}
+
+/**
+ * Displays initial preview showing current enchantments when item is selected
+ */
+function displayInitialEnchantmentPreview(slotKey) {
+    const container = document.getElementById('enchanting-preview-content');
+    if (!container) return;
+    
+    const equipmentName = playerData.equipment[slotKey];
+    const itemData = getItemData(equipmentName, slotKey);
+    
+    // Check if the item is currently enchanted by looking at enchantedStats
+    const isCurrentlyEnchanted = playerData.enchantedStats && 
+                                playerData.enchantedStats[slotKey] && 
+                                playerData.enchantedStats[slotKey].length > 0;
+    
+    // Get enchantments for this specific item
+    let enchantments = [];
+    let enchantmentCount = 0;
+    let itemKey = null;
+    
+    if (isCurrentlyEnchanted) {
+        // Find the existing unique key for this enchanted item
+        itemKey = findExistingEnchantmentKey(slotKey, equipmentName);
+        if (itemKey && playerData.itemEnchantments[itemKey]) {
+            const itemEnchantData = playerData.itemEnchantments[itemKey];
+            enchantments = itemEnchantData.enchantments || [];
+            enchantmentCount = itemEnchantData.count || 0;
+        } else {
+            // Fallback to enchantedStats if we can't find the itemEnchantments entry
+            enchantments = playerData.enchantedStats[slotKey] || [];
+            enchantmentCount = 1; // Default count if not found
+        }
+    }
+    
+    let statsHtml = '<div class="item-stats-display">';
+    
+    // Show enchantment session count
+    const sessionsUsed = itemKey && playerData.itemEnchantments[itemKey] ? (playerData.itemEnchantments[itemKey].count || 0) : 0;
+    statsHtml += `<div class="enchantment-count-display">`;
+    statsHtml += `Enchantments: ${sessionsUsed}/${MAX_ENCHANTMENTS}`;
+    statsHtml += `</div>`;
+    
+    // Show base item stats
+    if (itemData) {
+        statsHtml += '<div class="base-stats-section">';
+        statsHtml += '<div class="stats-section-title">Base Stats:</div>';
+        statsHtml += formatItemStats(itemData);
+        statsHtml += '</div>';
+    }
+    
+    // Show current enchantments
+    if (enchantments.length > 0) {
+        statsHtml += '<div class="enchanted-stats-section">';
+        statsHtml += '<div class="stats-section-title">Current Enchantments:</div>';
+        
+        enchantments.forEach((enchantment) => {
+            const isWizardEnchantment = ['life_steal', 'fire_damage', 'ice_damage'].includes(enchantment.stat);
+            const colorClass = isWizardEnchantment ? ENCHANTMENT_STAT_TIER_COLORS.wizard : (ENCHANTMENT_STAT_TIER_COLORS[enchantment.tier] || '');
+            const statDisplay = formatEnchantmentStat(enchantment.stat, enchantment.value);
+            const isLocked = enchantment.locked || false;
+            const lockIcon = isLocked ? '🔒 ' : '';
+            const lockedClass = isLocked ? 'locked' : '';
+            
+            statsHtml += `<div class="enchantment-container ${colorClass} ${lockedClass}">
+                            <span>${lockIcon}${statDisplay}</span>
+                          </div>`;
+        });
+        statsHtml += '</div>';
+    } else {
+        statsHtml += '<div class="no-enchantments">No current enchantments</div>';
+    }
+    
+    // Add instruction text
+    statsHtml += '<div class="enchanting-instructions">';
+    statsHtml += '<p>Select an enchantment tier from the left to preview and apply new enchantments.</p>';
+    statsHtml += '</div>';
+    
+    statsHtml += '</div>';
+    container.innerHTML = statsHtml;
+    
+    // Clear the enchant button cost display since no tier is selected
+    const costDisplay = document.querySelector('.enchant-cost-display');
+    if (costDisplay) {
+        costDisplay.innerHTML = 'Select a tier first';
+    }
+    
+    // Show the preview panel
+    hideAllRightPanels();
+    document.getElementById('enchanting-preview').classList.add('active');
 }
 
 /**
@@ -351,15 +877,46 @@ function checkEnchantingResources(cost) {
 }
 
 /**
- * Formats the cost display for enchanting tiers
+ * Formats the cost display for enchanting tiers with emojis and color coding
  */
 function formatEnchantingCost(cost) {
+    // Resource emoji mappings
+    const resourceEmojis = {
+        'gold': '💰',
+        'gems': '💠',
+        'sapphire': '🔷',
+        'emerald': '💚',
+        'ruby': '🔴',
+        'diamond': '💎',
+        'dragon gem': '💎🔥'
+    };
+    
+    // Helper function to format a cost item with emoji and color coding
+    function formatCostItem(amount, resourceName) {
+        const emoji = resourceEmojis[resourceName] || '⚡';
+        let playerAmount;
+        
+        // Get player's current amount of this resource
+        if (resourceName === 'gold') {
+            playerAmount = playerData.gold || 0;
+        } else {
+            playerAmount = playerData.inventory?.[resourceName] || 0;
+        }
+        
+        // Determine color based on whether player has enough
+        const hasEnough = playerAmount >= amount;
+        const colorClass = hasEnough ? 'fore-green' : 'fore-red';
+        
+        return `${emoji} <span class="${colorClass}">${amount}</span> ${resourceName}`;
+    }
+    
     let costParts = [];
-    if (cost.gold) costParts.push(`${cost.gold} gold`);
-    if (cost.mainResource) costParts.push(`${cost.mainResourceQty} ${cost.mainResource}`);
-    if (cost.secondaryResource) costParts.push(`${cost.secondaryResourceQty} ${cost.secondaryResource}`);
-    if (cost.tertiaryResource) costParts.push(`${cost.tertiaryResourceQty} ${cost.tertiaryResource}`);
-    return costParts.join(', ');
+    if (cost.gold) costParts.push(formatCostItem(cost.gold, 'gold'));
+    if (cost.mainResource) costParts.push(formatCostItem(cost.mainResourceQty, cost.mainResource));
+    if (cost.secondaryResource) costParts.push(formatCostItem(cost.secondaryResourceQty, cost.secondaryResource));
+    if (cost.tertiaryResource) costParts.push(formatCostItem(cost.tertiaryResourceQty, cost.tertiaryResource));
+    
+    return costParts.join('<br>');
 }
 
 /**
@@ -421,19 +978,89 @@ function getItemEnchantmentKey(slotKey, itemName) {
 }
 
 /**
+ * Creates a unique enchantment key for a newly enchanted item
+ */
+function createUniqueEnchantmentKey(slotKey, itemName) {
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 1000);
+    return `${slotKey}:${itemName}:${timestamp}:${random}`;
+}
+
+/**
+ * Find the existing unique enchantment key for a currently equipped enchanted item
+ */
+function findExistingEnchantmentKey(slotKey, itemName) {
+    if (!playerData.itemEnchantments || !playerData.enchantedStats[slotKey]) {
+        return null;
+    }
+    
+    const currentEnchantments = playerData.enchantedStats[slotKey];
+    
+    // Look through all enchantment keys for this item type
+    for (const [enchantKey, enchantData] of Object.entries(playerData.itemEnchantments)) {
+        const keyParts = enchantKey.split(':');
+        const keySlot = keyParts[0];
+        const keyItemName = keyParts[1];
+        
+        // Check if this key matches our slot and item name
+        if (keySlot === slotKey && keyItemName === itemName && enchantData.enchantments) {
+            // Check if the enchantments match what's currently equipped
+            if (JSON.stringify(enchantData.enchantments) === JSON.stringify(currentEnchantments)) {
+                return enchantKey;
+            }
+        }
+    }
+    
+    return null;
+}
+
+/**
+ * Check if an item should display enchantments based on active equipment state
+ */
+function shouldShowEnchantments(slotKey) {
+    return playerData.enchantedStats && 
+           playerData.enchantedStats[slotKey] && 
+           playerData.enchantedStats[slotKey].length > 0;
+}
+
+/**
+ * Get active enchantments for display from enchantedStats (not itemEnchantments)
+ */
+function getActiveEnchantments(slotKey) {
+    if (!shouldShowEnchantments(slotKey)) return [];
+    return playerData.enchantedStats[slotKey] || [];
+}
+
+/**
  * Selects an enchantment tier and shows the preview
  */
 function selectEnchantmentTier(slotKey, enchantmentTierId) {
     selectedEnchantmentTier = enchantmentTierId;
     
     const equipmentName = playerData.equipment[slotKey];
-    const itemKey = getItemEnchantmentKey(slotKey, equipmentName);
     
-    // Check enchantment limit for this specific item
-    const currentCount = (playerData.itemEnchantments[itemKey] && playerData.itemEnchantments[itemKey].count) || 0;
-    if (currentCount >= MAX_ENCHANTMENTS) {
-        logMessage('This item has reached the maximum number of enchantments (12). Get a new piece of gear to enchant more!', 'fore-red');
-        return;
+    // Check if the currently equipped item is enchanted by looking at enchantedStats
+    const isCurrentlyEnchanted = playerData.enchantedStats && 
+                                playerData.enchantedStats[slotKey] && 
+                                playerData.enchantedStats[slotKey].length > 0;
+    
+    // Only check enchantment count if this item is currently enchanted
+    let currentCount = 0;
+    if (isCurrentlyEnchanted) {
+        const itemKey = findExistingEnchantmentKey(slotKey, equipmentName);
+        if (itemKey && playerData.itemEnchantments[itemKey]) {
+            currentCount = playerData.itemEnchantments[itemKey].count || 0;
+        }
+    }
+    
+    // Check if player has reached maximum locked enchantments (unlimited enchanting, limited locking)
+    if (isCurrentlyEnchanted) {
+        const itemKey = findExistingEnchantmentKey(slotKey, equipmentName);
+        if (itemKey && playerData.itemEnchantments[itemKey]) {
+            const itemData = playerData.itemEnchantments[itemKey];
+            const lockedCount = (itemData.enchantments || []).filter(e => e.locked).length;
+            // Note: No limit on total enchantments, only on locked enchantments
+        }
     }
     
     displayEnchantingPreview(slotKey, enchantmentTierId);
@@ -443,24 +1070,46 @@ function selectEnchantmentTier(slotKey, enchantmentTierId) {
  * Displays the enchanting preview with current stats and enchant button
  */
 function displayEnchantingPreview(slotKey, enchantmentTierId) {
+    // Switch to the preview panel
+    hideAllRightPanels();
+    document.getElementById('enchanting-preview').classList.add('active');
+    
     const container = document.getElementById('enchanting-preview-content');
     if (!container) return;
 
     const equipmentName = playerData.equipment[slotKey];
-    const itemKey = getItemEnchantmentKey(slotKey, equipmentName);
     const itemData = getItemData(equipmentName, slotKey);
     
-    // Get enchantments for this specific item
-    const itemEnchantData = playerData.itemEnchantments[itemKey] || { enchantments: [], count: 0 };
-    const enchantments = itemEnchantData.enchantments;
-    const enchantmentCount = itemEnchantData.count;
+    // Check if the currently equipped item is enchanted by looking at enchantedStats
+    const isCurrentlyEnchanted = playerData.enchantedStats && 
+                                playerData.enchantedStats[slotKey] && 
+                                playerData.enchantedStats[slotKey].length > 0;
+    
+    // Get enchantments for this specific item only if it's currently enchanted
+    let enchantments = [];
+    let enchantmentCount = 0;
+    let itemKey = null;
+    
+    if (isCurrentlyEnchanted) {
+        itemKey = findExistingEnchantmentKey(slotKey, equipmentName);
+        if (itemKey && playerData.itemEnchantments[itemKey]) {
+            const itemEnchantData = playerData.itemEnchantments[itemKey];
+            enchantments = itemEnchantData.enchantments || [];
+            enchantmentCount = itemEnchantData.count || 0;
+        } else {
+            // Fallback to enchantedStats if we can't find the itemEnchantments entry
+            enchantments = playerData.enchantedStats[slotKey] || [];
+            enchantmentCount = 1; // Default count if not found
+        }
+    }
     const tierData = ENCHANTING_TIER_DATA[enchantmentTierId];
     
     let statsHtml = '<div class="item-stats-display">';
     
-    // Show enchantment count
+    // Show enchantment session count
+    const sessionsUsed = itemKey && playerData.itemEnchantments[itemKey] ? (playerData.itemEnchantments[itemKey].count || 0) : 0;
     statsHtml += `<div class="enchantment-count-display">`;
-    statsHtml += `Enchantments: ${enchantmentCount}/${MAX_ENCHANTMENTS}`;
+    statsHtml += `Enchantments: ${sessionsUsed}/${MAX_ENCHANTMENTS}`;
     statsHtml += `</div>`;
     
     // Show base item stats
@@ -475,8 +1124,11 @@ function displayEnchantingPreview(slotKey, enchantmentTierId) {
     if (enchantments.length > 0) {
         statsHtml += '<div class="enchanted-stats-section">';
         statsHtml += '<div class="stats-section-title">Current Enchantments:</div>';
-        // Check if item is at maximum enchantments
-        const isAtMaxEnchantments = enchantments.length >= MAX_ENCHANTMENTS;
+        // Check if item is at maximum LOCKED enchantments
+        const lockedEnchantmentCount = enchantments.filter(e => e.locked).length;
+        const isAtMaxLockedEnchantments = lockedEnchantmentCount >= MAX_ENCHANTMENTS;
+        
+        // No session limit check - unlimited enchanting allowed
         
         enchantments.forEach((enchantment, index) => {
             // Use wizard tier color for Wizard Tower enchantments, otherwise use normal tier color
@@ -497,10 +1149,10 @@ function displayEnchantingPreview(slotKey, enchantmentTierId) {
                 tooltipText = 'Click to unlock this enchantment';
                 clickAction = `window.toggleEnchantmentLock('${slotKey}', ${index})`;
                 lockCostDisplay = '';
-            } else if (isAtMaxEnchantments) {
-                tooltipText = 'Cannot lock - item is at maximum enchantments (12/12)';
+            } else if (isAtMaxLockedEnchantments) {
+                tooltipText = `Cannot lock - item is at maximum locked enchantments (${lockedEnchantmentCount}/${MAX_ENCHANTMENTS})`;
                 clickAction = '';
-                lockCostDisplay = '<span class="lock-cost-badge" style="margin-left: auto; font-size: 0.9em; opacity: 0.4; color: #666;">MAX</span>';
+                lockCostDisplay = '<span class="lock-cost-badge" style="margin-left: auto; font-size: 0.9em; opacity: 0.4; color: #666;">MAX LOCKED</span>';
             } else {
                 tooltipText = `Click to lock for ${lockCost} Ancient Tomes (have ${playerTomes})`;
                 clickAction = `window.toggleEnchantmentLock('${slotKey}', ${index})`;
@@ -509,13 +1161,13 @@ function displayEnchantingPreview(slotKey, enchantmentTierId) {
             
             // Determine styles and cursor
             let containerStyle = "display: flex; justify-content: space-between; align-items: center;";
-            if (isAtMaxEnchantments && !isLocked) {
+            if (isAtMaxLockedEnchantments && !isLocked) {
                 containerStyle += " opacity: 0.5; cursor: not-allowed;";
             } else if (!isLocked && !canAfford) {
                 containerStyle += " opacity: 0.6; cursor: not-allowed;";
             }
             
-            statsHtml += `<div class="enchantment-container ${isLocked || isAtMaxEnchantments ? '' : 'clickable-enchantment'} ${colorClass} ${lockedClass}" 
+            statsHtml += `<div class="enchantment-container ${isLocked || isAtMaxLockedEnchantments ? '' : 'clickable-enchantment'} ${colorClass} ${lockedClass}" 
                               data-enchantment-index="${index}" 
                               data-tier="${enchantment.tier}"
                               data-slot="${slotKey}"
@@ -534,21 +1186,38 @@ function displayEnchantingPreview(slotKey, enchantmentTierId) {
     statsHtml += '</div>';
     container.innerHTML = statsHtml;
     
-    // Update the enchant button with cost
-    updateEnchantButton(tierData);
+    // Update the enchant button with cost and session check
+    updateEnchantButton(tierData, slotKey);
     
     // Show the preview panel
     hideAllRightPanels();
-    document.getElementById('enchanting-preview').style.display = 'block';
+    document.getElementById('enchanting-preview').classList.add('active');
 }
 
 /**
- * Updates the enchant button with cost information
+ * Updates the enchant button with cost information and enables/disables based on session count
  */
-function updateEnchantButton(tierData) {
+function updateEnchantButton(tierData, slotKey = null) {
     const costDisplay = document.querySelector('.enchant-cost-display');
+    const enchantButton = document.getElementById('enchanting-perform-btn');
+    
     if (costDisplay) {
-        costDisplay.textContent = formatEnchantingCost(tierData.cost);
+        costDisplay.innerHTML = formatEnchantingCost(tierData.cost);
+    }
+    
+    if (enchantButton && slotKey) {
+        // Check if item has reached maximum enchant sessions (12/12)
+        const equipmentName = playerData.equipment[slotKey];
+        const itemKey = findExistingEnchantmentKey(slotKey, equipmentName);
+        const sessionsUsed = itemKey && playerData.itemEnchantments[itemKey] ? (playerData.itemEnchantments[itemKey].count || 0) : 0;
+        
+        if (sessionsUsed >= MAX_ENCHANTMENTS) {
+            enchantButton.classList.add('disabled');
+            enchantButton.style.pointerEvents = 'none';
+        } else {
+            enchantButton.classList.remove('disabled');
+            enchantButton.style.pointerEvents = 'auto';
+        }
     }
 }
 
@@ -561,6 +1230,12 @@ export function performEnchantment() {
         return;
     }
     
+    // Check if this is a ring enchantment
+    if (selectedEquipmentSlot === 'left_ring' || selectedEquipmentSlot === 'right_ring') {
+        performRingEnchantment();
+        return;
+    }
+    
     const tierData = ENCHANTING_TIER_DATA[selectedEnchantmentTier];
     if (!tierData) {
         logMessage('Invalid enchantment tier!', 'fore-red');
@@ -568,14 +1243,43 @@ export function performEnchantment() {
     }
 
     const equipmentName = playerData.equipment[selectedEquipmentSlot];
-    const itemKey = getItemEnchantmentKey(selectedEquipmentSlot, equipmentName);
     
-    // Check enchantment limit again for this specific item
-    const itemEnchantData = playerData.itemEnchantments[itemKey] || { enchantments: [], count: 0 };
-    if (itemEnchantData.count >= MAX_ENCHANTMENTS) {
-        logMessage('This item has reached the maximum number of enchantments!', 'fore-red');
+    // Check if item has reached maximum enchant sessions (12/12)
+    const existingItemKey = findExistingEnchantmentKey(selectedEquipmentSlot, equipmentName);
+    const sessionsUsed = existingItemKey && playerData.itemEnchantments[existingItemKey] ? (playerData.itemEnchantments[existingItemKey].count || 0) : 0;
+    
+    if (sessionsUsed >= MAX_ENCHANTMENTS) {
+        logMessage(`This item has reached the maximum number of enchant sessions (${MAX_ENCHANTMENTS}/${MAX_ENCHANTMENTS}). Cannot enchant further!`, 'fore-red');
         return;
     }
+    
+    // Check if the currently equipped item is enchanted by looking at enchantedStats
+    const isCurrentlyEnchanted = playerData.enchantedStats && 
+                                playerData.enchantedStats[selectedEquipmentSlot] && 
+                                playerData.enchantedStats[selectedEquipmentSlot].length > 0;
+    
+    // For unenchanted items, create a unique key to avoid overwriting other enchanted versions
+    let itemKey;
+    if (isCurrentlyEnchanted) {
+        // Find existing key for already enchanted items by matching the current enchantments
+        itemKey = findExistingEnchantmentKey(selectedEquipmentSlot, equipmentName);
+        if (!itemKey) {
+            // Fallback: create new unique key if we can't find the existing one
+            console.warn('Could not find existing enchantment key, creating new one');
+            itemKey = createUniqueEnchantmentKey(selectedEquipmentSlot, equipmentName);
+        }
+    } else {
+        // Create unique key for newly enchanted items
+        itemKey = createUniqueEnchantmentKey(selectedEquipmentSlot, equipmentName);
+        
+        // For newly enchanted items, we need to manage inventory properly
+        // The item being enchanted should be converted from unenchanted to enchanted
+        // Remove one instance of the base equipment item from inventory
+        removeItemFromInventory(equipmentName, 1);
+    }
+    
+    // Note: Removed enchantment count limit - players can enchant unlimited times
+    // Only locked enchantments are limited to MAX_ENCHANTMENTS
 
     // Check resources
     if (!checkEnchantingResources(tierData.cost)) {
@@ -598,14 +1302,29 @@ export function performEnchantment() {
     // Roll new enchantments and store them for this specific item (respecting locks)
     const newEnchantments = rollEnchantmentsWithLocks(selectedEquipmentSlot, tierData);
     
-    // Initialize item enchantment data if it doesn't exist
+    // Initialize item enchantment data
     if (!playerData.itemEnchantments[itemKey]) {
         playerData.itemEnchantments[itemKey] = { enchantments: [], count: 0 };
     }
     
     // Update enchantments for this specific item
     playerData.itemEnchantments[itemKey].enchantments = newEnchantments;
-    playerData.itemEnchantments[itemKey].count++;
+    
+    // Set count based on whether the item was previously enchanted
+    if (isCurrentlyEnchanted) {
+        // Item was already enchanted, increment session count
+        playerData.itemEnchantments[itemKey].count++;
+    } else {
+        // Item was unenchanted, this is the first enchantment session
+        playerData.itemEnchantments[itemKey].count = 1;
+    }
+    
+    // Debug logging
+    console.log(`[performEnchant] Enchanting ${itemKey}:`, {
+        newEnchantments,
+        totalEnchantments: newEnchantments.length,
+        itemEnchantments: playerData.itemEnchantments[itemKey]
+    });
     
     // Also update the slot-based enchantments for the currently equipped item
     playerData.enchantedStats[selectedEquipmentSlot] = newEnchantments;
@@ -651,7 +1370,15 @@ export function performEnchantment() {
     
     // Update the equipment grid to show the new enchantment count
     populateEquipmentSlots();
-    updateEquipmentSelection(selectedEquipmentSlot);
+    
+    // Update the selected item display in detail state
+    displaySelectedItem(selectedEquipmentSlot);
+    
+    // Update character display if it's visible
+    const characterSection = document.getElementById('character-section');
+    if (characterSection && !characterSection.classList.contains('hidden')) {
+        populateEquipmentDisplay();
+    }
 }
 
 /**
@@ -733,7 +1460,7 @@ export function cancelEnchantmentPreview() {
     // Go back to the tier selection view
     if (selectedEquipmentSlot) {
         hideAllRightPanels();
-        document.getElementById('enchanting-options').style.display = 'block';
+        document.getElementById('enchanting-options').classList.add('active');
     }
 }
 
@@ -804,7 +1531,14 @@ export function toggleEnchantmentLock(slotKey, enchantmentIndex) {
     }
 
     const equipmentName = playerData.equipment[slotKey];
-    const itemKey = getItemEnchantmentKey(slotKey, equipmentName);
+    
+    // Find the correct key for the enchanted item
+    const itemKey = findExistingEnchantmentKey(slotKey, equipmentName);
+    if (!itemKey) {
+        logMessage('Enchanted item not found!', 'fore-red');
+        return;
+    }
+    
     const itemEnchantData = playerData.itemEnchantments[itemKey];
     
     if (!itemEnchantData || !itemEnchantData.enchantments[enchantmentIndex]) {
@@ -814,6 +1548,18 @@ export function toggleEnchantmentLock(slotKey, enchantmentIndex) {
 
     const enchantment = itemEnchantData.enchantments[enchantmentIndex];
     const isCurrentlyLocked = enchantment.locked || false;
+    
+    // If trying to lock (not unlock), check restrictions
+    if (!isCurrentlyLocked) {
+        // Check if we're at maximum LOCKED enchantments
+        const lockedEnchantments = (itemEnchantData && itemEnchantData.enchantments) 
+            ? itemEnchantData.enchantments.filter(e => e.locked).length 
+            : 0;
+        if (lockedEnchantments >= MAX_ENCHANTMENTS) {
+            logMessage(`This item has reached the maximum number of locked enchantments (${MAX_ENCHANTMENTS}/${MAX_ENCHANTMENTS}). Cannot lock more!`, 'fore-red');
+            return;
+        }
+    }
     
     if (isCurrentlyLocked) {
         // Unlock the enchantment
@@ -865,9 +1611,23 @@ function isWizardEnchantment(statType) {
  */
 function rollEnchantmentsWithLocks(slotKey, tierData) {
     const equipmentName = playerData.equipment[slotKey];
-    const itemKey = getItemEnchantmentKey(slotKey, equipmentName);
-    const itemEnchantData = playerData.itemEnchantments[itemKey] || { enchantments: [], count: 0 };
-    const currentEnchantments = itemEnchantData.enchantments || [];
+    
+    // Check if the currently equipped item is actually enchanted
+    const isCurrentlyEnchanted = playerData.enchantedStats && 
+                                playerData.enchantedStats[slotKey] && 
+                                playerData.enchantedStats[slotKey].length > 0;
+    
+    // Only use existing enchantment data if the item is currently enchanted
+    let currentEnchantments = [];
+    if (isCurrentlyEnchanted) {
+        const itemKey = findExistingEnchantmentKey(slotKey, equipmentName);
+        if (itemKey && playerData.itemEnchantments[itemKey]) {
+            currentEnchantments = playerData.itemEnchantments[itemKey].enchantments || [];
+        } else {
+            // Fallback to enchantedStats if we can't find the itemEnchantments entry
+            currentEnchantments = playerData.enchantedStats[slotKey] || [];
+        }
+    }
     
     // Separate locked and unlocked enchantments
     const lockedEnchantments = currentEnchantments.filter(e => e.locked);
@@ -941,6 +1701,409 @@ function rollEnchantmentsWithLocks(slotKey, tierData) {
     
     // Combine locked enchantments with new ones
     return [...lockedEnchantments, ...newEnchantments];
+}
+
+/**
+ * Displays the ring enchanting interface with gem selection
+ */
+function displayRingEnchantingInterface(slotKey, equipmentName) {
+    // Make sure we're in detail state
+    if (currentEnchantingState !== 'detail') {
+        showDetailState(slotKey);
+    }
+    
+    hideAllRightPanels();
+    document.getElementById('enchanting-options').classList.add('active');
+    displayRingGemOptions(slotKey);
+}
+
+/**
+ * Displays available gem options for ring enchanting
+ */
+function displayRingGemOptions(slotKey) {
+    const container = document.getElementById('enchanting-tier-options');
+    if (!container) return;
+
+    // Clear existing options
+    container.innerHTML = '';
+
+    const enchantingLevel = getLevelFromXp(playerData.skills.enchanting.xp);
+    const equipmentName = playerData.equipment[slotKey];
+    
+    // Check if the ring is enchanted and get the correct key
+    const isCurrentlyEnchanted = playerData.enchantedStats && 
+                                playerData.enchantedStats[slotKey] && 
+                                playerData.enchantedStats[slotKey].length > 0;
+    
+    let itemEnchantData = { enchantments: [], count: 0 };
+    if (isCurrentlyEnchanted) {
+        const itemKey = findExistingEnchantmentKey(slotKey, equipmentName);
+        if (itemKey && playerData.itemEnchantments[itemKey]) {
+            itemEnchantData = playerData.itemEnchantments[itemKey];
+        }
+    }
+    
+    // Check if ring is already enchanted (rings can only be enchanted once with 1 gem)
+    const isAlreadyEnchanted = itemEnchantData.count > 0;
+
+    if (isAlreadyEnchanted) {
+        container.innerHTML = `
+            <div class="ring-already-enchanted">
+                <div class="enchantment-limit-message">
+                    <h3>🔮 Ring Already Enchanted</h3>
+                    <p>This ring has already been enchanted with a gem (1/1).</p>
+                    <p>Each ring can only be enchanted once with one gemstone.</p>
+                    <p>Get a new ring to enchant it with a different gem.</p>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    // Add title for ring enchanting
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'ring-enchanting-title';
+    titleDiv.innerHTML = `
+        <h3>🔮 Ring Enchanting</h3>
+        <p>Select a gemstone to permanently enhance your ring (1/1 uses):</p>
+    `;
+    container.appendChild(titleDiv);
+
+    Object.entries(RING_GEM_DATA).forEach(([gemId, gemData]) => {
+        const playerGems = playerData.inventory[gemId] || 0;
+        const hasGem = playerGems > 0;
+        
+        const optionDiv = document.createElement('div');
+        optionDiv.className = `enchanting-tier-option ring-gem-option ${hasGem ? '' : 'disabled'}`;
+        
+        if (hasGem) {
+            optionDiv.addEventListener('click', () => selectRingGem(slotKey, gemId));
+            optionDiv.style.cursor = 'pointer';
+        }
+        
+        // Generate stat preview
+        const statPreview = generateRingStatPreview(gemData);
+        
+        optionDiv.innerHTML = `
+            <div class="tier-option-header">
+                <div class="tier-option-name">${gemData.emoji} ${gemData.name}</div>
+                <div class="tier-option-level">Have: ${playerGems}</div>
+            </div>
+            <div class="tier-option-description">Enchant your ring with this ${gemData.name.toLowerCase()}</div>
+            <div class="tier-option-cost">
+                Cost: ${gemData.emoji} 1 ${gemData.name}
+            </div>
+            <div class="tier-option-potential">
+                ${statPreview}
+            </div>
+            <div class="tier-option-status">
+                ${hasGem ? 'Click to Select' : `Need ${gemData.name}`}
+            </div>
+        `;
+        
+        container.appendChild(optionDiv);
+    });
+}
+
+/**
+ * Generates a preview of possible stats for a ring gem
+ */
+function generateRingStatPreview(gemData) {
+    const minStats = gemData.minStats;
+    const maxStats = gemData.maxStats;
+    const statNames = Object.keys(gemData.statRanges);
+    
+    let preview = `Will roll ${minStats}-${maxStats} random stats from:<br>`;
+    preview += statNames.map(statKey => {
+        const [min, max] = gemData.statRanges[statKey];
+        const statName = RING_STAT_NAMES[statKey] || statKey;
+        let minDisplay, maxDisplay;
+        
+        if (statKey === 'hp_flat') {
+            minDisplay = `+${Math.floor(min)}`;
+            maxDisplay = `+${Math.floor(max)}`;
+        } else if (statKey === 'crafting_speed') {
+            minDisplay = `${min.toFixed(1)}s`;
+            maxDisplay = `${max.toFixed(1)}s`;
+        } else {
+            minDisplay = `${(min * 100).toFixed(1)}%`;
+            maxDisplay = `${(max * 100).toFixed(1)}%`;
+        }
+        
+        return `${statName}: ${minDisplay} to ${maxDisplay}`;
+    }).slice(0, 4).join('<br>');
+    
+    if (statNames.length > 4) {
+        preview += '<br>...and more';
+    }
+    
+    return preview;
+}
+
+/**
+ * Selects a gem for ring enchanting and shows preview
+ */
+function selectRingGem(slotKey, gemId) {
+    selectedEnchantmentTier = gemId; // Reuse this variable for gem selection
+    
+    const equipmentName = playerData.equipment[slotKey];
+    
+    // Check if the ring is enchanted and get the correct key
+    const isCurrentlyEnchanted = playerData.enchantedStats && 
+                                playerData.enchantedStats[slotKey] && 
+                                playerData.enchantedStats[slotKey].length > 0;
+    
+    // Check if already enchanted
+    if (isCurrentlyEnchanted) {
+        const itemKey = findExistingEnchantmentKey(slotKey, equipmentName);
+        if (itemKey && playerData.itemEnchantments[itemKey]) {
+            const itemEnchantData = playerData.itemEnchantments[itemKey];
+            if (itemEnchantData.count > 0) {
+                logMessage('This ring is already enchanted!', 'fore-red');
+                return;
+            }
+        }
+    }
+    
+    displayRingEnchantingPreview(slotKey, gemId);
+}
+
+/**
+ * Displays the ring enchanting preview
+ */
+function displayRingEnchantingPreview(slotKey, gemId) {
+    const container = document.getElementById('enchanting-preview-content');
+    if (!container) return;
+
+    const equipmentName = playerData.equipment[slotKey];
+    const itemData = RING_DATA[equipmentName];
+    const gemData = RING_GEM_DATA[gemId];
+    
+    // Check if the ring is enchanted and get the correct key
+    const isCurrentlyEnchanted = playerData.enchantedStats && 
+                                playerData.enchantedStats[slotKey] && 
+                                playerData.enchantedStats[slotKey].length > 0;
+    
+    // Get enchantments for this specific item
+    let itemEnchantData = { enchantments: [], count: 0 };
+    let enchantmentCount = 0;
+    
+    if (isCurrentlyEnchanted) {
+        const itemKey = findExistingEnchantmentKey(slotKey, equipmentName);
+        if (itemKey && playerData.itemEnchantments[itemKey]) {
+            itemEnchantData = playerData.itemEnchantments[itemKey];
+            enchantmentCount = itemEnchantData.count || 0;
+        }
+    }
+    
+    let statsHtml = '<div class="item-stats-display">';
+    
+    // Show enchantment count
+    statsHtml += `<div class="enchantment-count-display">`;
+    statsHtml += `Ring Enchantments: ${enchantmentCount}/1`;
+    statsHtml += `</div>`;
+    
+    // Show base item stats
+    if (itemData) {
+        statsHtml += '<div class="base-stats-section">';
+        statsHtml += '<div class="stats-section-title">Base Ring Stats:</div>';
+        statsHtml += `<div class="base-stat-line">+${itemData.hp_bonus} HP</div>`;
+        statsHtml += `<div class="base-stat-line">+${(itemData.crit_chance * 100).toFixed(1)}% Crit</div>`;
+        statsHtml += `<div class="base-stat-line">+${(itemData.str_percentage * 100).toFixed(1)}% Str</div>`;
+        statsHtml += '</div>';
+    }
+    
+    // Show selected gem info
+    statsHtml += '<div class="enchanted-stats-section">';
+    statsHtml += '<div class="stats-section-title">Selected Gem:</div>';
+    statsHtml += `<div class="gem-selection-display">${gemData.emoji} ${gemData.name}</div>`;
+    statsHtml += `<div class="gem-stats-info">Will add ${gemData.minStats}-${gemData.maxStats} random enchantments</div>`;
+    statsHtml += '</div>';
+    
+    statsHtml += '</div>';
+    container.innerHTML = statsHtml;
+    
+    // Update the enchant button for ring enchanting
+    updateRingEnchantButton(gemData, slotKey);
+    
+    // Show the preview panel
+    hideAllRightPanels();
+    document.getElementById('enchanting-preview').classList.add('active');
+}
+
+/**
+ * Updates the enchant button for ring enchanting
+ */
+function updateRingEnchantButton(gemData, slotKey = null) {
+    const costDisplay = document.querySelector('.enchant-cost-display');
+    const enchantButton = document.getElementById('enchanting-perform-btn');
+    
+    if (costDisplay) {
+        costDisplay.innerHTML = `${gemData.emoji} <span class="fore-green">1</span> ${gemData.name}`;
+    }
+    
+    if (enchantButton && slotKey) {
+        // Check if ring has reached maximum enchant sessions (12/12)
+        const equipmentName = playerData.equipment[slotKey];
+        const itemKey = findExistingEnchantmentKey(slotKey, equipmentName);
+        const sessionsUsed = itemKey && playerData.itemEnchantments[itemKey] ? (playerData.itemEnchantments[itemKey].count || 0) : 0;
+        
+        if (sessionsUsed >= MAX_ENCHANTMENTS) {
+            enchantButton.classList.add('disabled');
+            enchantButton.style.pointerEvents = 'none';
+        } else {
+            enchantButton.classList.remove('disabled');
+            enchantButton.style.pointerEvents = 'auto';
+        }
+    }
+}
+
+/**
+ * Performs ring enchantment with selected gem
+ */
+function performRingEnchantment() {
+    if (!selectedEquipmentSlot || !selectedEnchantmentTier) {
+        logMessage('No gem selected!', 'fore-red');
+        return;
+    }
+    
+    const gemId = selectedEnchantmentTier;
+    const gemData = RING_GEM_DATA[gemId];
+    if (!gemData) {
+        logMessage('Invalid gem selected!', 'fore-red');
+        return;
+    }
+
+    const equipmentName = playerData.equipment[selectedEquipmentSlot];
+    
+    // Check if ring has reached maximum enchant sessions (12/12)
+    const existingItemKey = findExistingEnchantmentKey(selectedEquipmentSlot, equipmentName);
+    const sessionsUsed = existingItemKey && playerData.itemEnchantments[existingItemKey] ? (playerData.itemEnchantments[existingItemKey].count || 0) : 0;
+    
+    if (sessionsUsed >= MAX_ENCHANTMENTS) {
+        logMessage(`This ring has reached the maximum number of enchant sessions (${MAX_ENCHANTMENTS}/${MAX_ENCHANTMENTS}). Cannot enchant further!`, 'fore-red');
+        return;
+    }
+    
+    // Check if the ring is already enchanted
+    const isCurrentlyEnchanted = playerData.enchantedStats && 
+                                playerData.enchantedStats[selectedEquipmentSlot] && 
+                                playerData.enchantedStats[selectedEquipmentSlot].length > 0;
+    
+    // Get or create unique key for ring
+    let itemKey;
+    if (isCurrentlyEnchanted) {
+        // Find existing key for already enchanted rings
+        itemKey = findExistingEnchantmentKey(selectedEquipmentSlot, equipmentName);
+        if (!itemKey) {
+            // Fallback: create new unique key if we can't find the existing one
+            console.warn('Could not find existing ring enchantment key, creating new one');
+            itemKey = createUniqueEnchantmentKey(selectedEquipmentSlot, equipmentName);
+        }
+    } else {
+        // Create unique key for newly enchanted rings
+        itemKey = createUniqueEnchantmentKey(selectedEquipmentSlot, equipmentName);
+        
+        // Remove one instance of the base ring item from inventory
+        removeItemFromInventory(equipmentName, 1);
+    }
+
+    // Check if player has the gem
+    const playerGems = playerData.inventory[gemId] || 0;
+    if (playerGems < 1) {
+        logMessage(`You need 1 ${gemData.name}!`, 'fore-red');
+        return;
+    }
+
+    // Consume the gem
+    playerData.inventory[gemId]--;
+    if (playerData.inventory[gemId] <= 0) {
+        delete playerData.inventory[gemId];
+    }
+
+    // Roll ring enchantments
+    const newEnchantments = rollRingEnchantments(gemData);
+    
+    // Initialize item enchantment data if it doesn't exist
+    if (!playerData.itemEnchantments[itemKey]) {
+        playerData.itemEnchantments[itemKey] = { enchantments: [], count: 0 };
+    }
+    
+    // Update enchantments for this specific item
+    playerData.itemEnchantments[itemKey].enchantments = newEnchantments;
+    playerData.itemEnchantments[itemKey].count = 1; // Rings can only be enchanted once
+    
+    // Also update the slot-based enchantments for the currently equipped item
+    playerData.enchantedStats[selectedEquipmentSlot] = newEnchantments;
+    
+    // Grant XP (based on gem tier)
+    const xpGains = { "sapphire": 25, "emerald": 50, "ruby": 100, "diamond": 200, "dragon gem": 400 };
+    const xpGain = xpGains[gemId] || 25;
+    
+    const oldLevel = getLevelFromXp(playerData.skills.enchanting.xp);
+    playerData.skills.enchanting.xp += xpGain;
+    const newLevel = getLevelFromXp(playerData.skills.enchanting.xp);
+    
+    if (newLevel > oldLevel) {
+        handleLevelUp('enchanting', oldLevel, newLevel);
+    }
+
+    // Track enchanting statistics
+    trackStatistic('crafting', 'enchant', 1, selectedEquipmentSlot);
+    
+    // Play enchantment sound effect
+    playSound(sounds.enchant);
+    
+    logMessage(`Ring enchanted with ${gemData.emoji} ${gemData.name}! Gained ${xpGain} Enchanting XP.`, 'fore-green');
+    console.log('Applied ring enchantments:', newEnchantments);
+    
+    savePlayerData();
+    updateEnchantingStatus();
+    
+    // Refresh the display completely
+    console.log('Refreshing ring enchanting display after enchantment');
+    
+    // Update the equipment grid in overview state
+    populateEquipmentSlots();
+    
+    // Update the selected item display in detail state
+    displaySelectedItem(selectedEquipmentSlot);
+    
+    // Show the ring interface again to display the "already enchanted" message
+    displayRingEnchantingInterface(selectedEquipmentSlot, equipmentName);
+    
+    // Update character display if it's visible
+    const characterSection = document.getElementById('character-section');
+    if (characterSection && !characterSection.classList.contains('hidden')) {
+        populateEquipmentDisplay();
+    }
+}
+
+/**
+ * Rolls enchantments for a ring based on gem data
+ */
+function rollRingEnchantments(gemData) {
+    const numStats = Math.floor(Math.random() * (gemData.maxStats - gemData.minStats + 1)) + gemData.minStats;
+    const enchantments = [];
+    const availableStats = Object.keys(gemData.statRanges);
+    
+    // Shuffle available stats and take the first numStats
+    const shuffledStats = availableStats.sort(() => Math.random() - 0.5);
+    const selectedStats = shuffledStats.slice(0, numStats);
+    
+    selectedStats.forEach(statKey => {
+        const [min, max] = gemData.statRanges[statKey];
+        const value = Math.random() * (max - min) + min;
+        
+        enchantments.push({
+            stat: statKey,
+            value: parseFloat(value.toFixed(4)),
+            tier: gemData.tier,
+            isRingEnchantment: true // Flag to identify ring enchantments
+        });
+    });
+    
+    return enchantments;
 }
 
 // Gem conversion configuration - Sequential tier progression
@@ -1212,4 +2375,121 @@ window.debugToggleWizardTower = function() {
     if (document.getElementById('enchanting-section').style.display !== 'none') {
         updateEnchantingDisplay();
     }
+};
+
+// DEBUG: Add gems for testing ring enchanting
+window.debugAddRingGems = function() {
+    if (!playerData.inventory) playerData.inventory = {};
+    
+    playerData.inventory['sapphire'] = (playerData.inventory['sapphire'] || 0) + 5;
+    playerData.inventory['emerald'] = (playerData.inventory['emerald'] || 0) + 3;
+    playerData.inventory['ruby'] = (playerData.inventory['ruby'] || 0) + 2;
+    playerData.inventory['diamond'] = (playerData.inventory['diamond'] || 0) + 1;
+    playerData.inventory['dragon gem'] = (playerData.inventory['dragon gem'] || 0) + 1;
+    
+    logMessage('DEBUG: Added gems for ring enchanting testing!', 'fore-green');
+    console.log('Added gems:', {
+        sapphire: 5,
+        emerald: 3, 
+        ruby: 2,
+        diamond: 1,
+        'dragon gem': 1
+    });
+    
+    savePlayerData();
+};
+
+// DEBUG: Check if ring stats are being applied correctly
+window.debugCheckRingStats = function() {
+    console.log('=== Ring Enchantment Stats Debug ===');
+    
+    const attackLevel = getLevelFromXp(playerData.skills.attack.xp || 0);
+    console.log('Attack Level:', attackLevel);
+    
+    // Check HP calculations
+    const maxHp = getMaxHp(attackLevel);
+    const hpFlat = getEnchantmentBonus('hp_flat');
+    const hpPercent = getEnchantmentBonus('hp_percent');
+    console.log('Max HP:', maxHp, '(flat bonus:', hpFlat, ', percent bonus:', (hpPercent * 100).toFixed(1) + '%)');
+    
+    // Check combat stats  
+    const strPercent = getEnchantmentBonus('str_percent');
+    const critChance = getEnchantmentBonus('crit_chance');
+    const critDamage = getEnchantmentBonus('crit_damage');
+    const aoeChance = getEnchantmentBonus('aoe_chance');
+    const aoeDamage = getEnchantmentBonus('aoe_damage');
+    
+    console.log('STR Bonus:', (strPercent * 100).toFixed(1) + '%');
+    console.log('Crit Chance Bonus:', (critChance * 100).toFixed(1) + '%');
+    console.log('Crit Damage Bonus:', (critDamage * 100).toFixed(1) + '%');
+    console.log('AOE Chance Bonus:', (aoeChance * 100).toFixed(1) + '%');
+    console.log('AOE Damage Bonus:', (aoeDamage * 100).toFixed(1) + '%');
+    
+    // Check crafting speed
+    const craftingSpeed = getEnchantmentBonus('crafting_speed');
+    console.log('Crafting Speed Reduction:', craftingSpeed.toFixed(1) + 's');
+    
+    // Check equipped rings
+    const leftRing = playerData.equipment?.left_ring;
+    const rightRing = playerData.equipment?.right_ring;
+    console.log('Left Ring:', leftRing);
+    console.log('Right Ring:', rightRing);
+    
+    if (leftRing && leftRing !== 'none') {
+        const leftKey = `left_ring:${leftRing}`;
+        const leftEnchants = playerData.itemEnchantments[leftKey];
+        console.log('Left Ring Enchantments:', leftEnchants);
+    }
+    
+    if (rightRing && rightRing !== 'none') {
+        const rightKey = `right_ring:${rightRing}`;
+        const rightEnchants = playerData.itemEnchantments[rightKey];
+        console.log('Right Ring Enchantments:', rightEnchants);
+    }
+    
+    logMessage('Ring stats check complete - see console for details', 'fore-cyan');
+};
+
+// DEBUG: Force refresh the enchanting display
+window.debugRefreshEnchanting = function() {
+    console.log('Force refreshing enchanting display...');
+    updateEnchantingDisplay();
+    logMessage('Enchanting display refreshed!', 'fore-green');
+};
+
+// DEBUG: Check ring enchanting display state
+window.debugRingDisplay = function() {
+    console.log('=== Ring Display Debug ===');
+    
+    const leftRing = playerData.equipment?.left_ring;
+    const rightRing = playerData.equipment?.right_ring;
+    
+    console.log('Equipment state:', {
+        left_ring: leftRing,
+        right_ring: rightRing
+    });
+    
+    if (leftRing && leftRing !== 'none') {
+        const leftKey = `left_ring:${leftRing}`;
+        const leftEnchants = playerData.itemEnchantments[leftKey];
+        console.log('Left ring enchantments:', leftEnchants);
+        console.log('Left ring key:', leftKey);
+    }
+    
+    if (rightRing && rightRing !== 'none') {
+        const rightKey = `right_ring:${rightRing}`;
+        const rightEnchants = playerData.itemEnchantments[rightKey];
+        console.log('Right ring enchantments:', rightEnchants);
+        console.log('Right ring key:', rightKey);
+    }
+    
+    // Check if enchanting section is visible
+    const enchantingSection = document.getElementById('enchanting-section');
+    console.log('Enchanting section display:', enchantingSection?.style.display);
+    
+    // Check equipment grid
+    const equipmentGrid = document.getElementById('enchanting-equipment-grid');
+    console.log('Equipment grid children count:', equipmentGrid?.children.length);
+    
+    logMessage('Ring display debug complete - see console', 'fore-cyan');
 };

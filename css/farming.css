@@ -1,0 +1,1683 @@
+/* === Farming Section CSS === */
+
+/* Farming Section Layout */
+#farming-section {
+    /* Uses .section, .compact-nav base styles */
+}
+
+/* Farming XP Bar Colors */
+.skill-xp-bar.fm { 
+    background-color: #8bc34a; /* Farming Green */
+}
+
+/* Farming Skill Hover Effects */
+@keyframes farmingGlow {
+    0%, 100% { 
+        box-shadow: 0 0 10px 2px rgba(139, 195, 74, 0.8), 0 0 15px 5px rgba(255, 255, 255, 0.5); 
+    }
+    50% { 
+        box-shadow: 0 0 20px 5px rgba(139, 195, 74, 1), 0 0 25px 10px rgba(255, 255, 255, 0.7); 
+    }
+}
+
+.skill-stat-container[data-skill="farming"]:hover { 
+    border: 1px solid #8bc34a; 
+    animation: farmingGlow 2s infinite alternate; 
+    background-color: rgba(139, 195, 74, 0.2); 
+}
+
+.skill-stat-container[data-skill="farming"]:hover .stat-label { 
+    color: #8bc34a; 
+}
+
+/* Farming Button Theme */
+.btn-farming { 
+    background-color: #76a858 !important; 
+} 
+
+.btn-farming:hover { 
+    background-color: #8bc34a !important; 
+}
+
+/* Farming Permit Status */
+#farm-unlock-status {
+    text-align: center;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: rgba(139, 195, 74, 0.1);
+    border: 1px solid rgba(139, 195, 74, 0.3);
+    border-radius: 8px;
+}
+
+/* Farming Tabs */
+.farming-tabs {
+    display: flex; 
+    gap: 5px; 
+    margin-top: 15px; 
+    margin-bottom: 15px;
+}
+
+.farming-tab {
+    flex: 1; 
+    padding: 8px 12px; 
+    background-color: #444; 
+    color: #ddd;
+    border: none; 
+    text-align: center; 
+    border-radius: 4px;
+}
+
+.farming-tab:hover { 
+    background-color: #555; 
+    opacity: 1; 
+    transform: scale(1.02);
+    transition: all 0.2s ease;
+}
+
+.farming-tab.active { 
+    background-color: #666; 
+    color: #fff; 
+    transform: scale(1.02);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* Farming Tab Content */
+#overview-content, 
+#animal-management-content, 
+#crop-management-content,
+#farm-workers-content, 
+#storage-content {
+    background-color: #333;
+    padding: 15px;
+    border-radius: 5px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Overview Tab */
+.overview-nav-buttons { 
+    display: flex; 
+    gap: 10px; 
+    margin-top: 15px; 
+}
+
+.overview-nav-buttons button {
+    padding: 8px; 
+    background-color: #555; 
+    color: #fff;
+    border: none; 
+    border-radius: 4px;
+}
+
+.overview-nav-buttons button:hover { 
+    background-color: #666; 
+    opacity: 1; 
+}
+
+/* Farming Action Info Display */
+#farming-action-info {
+    background-color: #333;
+    padding: 12px 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #555;
+    text-align: center;
+    color: #e0e0e0;
+}
+
+#farming-action-info.hidden {
+    display: none;
+}
+
+/* Farm Overview Section Headers */
+.farm-overview-section {
+    margin: 20px 0;
+}
+
+.farm-overview-section .section-title {
+    text-align: left;
+    font-size: 1.2em;
+    border: none;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    color: #8bc34a;
+    border-bottom: 1px solid #444;
+}
+
+/* Farm Status Summary */
+.farm-status-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.farm-status-card {
+    background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.farm-status-card:hover {
+    border-color: #8bc34a;
+    box-shadow: 0 4px 12px rgba(139, 195, 74, 0.2);
+    transform: translateY(-2px);
+}
+
+.farm-status-card .status-icon {
+    font-size: 2em;
+    margin-bottom: 8px;
+}
+
+.farm-status-card .status-value {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #8bc34a;
+    margin-bottom: 4px;
+}
+
+.farm-status-card .status-label {
+    color: #ccc;
+    font-size: 0.9em;
+}
+
+/* Animal Management Tab */
+#animal-status-container, 
+#animal-production-container {
+    /* Uses .resource-list base styles */
+}
+
+.farm-animal {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    padding: 10px; 
+    background-color: #444; 
+    margin-bottom: 8px; 
+    border-radius: 3px;
+}
+
+.animal-info { 
+    display: flex; 
+    align-items: center; 
+}
+
+.animal-emoji { 
+    font-size: 24px; 
+    margin-right: 10px; 
+}
+
+.animal-details span { 
+    display: block; 
+    line-height: 1.4; 
+}
+
+.animal-name { 
+    font-weight: bold; 
+}
+
+.animal-production { 
+    text-align: right; 
+}
+
+/* Crop Management Tab */
+#farm-plots-container {
+    margin-top: 15px; 
+    gap: 15px;
+}
+
+/* Workers Tab */
+#farm-activities-container {
+    margin-top: 20px;
+}
+
+/* Make workers tab more compact */
+#farm-workers-content h3 {
+    margin-bottom: 8px !important;
+    font-size: 1.1em;
+}
+
+#farm-workers-container {
+    margin-bottom: 12px;
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+    gap: 8px !important;
+}
+
+.farm-worker-info {
+    padding: 6px 8px !important;
+    margin-top: 8px !important;
+    font-size: 0.9em;
+    background: rgba(139, 195, 74, 0.1);
+    border-radius: 4px;
+    border: 1px solid rgba(139, 195, 74, 0.3);
+}
+
+/* Worker Card Enhancements - Compact for hired workers, normal for hire cards */
+#farm-workers-container .worker-card {
+    background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%) !important;
+    border: 1px solid #444 !important;
+    border-radius: 6px !important;
+    padding: 8px !important;
+    margin: 0 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    min-height: 80px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+}
+
+#hire-workers-container .worker-card {
+    background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%) !important;
+    border: 1.5px solid #444 !important;
+    border-radius: 12px !important;
+    padding: 15px !important;
+    margin: 12px 0 !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+}
+
+/* Worker Status Text Styling */
+#farm-workers-content .status-text {
+    font-weight: bold !important;
+    padding: 2px 8px !important;
+    border-radius: 12px !important;
+    font-size: 0.8em !important;
+    margin-left: auto !important;
+}
+
+#farm-workers-content .status-text.status-active {
+    background: rgba(76, 175, 80, 0.2) !important;
+    color: #4caf50 !important;
+    border: 1px solid #4caf50 !important;
+}
+
+#farm-workers-content .status-text.status-idle {
+    background: rgba(255, 215, 0, 0.2) !important;
+    color: #ffd700 !important;
+    border: 1px solid #ffd700 !important;
+}
+
+#farm-workers-content .status-text.status-unpaid {
+    background: rgba(244, 67, 54, 0.2) !important;
+    color: #f44336 !important;
+    border: 1px solid #f44336 !important;
+}
+
+/* Compact hover for hired workers */
+#farm-workers-container .worker-card:hover {
+    border-color: #8bc34a !important;
+    box-shadow: 0 3px 8px rgba(139, 195, 74, 0.3) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Normal hover for hire cards */
+#hire-workers-container .worker-card:hover {
+    border-color: #8bc34a !important;
+    box-shadow: 0 6px 16px rgba(139, 195, 74, 0.3) !important;
+    transform: translateY(-2px) !important;
+}
+
+#farm-workers-container .worker-card.status-active {
+    border-color: #4caf50 !important;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, #2a2a2a 100%) !important;
+}
+
+#farm-workers-container .worker-card.status-idle {
+    border-color: #ffd700 !important;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, #2a2a2a 100%) !important;
+}
+
+#farm-workers-container .worker-card.status-unpaid {
+    border-color: #f44336 !important;
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.15) 0%, #2a2a2a 100%) !important;
+    animation: unpaidPulse 2s ease-in-out infinite !important;
+}
+
+.farm-worker {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    padding: 10px; 
+    background-color: #444; 
+    margin-bottom: 8px; 
+    border-radius: 3px;
+}
+
+/* Farm Workers Action List Styling */
+.farm-worker-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px 18px;
+    margin: 8px 0;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #232323 60%, #292929 100%);
+    border: 1.5px solid #333;
+    min-height: 48px;
+    font-size: 1.08em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: background 0.22s, box-shadow 0.22s, border-color 0.22s, transform 0.18s;
+    cursor: pointer;
+}
+
+.farm-worker-item:hover {
+    background: linear-gradient(90deg, #2a2a2a 60%, #333 100%);
+    border-color: #8bc34a;
+    box-shadow: 0 4px 12px rgba(139, 195, 74, 0.3);
+    transform: translateY(-1px);
+}
+
+.farm-worker-item.active-worker {
+    background: rgba(139, 195, 74, 0.25) !important;
+    border-color: #8bc34a !important;
+    box-shadow: 0 0 15px rgba(139, 195, 74, 0.5) !important;
+    transform: none !important;
+}
+
+/* Worker Status Indicators */
+.worker-status-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid #333;
+}
+
+.worker-status-indicator.idle {
+    background-color: #ffd700;
+    animation: idlePulse 2s ease-in-out infinite;
+}
+
+.worker-status-indicator.active {
+    background-color: #4caf50;
+    animation: activePulse 1.5s ease-in-out infinite;
+}
+
+.worker-status-indicator.unpaid {
+    background-color: #f44336;
+    animation: unpaidPulse 1s ease-in-out infinite;
+}
+
+@keyframes idlePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+@keyframes activePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+@keyframes unpaidPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+.worker-info { 
+    display: flex; 
+    align-items: center; 
+}
+
+.worker-emoji { 
+    font-size: 24px; 
+    margin-right: 10px; 
+}
+
+.worker-details span { 
+    display: block; 
+    line-height: 1.4; 
+}
+
+.worker-name { 
+    font-weight: bold; 
+}
+
+.worker-skills { 
+    display: flex; 
+    gap: 10px; 
+}
+
+.worker-skill { 
+    padding: 3px 6px; 
+    background-color: #555; 
+    border-radius: 3px; 
+    font-size: 0.8em; 
+}
+
+.worker-actions { 
+    display: flex; 
+}
+
+.worker-actions button {
+    margin-left: 5px; 
+    padding: 5px 8px; 
+    background-color: #666;
+    border: none; 
+    color: white; 
+    border-radius: 3px;
+}
+
+.worker-actions button:hover { 
+    background-color: #777; 
+    opacity: 1; 
+}
+
+/* General worker card styles */
+.worker-card {
+    padding: 10px; 
+    background-color: #444; 
+    margin-bottom: 10px; 
+    border-radius: 5px;
+}
+
+/* Compact styles for hired workers (in farm-workers-container) */
+#farm-workers-container .worker-card {
+    padding: 6px 8px !important;
+    margin-bottom: 6px !important;
+    border-radius: 4px !important;
+}
+
+#farm-workers-container .worker-header {
+    margin-bottom: 3px !important;
+    gap: 4px !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+}
+
+#farm-workers-container .worker-emoji {
+    font-size: 1.1em !important;
+}
+
+#farm-workers-container .worker-name {
+    font-size: 0.8em !important;
+    font-weight: bold !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+#farm-workers-container .status-text {
+    font-size: 0.7em !important;
+    padding: 1px 4px !important;
+    border-radius: 3px !important;
+}
+
+#farm-workers-container .worker-assignment {
+    margin: 1px 0 !important;
+    font-size: 0.75em !important;
+    color: #bbb !important;
+    line-height: 1.2 !important;
+}
+
+#farm-workers-container .worker-dates {
+    display: none !important; /* Hide dates to save space */
+}
+
+#farm-workers-container .worker-actions {
+    margin-top: 3px !important;
+}
+
+#farm-workers-container .fire-btn {
+    padding: 2px 6px !important;
+    font-size: 0.7em !important;
+    width: 100% !important;
+}
+
+.worker-header { 
+    display: flex; 
+    align-items: center; 
+    margin-bottom: 10px; 
+}
+
+.worker-description { 
+    margin-bottom: 10px; 
+    font-style: italic; 
+    color: #ccc; 
+}
+
+.hire-cost, 
+.upkeep-cost { 
+    color: #ffcc00; 
+    margin-bottom: 5px; 
+}
+
+.worker-assignment { 
+    margin-top: 15px; 
+}
+
+.assignment-option {
+    display: flex; 
+    justify-content: space-between; 
+    padding: 8px;
+    background-color: #444; 
+    margin-bottom: 5px; 
+    border-radius: 3px;
+}
+
+.empty-notice {
+    padding: 15px; 
+    background-color: #444; 
+    color: #ccc;
+    font-style: italic; 
+    text-align: center; 
+    border-radius: 3px;
+}
+
+/* Storage Tab */
+/* #storage-content uses .tab-content general style */
+
+/* Farming Footer */
+#farming-footer-back-btn {
+    /* Uses .btn-back styles */
+}
+
+/* === Custom Farm Overview UI Enhancements === */
+#overview-content {
+    background: #2c2c2c !important;
+    border: 1px solid #444 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1040px;
+    margin: 10px auto !important;
+    padding: 20px !important;
+}
+
+#overview-content #hired-workers-overview {
+    margin-bottom: 20px;
+    background: rgba(139, 195, 74, 0.05) !important;
+    border: 1px solid rgba(139, 195, 74, 0.2) !important;
+    border-radius: 8px !important;
+    padding: 15px !important;
+    display: flex !important;
+    gap: 15px !important;
+    flex-wrap: wrap !important;
+}
+
+/* Hired Workers Overview Enhancements */
+#hired-workers-overview .hwo-section {
+    background: #333 !important;
+    border: 1px solid #555 !important;
+    border-radius: 8px !important;
+    padding: 12px !important;
+    margin: 0 !important;
+    transition: all 0.3s ease !important;
+    flex: 1 !important;
+    min-width: 200px !important;
+}
+
+#hired-workers-overview .hwo-section:hover {
+    border-color: #8bc34a !important;
+    box-shadow: 0 4px 12px rgba(139, 195, 74, 0.2) !important;
+}
+
+#hired-workers-overview .hwo-section h4 {
+    color: #8bc34a !important;
+    font-size: 1.1em !important;
+    margin-bottom: 8px !important;
+    border-bottom: 1px solid #555 !important;
+    padding-bottom: 4px !important;
+}
+
+/* Worker Emoji Status Enhancements */
+#hired-workers-overview .worker-emoji {
+    font-size: 1.8rem !important;
+    margin: 0 4px !important;
+    padding: 4px !important;
+    border-radius: 6px !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+}
+
+#hired-workers-overview .worker-emoji:hover {
+    transform: scale(1.1) !important;
+    background: rgba(139, 195, 74, 0.2) !important;
+}
+
+#hired-workers-overview .worker-emoji.idle {
+    filter: brightness(0.8) sepia(1) hue-rotate(45deg) !important;
+}
+
+#hired-workers-overview .worker-emoji.active {
+    filter: brightness(1.2) !important;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6) !important;
+}
+
+#hired-workers-overview .worker-emoji.unpaid {
+    filter: brightness(0.6) sepia(1) hue-rotate(320deg) !important;
+    animation: unpaidWorkerPulse 1.5s ease-in-out infinite !important;
+}
+
+@keyframes unpaidWorkerPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.farm-overview-map {
+    background: #1e1e1e !important;
+    padding: 15px !important;
+    border-radius: 8px !important;
+    border: 1px solid #444 !important;
+    margin-top: 15px !important;
+    overflow-x: auto; /* Allow horizontal scroll if needed */
+    max-width: 100%;
+}
+
+/* On small screens, reduce padding */
+@media (max-width: 600px) {
+    .farm-overview-map {
+        padding: 8px !important;
+    }
+}
+
+
+/* Farming Overview Map */
+#farm-map {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 1px;
+    width: 100%;
+}
+
+.farm-tile {
+    border: 2px dashed #444;
+    border-radius: 4px;
+    background-color: #222;
+    color: #ccc;
+    min-height: 120px;
+    position: relative;
+    overflow: hidden; /* Prevent content overflow on small screens */
+    cursor: pointer;
+    transition: border-color 0.2s;
+    width: 100%;
+}
+
+/* Allow tooltips to show above tiles */
+.farm-tile:hover {
+    overflow: visible;
+    z-index: 10;
+}
+
+.farm-tile.built {
+    border-color: #1ec469;
+}
+
+.farm-tile .tile-label {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    transform: none;
+    font-size: 0.85em;
+    font-weight: bold;
+    z-index: 5; /* bring plot title above content */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 8px);
+}
+
+.farm-tile .tile-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 90%;
+    height: 80%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    pointer-events: none;
+}
+
+.tile-animal {
+    position: absolute;
+    /* Movement offsets & rotation controlled via CSS variables */
+    --dx: 4px;
+    --dy: -4px;
+    --angle: 10deg;
+    animation-name: moveAround;
+    animation-duration: var(--duration, 3s);
+    animation-delay: var(--delay, 0s);
+    animation-timing-function: ease-in-out;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+}
+
+/* Reduce animal movement on smaller screens */
+@media (max-width: 600px) {
+    .tile-animal {
+        --dx: 2px !important;
+        --dy: -2px !important;
+        --angle: 5deg !important;
+    }
+}
+
+@keyframes moveAround {
+    from { transform: translate(0, 0) rotate(0deg); }
+    to   { transform: translate(var(--dx), var(--dy)) rotate(var(--angle)); }
+}
+
+/* Responsive design for farm overview */
+@media (max-width: 800px) {
+    #farm-map {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+    
+    .farm-tile {
+        min-width: 180px;
+    }
+}
+
+@media (max-width: 600px) {
+    #farm-map {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+    
+    .farm-tile {
+        min-height: 100px;
+        min-width: 160px;
+    }
+    
+    .farm-tile .tile-label {
+        font-size: 0.8em;
+    }
+}
+
+@media (max-width: 400px) {
+    #farm-map {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .farm-tile {
+        min-height: 120px;
+        min-width: 200px;
+    }
+    
+    .farm-tile .tile-label {
+        font-size: 0.9em;
+    }
+}
+
+/* Crop Plot Slot Layout: 8 columns grid for plot emojis */
+.plot-slots {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+}
+
+.crop-slot-icon, .crop-slot-placeholder {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+}
+
+/* Farm Plot Tile Emoji Grid */
+.plot-tile .tile-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1px;
+    padding: 2px;
+    margin-top: 5px;
+    width: 80%;
+    height: 60%;
+}
+
+/* Simple CSS-only detection for large plots */
+/* When there are 16 spans (4x4 grid of crops), use grid layout */
+.plot-tile .tile-content:has(span:nth-child(16)) {
+    display: grid !important;
+    grid-template-columns: repeat(8, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important;
+    gap: 0px !important;
+    justify-items: center !important;
+    align-items: center !important;
+}
+
+/* Target based on content - look for "Large Crop Plot" in label */
+.farm-tile:has(.tile-label:contains("Large")) .tile-content {
+    display: grid !important;
+    grid-template-columns: repeat(8, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important;
+    gap: 0px !important;
+    justify-items: center !important;
+    align-items: center !important;
+}
+
+/* Target the large crop plot by its specific inline styles */
+.plot-tile[style*="300px"] .tile-content,
+.plot-tile[style*="grid-row-start: 2"] .tile-content {
+    display: grid !important;
+    grid-template-columns: repeat(8, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important;
+    gap: 0px !important;
+    justify-items: center !important;
+    align-items: center !important;
+    padding: 1px !important;
+}
+
+/* Make emojis smaller for the large plot */
+.plot-tile[style*="300px"] .tile-content span,
+.plot-tile[style*="grid-row-start: 2"] .tile-content span {
+    font-size: 0.7em !important;
+    line-height: 1 !important;
+}
+
+.plot-tile .tile-content span {
+    flex: 0 0 auto;
+    font-size: 0.8em;
+}
+
+.plot-tile .tile-content br {
+    display: none;
+}
+
+/* Use class-based targeting instead of :has() for better compatibility */
+
+/* Small crop plots (4 seeds) - larger emojis since fewer */
+.plot-tile.small-plot .tile-content span {
+    font-size: 1em;
+}
+
+/* Medium crop plots (8 seeds) - medium emojis, 10% smaller */  
+.plot-tile.medium-plot .tile-content span {
+    font-size: 0.9em !important;
+}
+
+/* Large crop plots (16 seeds) - smaller emojis to fit */
+.plot-tile.large-plot .tile-content {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 0px;
+    justify-items: center;
+    align-items: center;
+    padding: 1px;
+}
+
+.plot-tile.large-plot .tile-content span {
+    font-size: 0.7em !important;
+    line-height: 1;
+}
+
+/* Fallback: detect by number of children for large plots */
+.plot-tile .tile-content span:nth-child(n+9) {
+    font-size: 0.7em;
+}
+
+/* Fallback for browsers without :has() support */
+/* Target containers with many children by using a more specific approach */
+
+/* When a container has 16 spans, force grid layout */
+.plot-tile .tile-content span:nth-child(16) {
+    /* This targets the 16th child, indicating a large plot */
+}
+
+.plot-tile .tile-content span:nth-child(16) ~ * {
+    /* Empty - just for targeting */
+}
+
+/* Use a container query-like approach */
+.plot-tile .tile-content span:first-child:nth-last-child(n+9) ~ span {
+    /* This targets spans in containers with 9+ children */
+    font-size: 0.7em;
+}
+
+.plot-tile .tile-content span:first-child:nth-last-child(n+9) {
+    /* This targets the first span when there are 9+ children total */
+    font-size: 0.7em;
+}
+
+/* Force parent to use grid when it has 9+ children */
+.plot-tile .tile-content:nth-child(1):has(span:nth-child(9)) {
+    display: grid !important;
+    grid-template-columns: repeat(8, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important;
+}
+
+/* Remove problematic grid row positioning */
+.farm-tile[style*="grid-row-start"] {
+    grid-row-start: auto !important;
+}
+
+/* Responsive crop plot content */
+@media (max-width: 600px) {
+    .plot-tile .tile-content span {
+        font-size: 0.7em;
+    }
+    
+    .plot-tile.small-plot .tile-content span {
+        font-size: 0.8em;
+    }
+    
+    .plot-tile.medium-plot .tile-content span {
+        font-size: 0.7em;
+    }
+    
+    .plot-tile.large-plot .tile-content span {
+        font-size: 0.45em;
+    }
+    
+    /* Fallback for large plots */
+    .plot-tile .tile-content span:nth-child(n+9) {
+        font-size: 0.45em;
+    }
+}
+
+@media (max-width: 400px) {
+    .plot-tile .tile-content span {
+        font-size: 0.6em;
+    }
+    
+    .plot-tile.large-plot .tile-content span {
+        font-size: 0.4em;
+    }
+    
+    .plot-tile .tile-content span:nth-child(n+9) {
+        font-size: 0.4em;
+    }
+}
+
+/* Worker indicator for farm overview tiles */
+.worker-indicator {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    display: flex;
+    gap: 2px;
+    max-width: 40%;
+    justify-content: flex-end;
+    pointer-events: none;
+    z-index: 5; /* bring worker icons above tile content */
+}
+
+.worker-indicator span {
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+/* Responsive worker indicators */
+@media (max-width: 600px) {
+    .worker-indicator span {
+        font-size: 0.75rem;
+    }
+    
+    .worker-indicator {
+        gap: 1px;
+    }
+}
+
+/* Additional movement patterns for animal emojis */
+@keyframes moveZigzag {
+    0%, 100% { transform: translate(var(--dx), var(--dy)) rotate(var(--angle)) scale(1); }
+    25% { transform: translate(calc(-1 * var(--dx)), var(--dy)) rotate(calc(-1 * var(--angle))) scale(1.1); }
+    50% { transform: translate(calc(-1 * var(--dx)), calc(-1 * var(--dy))) rotate(var(--angle)) scale(0.9); }
+    75% { transform: translate(var(--dx), calc(-1 * var(--dy))) rotate(calc(-1 * var(--angle))) scale(1.05); }
+}
+
+@keyframes moveBounce {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(0, calc(var(--dy) * 0.5)) scale(1.2); }
+}
+
+/* Slow drifting movement for variety */
+@keyframes moveDrift {
+    0%, 100% { transform: translate(calc(var(--dx)*0.5), calc(var(--dy)*0.5)) rotate(calc(var(--angle)*0.5)) scale(1); }
+    33% { transform: translate(calc(var(--dx) * 0.8), calc(var(--dy) * 0.8)) rotate(calc(var(--angle) * 0.8)) scale(1.1); }
+    66% { transform: translate(calc(-1 * var(--dx) * 0.8), calc(-1 * var(--dy) * 0.8)) rotate(calc(-1 * var(--angle) * 0.8)) scale(0.9); }
+}
+
+/* === Custom Farm Overview UI Enhancements === */
+#overview-content {
+    background: #2c2c2c;
+    border: 1px solid #444;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1040px;
+    margin: 10px auto;
+}
+
+#overview-content #hired-workers-overview {
+    margin-bottom: 20px;
+}
+
+.farm-overview-map {
+    background: #1e1e1e;
+    padding: 15px;
+    border-radius: 6px;
+}
+
+
+/* Crop Plot Emoji Size Adjustment */
+.plot-tile .tile-content span {
+    font-size: 0.8em;
+}
+
+/* Farm Overview Tooltips */
+.farm-tile:hover .custom-tooltip-text {
+    z-index: 100000 !important; /* ensure tooltip sits above all tile elements */
+    opacity: 1; visibility: visible; transform: translateX(-50%) translateY(-12px);
+    min-width: 140px;
+}
+
+
+/* Ensure crop plot tooltips overlay labels and icons */
+.farm-tile .tile-label,
+.farm-tile .worker-indicator {
+    z-index: 0 !important;
+}
+
+/* Crop Plot Timer Display */
+.crop-plot-slot .plot-timer {
+    color: #ccc;
+    font-size: 12px;
+    text-align: center;
+    margin: 4px 0;
+}
+
+/* Move Crop Plot Timer into header corner */
+.crop-plot-slot .plot-header {
+    position: relative;
+    padding-right: 50px;
+}
+
+.crop-plot-slot .plot-header .plot-timer {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    margin: 0;
+    text-align: right;
+}
+
+/* Farming Tab Emojis and Colors */
+#overview-tab::before { 
+    content: "🌾";
+    margin-right: 6px;
+}
+
+#overview-tab {
+    background-color: rgba(23, 106, 190, 0.85);
+}
+
+#animal-management-tab::before { 
+    content: "🐄"; 
+    margin-right: 6px; 
+}
+
+#animal-management-tab {
+    background-color: rgba(127, 255, 212, 0.49);
+}
+
+#crop-management-tab::before { 
+    content: "🥕"; 
+    margin-right: 6px; 
+}
+
+#crop-management-tab {
+    background-color: rgba(127, 255, 129, 0.47);
+}
+
+#farm-workers-tab::before { 
+    content: "🚜";
+    margin-right: 6px; 
+}
+
+#farm-workers-tab {
+    background-color: rgba(6, 64, 215, 0.49);
+}
+
+#storage-tab::before { 
+    content: "🏚️"; 
+    margin-right: 6px; 
+}
+
+#storage-tab {
+    background-color: rgba(245, 245, 220, 0.47);
+}
+
+/* Crop Growth Animations */
+.crop-growing {
+    animation: cropGrow 3s ease-in-out infinite;
+}
+
+@keyframes cropGrow {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Harvest Ready Animation */
+.crop-ready {
+    animation: cropReady 2s ease-in-out infinite;
+}
+
+@keyframes cropReady {
+    0%, 100% {
+        filter: brightness(1);
+        transform: scale(1);
+    }
+    50% {
+        filter: brightness(1.3);
+        transform: scale(1.05);
+    }
+}
+
+/* Planting Animation */
+.crop-planting {
+    animation: planting 1s ease-out;
+}
+
+@keyframes planting {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Harvesting Animation */
+.crop-harvesting {
+    animation: harvesting 0.8s ease-in;
+}
+
+@keyframes harvesting {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+}
+
+/* Farm Plot States */
+.farm-plot {
+    position: relative;
+    background-color: #2a1a0a;
+    border: 2px solid #8bc34a;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 8px 0;
+    transition: all 0.3s ease;
+}
+
+.farm-plot.empty {
+    border-color: #666;
+    background-color: #1a1a1a;
+}
+
+.farm-plot.planted {
+    border-color: #4caf50;
+    background-color: rgba(76, 175, 80, 0.1);
+}
+
+.farm-plot.growing {
+    border-color: #8bc34a;
+    background-color: rgba(139, 195, 74, 0.15);
+}
+
+.farm-plot.ready {
+    border-color: #cddc39;
+    background-color: rgba(205, 220, 57, 0.2);
+    animation: readyGlow 2s ease-in-out infinite;
+}
+
+@keyframes readyGlow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(205, 220, 57, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 15px rgba(205, 220, 57, 0.8);
+    }
+}
+
+/* Water Level Indicator */
+.water-level {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    display: flex;
+    gap: 2px;
+}
+
+.water-drop {
+    width: 6px;
+    height: 8px;
+    background-color: #2196f3;
+    border-radius: 0 100% 100% 100%;
+    opacity: 0.3;
+    transition: opacity 0.3s;
+}
+
+.water-drop.filled {
+    opacity: 1;
+    animation: waterShimmer 2s ease-in-out infinite;
+}
+
+@keyframes waterShimmer {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Soil Quality Indicator */
+.soil-quality {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #333;
+}
+
+.soil-quality.poor {
+    background-color: #795548;
+}
+
+.soil-quality.average {
+    background-color: #8bc34a;
+}
+
+.soil-quality.rich {
+    background-color: #4caf50;
+}
+
+.soil-quality.fertile {
+    background-color: #2e7d32;
+    animation: fertileSoil 3s ease-in-out infinite;
+}
+
+@keyframes fertileSoil {
+    0%, 100% {
+        box-shadow: 0 0 3px rgba(46, 125, 50, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 8px rgba(46, 125, 50, 0.8);
+    }
+}
+
+/* Animal Happiness Indicators */
+.animal-happiness {
+    display: flex;
+    gap: 2px;
+    margin-top: 4px;
+}
+
+.happiness-heart {
+    width: 8px;
+    height: 8px;
+    background-color: #f44336;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    transform: rotate(-45deg);
+    opacity: 0.3;
+    transition: opacity 0.3s;
+}
+
+.happiness-heart.filled {
+    opacity: 1;
+    animation: heartBeat 1.5s ease-in-out infinite;
+}
+
+@keyframes heartBeat {
+    0%, 100% {
+        transform: rotate(-45deg) scale(1);
+    }
+    50% {
+        transform: rotate(-45deg) scale(1.2);
+    }
+}
+
+/* Production Rate Indicators */
+.production-rate {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8em;
+    color: #4caf50;
+}
+
+.production-rate::before {
+    content: "⚡";
+    font-size: 0.9em;
+}
+
+.production-rate.slow {
+    color: #ff9800;
+}
+
+.production-rate.slow::before {
+    content: "🐌";
+}
+
+.production-rate.fast {
+    color: #4caf50;
+    animation: fastProduction 1s ease-in-out infinite;
+}
+
+@keyframes fastProduction {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Weather Effects */
+.weather-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.weather-effect.rain::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: 0;
+    right: 0;
+    height: 200%;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 2px,
+        rgba(33, 150, 243, 0.3) 2px,
+        rgba(33, 150, 243, 0.3) 4px
+    );
+    animation: rain 1s linear infinite;
+}
+
+@keyframes rain {
+    0% {
+        transform: translateY(-100%);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.weather-effect.sun::after {
+    content: "☀️";
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    font-size: 16px;
+    animation: sunshine 3s ease-in-out infinite;
+}
+
+@keyframes sunshine {
+    0%, 100% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+}
+
+/* Assignment Modal Styling */
+#assignment-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+#assignment-modal .modal-content {
+    background: linear-gradient(135deg, #2c2c2c 0%, #1e1e1e 100%);
+    border: 2px solid #8bc34a;
+    padding: 20px;
+    border-radius: 12px;
+    width: 350px;
+    max-height: 80%;
+    overflow: auto;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+#assignment-modal h3 {
+    color: #8bc34a;
+    margin-bottom: 15px;
+    text-align: center;
+    border-bottom: 1px solid #444;
+    padding-bottom: 8px;
+}
+
+#assignment-modal .close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+#assignment-modal .close-button:hover {
+    color: #8bc34a;
+}
+
+/* Structure Card Buttons */
+.structure-card {
+    background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+    border: 2px solid #444;
+    padding: 12px 15px;
+    margin: 8px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #ddd;
+    font-size: 1em;
+    text-align: center;
+    display: block;
+    width: 100%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.structure-card:hover {
+    background: linear-gradient(135deg, #8bc34a 0%, #6fa832 100%);
+    border-color: #8bc34a;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 195, 74, 0.4);
+}
+
+.structure-card:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(139, 195, 74, 0.3);
+}
+
+/* Responsive Design for Farming */
+@media (max-width: 768px) {
+    .farming-tabs {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .farm-animal,
+    .farm-worker {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .animal-production {
+        text-align: left;
+    }
+    
+    .worker-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+/* Farm Statistics Section */
+.farm-info-section {
+    margin-top: 20px;
+    background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.farm-info-section h3 {
+    color: #8bc34a;
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+    border-bottom: 2px solid #444;
+    padding-bottom: 8px;
+}
+
+.farm-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.stat-card:hover {
+    border-color: #8bc34a;
+    box-shadow: 0 4px 12px rgba(139, 195, 74, 0.2);
+    transform: translateY(-2px);
+}
+
+.stat-card h4 {
+    color: #8bc34a;
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stat-card p {
+    margin: 6px 0;
+    color: #ddd;
+    font-size: 0.95em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stat-card p:last-child {
+    margin-bottom: 0;
+}
+
+/* Stat value emphasis */
+.stat-card p strong {
+    color: #8bc34a;
+    font-weight: bold;
+}
+
+/* Responsive Design for Farm Statistics */
+@media (max-width: 768px) {
+    .farm-stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 12px;
+    }
+    
+    .stat-card {
+        padding: 12px;
+    }
+    
+    .stat-card h4 {
+        font-size: 1em;
+    }
+    
+    .stat-card p {
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 480px) {
+    #overview-content,
+    #animal-management-content,
+    #crop-management-content,
+    #farm-workers-content,
+    #storage-content {
+        padding: 10px;
+    }
+    
+    .farm-tile {
+        transform: none;
+    }
+    
+    .farm-tile:hover {
+        transform: scale(1.01);
+    }
+    
+    .farm-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .farm-info-section {
+        padding: 12px;
+    }
+    
+    .farm-info-section h3 {
+        font-size: 1.2em;
+    }
+}

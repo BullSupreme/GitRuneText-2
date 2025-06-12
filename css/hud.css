@@ -1,0 +1,316 @@
+/* === HUD (Heads-Up Display) === */
+#hud {
+    background-color: #2d2d2d;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.hud-left {
+    display: flex; gap: 15px; flex: 1; flex-wrap: wrap;
+}
+
+.hud-right {
+    display: flex; gap: 15px; justify-content: flex-end; flex-wrap: wrap;
+}
+
+/* General Stat Container in HUD */
+.stat-container {
+    display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 4px; position: relative; /* For tooltips and indicators */
+}
+
+/* Clickable Skill Stat Container in HUD */
+.skill-stat-container {
+    cursor: pointer; transition: background-color 0.2s, transform 0.3s ease, border 0.3s ease; box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); border: 1px solid transparent; /* For hover effect space */
+}
+
+.skill-stat-container:hover {
+    background-color: rgba(255, 255, 255, 0.1); transform: scale(1.009); border-radius: 10%;
+}
+
+.skill-stat-container.active-hud-item {
+    background-color: rgba(76, 175, 80, 0.2); /* Example active color */
+    border-left: 2px solid #4caf50;
+}
+
+.skill-stat-container.active-hud-item .auto-status-indicator {
+    display: block; /* Show pulsing dot when skill is active */
+}
+
+/* HUD Stat Icon and Info */
+.stat-icon {
+    width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+
+.stat-info {
+    display: flex; flex-direction: column;
+}
+
+.stat-label {
+    font-size: 12px; color: #aaa;
+}
+
+.stat-value,
+.hud-skill-level-text {
+    font-weight: 500;
+}
+
+/* Specific HUD element styling */
+#hud-player-hp { display: none; /* Initially hidden, shown by JS */ }
+
+/* Gold Display HUD */
+#hud-gold-display {
+    position: relative; /* For tooltip */
+    border: 1px solid transparent;
+    border-radius: 10%;
+}
+#hud-gold-display:hover {
+    transform: scale(1.05); border: 1px solid #ffd700; border-radius: 10%; animation: subtleCircleGlow 2s infinite alternate; background-color: rgba(255, 223, 0, 0.2);
+}
+.gold-tooltip-text {
+    visibility: hidden; width: 60px; background-color: #333; color: #ffd700;
+    text-align: center; border-radius: 5px; padding: 5px 0; position: absolute;
+    z-index: 1; top: 110%; left: 50%; margin-left: -30px; opacity: 0; transition: opacity 0.3s;
+}
+#hud-gold-display:hover .gold-tooltip-text { visibility: visible; opacity: 1; }
+
+/* Perk Points Display HUD */
+#hud-perk-points-display {
+    position: relative; /* For tooltip */
+    border: 1px solid transparent;
+    border-radius: 10%;
+}
+#hud-perk-points-display:hover {
+    transform: scale(1.05); border: 1px solid #1ec469; border-radius: 10%; animation: subtlePerkGlow 2s infinite alternate; background-color: rgba(30, 196, 105, 0.2);
+}
+.perk-tooltip-text {
+    visibility: hidden; width: 89px; background-color: #333; color: #1ec469;
+    text-align: center; border-radius: 5px; padding: 5px 0; position: absolute;
+    z-index: 1; top: 110%; left: 50%; margin-left: -44.5px; opacity: 0; transition: opacity 0.3s;
+}
+#hud-perk-points-display:hover .perk-tooltip-text { visibility: visible; opacity: 1; }
+
+/* Animations for HUD items */
+@keyframes subtleCircleGlow { /* Gold */
+    0%, 100% { box-shadow: 0 0 10px 2px rgba(255, 215, 0, 0.8), 0 0 15px 5px rgba(255, 255, 255, 0.5); }
+    50% { box-shadow: 0 0 20px 5px rgba(255, 215, 0, 1), 0 0 25px 10px rgba(255, 255, 255, 0.7); }
+}
+@keyframes subtlePerkGlow { /* Perk Green/Blue */
+    0%, 100% { box-shadow: 0 0 10px 2px rgba(30, 196, 105, 0.8), 0 0 15px 5px rgba(0, 191, 255, 0.5); }
+    50% { box-shadow: 0 0 20px 5px rgba(30, 196, 105, 1), 0 0 25px 10px rgba(0, 191, 255, 0.7); }
+}
+@keyframes woodcuttingGlow {
+    0%, 100% { box-shadow: 0 0 10px 2px rgba(76, 175, 80, 0.8), 0 0 15px 5px rgba(255, 255, 255, 0.5); }
+    50% { box-shadow: 0 0 20px 5px rgba(76, 175, 80, 1), 0 0 25px 10px rgba(255, 255, 255, 0.7); }
+}
+@keyframes miningGlow {
+    0%, 100% { box-shadow: 0 0 10px 2px rgba(158, 158, 158, 0.8), 0 0 15px 5px rgba(255, 255, 255, 0.5); }
+    50% { box-shadow: 0 0 20px 5px rgba(158, 158, 158, 1), 0 0 25px 10px rgba(255, 255, 255, 0.7); }
+}
+@keyframes blacksmithingGlow {
+    0%, 100% { box-shadow: 0 0 10px 2px rgba(255, 152, 0, 0.8), 0 0 15px 5px rgba(255, 255, 255, 0.5); }
+    50% { box-shadow: 0 0 20px 5px rgba(255, 152, 0, 1), 0 0 25px 10px rgba(255, 255, 255, 0.7); }
+}
+@keyframes combatGlow {
+    0%, 100% { box-shadow: 0 0 10px 2px rgba(244, 67, 54, 0.8), 0 0 15px 5px rgba(255, 255, 255, 0.5); }
+    50% { box-shadow: 0 0 20px 5px rgba(244, 67, 54, 1), 0 0 25px 10px rgba(255, 255, 255, 0.7); }
+}
+@keyframes cookingGlow {
+    0%, 100% { box-shadow: 0 0 10px 2px rgba(255, 235, 59, 0.8), 0 0 15px 5px rgba(255, 255, 255, 0.5); }
+    50% { box-shadow: 0 0 20px 5px rgba(255, 235, 59, 1), 0 0 25px 10px rgba(255, 255, 255, 0.7); }
+}
+@keyframes farmingGlow {
+    0%, 100% { box-shadow: 0 0 10px 2px rgba(139, 195, 74, 0.8), 0 0 15px 5px rgba(255, 255, 255, 0.5); }
+    50% { box-shadow: 0 0 20px 5px rgba(139, 195, 74, 1), 0 0 25px 10px rgba(255, 255, 255, 0.7); }
+}
+@keyframes enchantingGlow {
+    0%, 100% { box-shadow: 0 0 10px 2px rgba(156, 39, 176, 0.8), 0 0 15px 5px rgba(255, 255, 255, 0.5); }
+    50% { box-shadow: 0 0 20px 5px rgba(156, 39, 176, 1), 0 0 25px 10px rgba(255, 255, 255, 0.7); }
+}
+@keyframes dungeoneeringGlow {
+    0%, 100% { box-shadow: 0 0 10px 2px rgba(139, 69, 19, 0.8), 0 0 15px 5px rgba(255, 255, 255, 0.5); }
+    50% { box-shadow: 0 0 20px 5px rgba(139, 69, 19, 1), 0 0 25px 10px rgba(255, 255, 255, 0.7); }
+}
+
+/* HUD Tooltip (for skill names) */
+.tooltip {
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    background-color: #333; color: #fff; padding: 5px 10px; border-radius: 4px;
+    font-size: 12px; white-space: nowrap; z-index: 100; pointer-events: none;
+    opacity: 0; transition: opacity 0.2s; display: none; /* Hidden by default */
+}
+/* Tooltips disabled for skill containers */
+.skill-stat-container .tooltip {
+    display: none !important;
+}
+
+/* HUD XP Bar Styles */
+.skill-xp-bar-container {
+    width: 100px; height: 6px; background-color: #333;
+    border-radius: 3px; overflow: hidden; margin-top: 3px;
+}
+.skill-xp-bar {
+    height: 100%; border-radius: 3px; width: 0%; /* JS sets width */
+    transition: width 0.3s;
+}
+.skill-xp-bar.atk { background-color: #f44336; } /* Attack Red */
+.skill-xp-bar.wc { background-color: #4caf50; } /* Woodcutting Green */
+.skill-xp-bar.mn { background-color: #9e9e9e; } /* Mining Gray */
+.skill-xp-bar.bs { background-color: #ff9800; } /* Blacksmithing Orange */
+.skill-xp-bar.ck { background-color: #ffeb3b; } /* Cooking Yellow */
+.skill-xp-bar.en { background-color: #9c27b0; } /* Enchanting Purple */
+.skill-xp-bar.fm { background-color: #8bc34a; } /* Farming Green */
+.skill-xp-bar.dg { background-color: #8b4513; } /* Dungeoneering Brown */
+
+/* Skill-specific hover effects with glow */
+#hud-atk.skill-stat-container:hover { 
+    background-color: rgba(244, 67, 54, 0.2) !important;
+    border: 1px solid #f44336 !important;
+    animation: combatGlow 2s infinite alternate;
+}
+#hud-wc.skill-stat-container:hover { 
+    background-color: rgba(76, 175, 80, 0.2) !important;
+    border: 1px solid #4caf50 !important;
+    animation: woodcuttingGlow 2s infinite alternate;
+}
+#hud-mn.skill-stat-container:hover { 
+    background-color: rgba(158, 158, 158, 0.2) !important;
+    border: 1px solid #9e9e9e !important;
+    animation: miningGlow 2s infinite alternate;
+}
+#hud-bs.skill-stat-container:hover { 
+    background-color: rgba(255, 152, 0, 0.2) !important;
+    border: 1px solid #ff9800 !important;
+    animation: blacksmithingGlow 2s infinite alternate;
+}
+#hud-ck.skill-stat-container:hover { 
+    background-color: rgba(255, 235, 59, 0.2) !important;
+    border: 1px solid #ffeb3b !important;
+    animation: cookingGlow 2s infinite alternate;
+}
+#hud-fm.skill-stat-container:hover { 
+    background-color: rgba(139, 195, 74, 0.2) !important;
+    border: 1px solid #8bc34a !important;
+    animation: farmingGlow 2s infinite alternate;
+}
+#hud-en.skill-stat-container:hover { 
+    background-color: rgba(156, 39, 176, 0.2) !important;
+    border: 1px solid #9c27b0 !important;
+    animation: enchantingGlow 2s infinite alternate;
+}
+#hud-dg.skill-stat-container:hover { 
+    background-color: rgba(139, 69, 19, 0.2) !important;
+    border: 1px solid #8b4513 !important;
+    animation: dungeoneeringGlow 2s infinite alternate;
+}
+
+/* === Main Menu HP Bar (below HUD) === */
+.hp-bar-container {
+    width: 100%; max-width: 100%; height: 20px; background-color: #333;
+    border-radius: 5px; overflow: hidden; margin: 1px auto 1px; /* Tight margin */
+    position: relative;
+}
+.hp-bar {
+    height: 100%; background-color: #4caf50; /* Green by default */
+    border-radius: 5px; width: 0%; /* JS sets width */
+    transition: width 0.3s, background-color 0.3s;
+}
+/* Ensure main menu HP bar is green */
+#main-menu-hp-bar-fill {
+    background-color: #4caf50;
+}
+.hp-text {
+    position: absolute; left: 0; right: 0; top: 0; bottom: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 500; font-size: 14px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); z-index: 1;
+}
+/* Low HP Warning for Main Menu HP Bar */
+.hp-bar-container.hud-hp-low .hp-bar, /* Class on container */
+.hp-bar-container.hud-hp-low #main-menu-hp-bar-fill, /* Specific for main menu */
+#hud-hp.hud-hp-low .hp-bar { /* If #hud-hp is used and has .hp-bar child */
+    background-color: #f44336 !important; /* Red for low HP, !important if needed */
+    animation: pulse-red 1.5s infinite alternate;
+}
+@keyframes pulse-red {
+    from { box-shadow: 0 0 8px rgba(255, 0, 0, 0.6), 0 0 3px rgba(255,0,0,0.4) inset; }
+    to { box-shadow: 0 0 12px rgba(255, 0, 0, 0.9), 0 0 5px rgba(255,0,0,0.7) inset; }
+}
+
+/* Desktop mode HUD adjustments */
+body.desktop-mode-active #hud,
+body.desktop-mode-active .hp-bar-container {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: #252526; /* Match parent background */
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    border-bottom: 1px solid #333;
+}
+
+body.desktop-mode-active #hud {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 20px;
+    border-radius: 0;
+    box-shadow: none;
+    margin-bottom: 0;
+}
+
+body.desktop-mode-active .hud-left {
+    display: none; /* Hide skill HUD in desktop mode */
+}
+
+body.desktop-mode-active .hud-right {
+    order: 1; /* Resource panel (Gold & Perk Points) goes first */
+    width: 100%;
+    justify-content: flex-start;
+    margin-bottom: 0;
+}
+
+body.desktop-mode-active .hp-bar-container {
+    margin-top: 0;
+    margin-bottom: 0;
+    border-radius: 0;
+    padding: 5px 20px;
+    box-sizing: content-box;
+    max-width: none;
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 900px) {
+    body:not(.desktop-mode-active) #hud {
+        flex-direction: column; align-items: stretch;
+    }
+    body:not(.desktop-mode-active) .hud-left,
+    body:not(.desktop-mode-active) .hud-right {
+        width: 100%; gap: 10px;
+    }
+    body:not(.desktop-mode-active) .hud-right {
+        justify-content: space-around; margin-top: 10px;
+    }
+    body:not(.desktop-mode-active) .skill-stat-container {
+        flex-grow: 1;
+    }
+}
+
+@media (max-width: 480px) {
+    body:not(.desktop-mode-active) #hud { padding: 10px; }
+    body:not(.desktop-mode-active) .hud-left,
+    body:not(.desktop-mode-active) .hud-right { flex-direction: column; align-items: stretch; }
+
+    .stat-container { padding: 5px 8px; }
+    .skill-stat-container { min-width: auto; margin-bottom: 5px; }
+    .skill-xp-bar-container { width: 100%; }
+}

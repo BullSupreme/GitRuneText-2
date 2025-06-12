@@ -1,0 +1,2182 @@
+/* === Enhanced Enchanting Section CSS === */
+
+/* Enchanting XP Bar Colors */
+.skill-xp-bar.en { 
+    background: linear-gradient(90deg, #9c27b0 0%, #e91e63 50%, #3f51b5 100%);
+    background-size: 200% 100%;
+    animation: enchantingPulse 3s ease-in-out infinite;
+}
+
+@keyframes enchantingPulse {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Enhanced Enchanting Page Layout */
+#enchanting-section {
+    background: linear-gradient(135deg, 
+        rgba(156, 39, 176, 0.1) 0%, 
+        rgba(74, 20, 140, 0.05) 50%, 
+        rgba(25, 25, 25, 0.8) 100%);
+    border-radius: 15px;
+    padding: 25px;
+    border: 2px solid transparent;
+    background-image: 
+        linear-gradient(135deg, rgba(156, 39, 176, 0.1), rgba(25, 25, 25, 0.8)),
+        linear-gradient(45deg, #9c27b0, #e91e63, #3f51b5);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 50px);
+}
+
+#enchanting-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 30%, rgba(156, 39, 176, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(63, 81, 181, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(233, 30, 99, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+#enchanting-section > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Enhanced Main Layout Container */
+.enchanting-main-container {
+    display: flex;
+    gap: 25px;
+    margin: 25px 0;
+    min-height: 600px;
+}
+
+/* Enhanced Left Panel - Equipment Grid */
+.enchanting-left-panel {
+    flex: 0 0 320px;
+    background: linear-gradient(135deg, rgb(38, 38, 38) 0%, rgb(45, 45, 50) 100%);
+    border: 2px solid transparent;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    position: relative;
+}
+
+.enchanting-left-panel::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #9c27b0, #e91e63, #3f51b5);
+    border-radius: 15px;
+    z-index: -1;
+    opacity: 0.6;
+}
+
+/* Removed the distracting rotating animation */
+
+.enchanting-left-panel .section-title {
+    color: #fff;
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    text-align: center;
+    background: linear-gradient(45deg, #9c27b0, #e91e63, #3f51b5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    border-bottom: 2px solid;
+    border-image: linear-gradient(45deg, #9c27b0, #e91e63, #3f51b5) 1;
+    text-shadow: 0 0 20px rgba(156, 39, 176, 0.5);
+}
+
+/* Enhanced Equipment Grid */
+.enchanting-equipment-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.enchanting-equipment-slot {
+    background: linear-gradient(135deg, rgb(51, 51, 51) 0%, rgb(68, 68, 68) 100%);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    backdrop-filter: blur(5px);
+    overflow: hidden;
+}
+
+.enchanting-equipment-slot::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent, rgba(156, 39, 176, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.enchanting-equipment-slot:hover::before {
+    opacity: 1;
+}
+
+.enchanting-equipment-slot:hover {
+    border: 2px solid #9c27b0;
+    background: linear-gradient(135deg, rgba(156, 39, 176, 0.4) 0%, rgb(68, 68, 68) 100%);
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 
+        0 8px 25px rgba(156, 39, 176, 0.4),
+        0 0 20px rgba(156, 39, 176, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.enchanting-equipment-slot.selected {
+    border: 2px solid #e91e63;
+    background: linear-gradient(135deg, rgba(233, 30, 99, 0.5) 0%, rgba(156, 39, 176, 0.4) 100%);
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 
+        0 12px 30px rgba(233, 30, 99, 0.5),
+        0 0 30px rgba(233, 30, 99, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    z-index: 2;
+    animation: selectedPulse 2s ease-in-out infinite;
+}
+
+@keyframes selectedPulse {
+    0%, 100% { 
+        box-shadow: 
+            0 12px 30px rgba(233, 30, 99, 0.5),
+            0 0 30px rgba(233, 30, 99, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    50% { 
+        box-shadow: 
+            0 12px 35px rgba(233, 30, 99, 0.7),
+            0 0 40px rgba(233, 30, 99, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+}
+
+.enchanting-equipment-slot.equipment-slot-empty {
+    background: linear-gradient(135deg, rgb(42, 42, 42) 0%, rgb(35, 35, 35) 100%);
+    border: 2px dashed #666;
+    cursor: default;
+    opacity: 0.7;
+}
+
+.enchanting-equipment-slot.equipment-slot-empty:hover {
+    border: 2px dashed #666;
+    background: linear-gradient(135deg, rgb(42, 42, 42) 0%, rgb(35, 35, 35) 100%);
+    transform: none;
+    box-shadow: none;
+}
+
+.enchanting-equipment-slot.equipment-slot-empty::before {
+    display: none;
+}
+
+.enchanting-slot-name {
+    font-size: 0.8em;
+    color: #bbb;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.enchanting-slot-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+}
+
+.enchanting-item-name {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.enchanting-item-icon {
+    font-size: 2em;
+    margin: 8px 0;
+}
+
+.enchanting-item-icon img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.enchanting-item-stats {
+    font-size: 0.75em;
+    color: #ccc;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.enchanting-item-enchanted {
+    font-size: 0.7em;
+    color: #9C27B0;
+    font-style: italic;
+    margin-top: 3px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(156, 39, 176, 0.3);
+    display: inline-block;
+}
+
+/* Enchant Stats Container */
+.enchant-stats-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-top: 5px;
+}
+
+.enchant-stats-container span {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 1em;
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Right Panel - Enchanting Interface */
+.enchanting-right-panel {
+    flex: 1;
+    background-color: #252526;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 15px;
+    position: relative;
+}
+
+.enchanting-panel {
+    margin-bottom: 20px;
+}
+
+.enchanting-panel .section-title {
+    color: #fff;
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 12px;
+    border-bottom: 2px solid #4CAF50;
+    padding-bottom: 6px;
+}
+
+/* Default Prompt */
+.enchanting-prompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    text-align: center;
+}
+
+.enchanting-prompt-icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.enchanting-prompt-text {
+    font-size: 1.2em;
+    color: #999;
+    font-style: italic;
+}
+
+/* Enhanced Right Panel - Enchanting Options */
+.enchanting-right-panel {
+    flex: 1;
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(40, 40, 45, 0.95) 100%);
+    border: 2px solid transparent;
+    border-radius: 15px;
+    padding: 25px;
+    position: relative;
+    backdrop-filter: blur(10px);
+    min-height: 500px;
+    overflow: hidden;
+}
+
+.enchanting-right-panel::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #3f51b5, #9c27b0, #e91e63, #3f51b5);
+    border-radius: 15px;
+    z-index: -1;
+    animation: borderRotate 6s linear infinite reverse;
+}
+
+/* Enhanced Selected Item Display */
+.selected-item-card {
+    background: linear-gradient(135deg, rgba(156, 39, 176, 0.15) 0%, rgba(42, 42, 42, 0.9) 100%);
+    border: 2px solid;
+    border-image: linear-gradient(45deg, #9c27b0, #e91e63, #3f51b5) 1;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 25px;
+    position: relative;
+    overflow: hidden;
+}
+
+.selected-item-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    animation: shimmerPass 3s ease-in-out infinite;
+}
+
+@keyframes shimmerPass {
+    0% { left: -100%; }
+    50% { left: 100%; }
+    100% { left: 100%; }
+}
+
+.selected-item-card .item-icon {
+    font-size: 3em;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 10px rgba(156, 39, 176, 0.6));
+    animation: iconFloat 3s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+}
+
+.selected-item-card .item-name {
+    font-size: 1.4em;
+    font-weight: bold;
+    background: linear-gradient(45deg, #9c27b0, #e91e63, #3f51b5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+    text-shadow: 0 0 20px rgba(156, 39, 176, 0.5);
+}
+
+.selected-item-card .item-type {
+    font-size: 1em;
+    color: #ccc;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+/* Stats Display */
+.item-stats-display {
+    background-color: #1e1e1e;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 12px;
+    margin: 10px auto;
+    max-width: 400px;
+    width: 90%;
+}
+
+/* Enchantment Container Styles */
+.enchantment-container {
+    background: linear-gradient(135deg, rgba(42, 42, 42, 0.8) 0%, rgba(35, 35, 40, 0.9) 100%);
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 4px 0;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.enchantment-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent, rgba(156, 39, 176, 0.05), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.enchantment-container:hover::before {
+    opacity: 1;
+}
+
+.enchantment-container:hover {
+    border: 1px solid #9c27b0;
+    background: linear-gradient(135deg, rgba(156, 39, 176, 0.15) 0%, rgba(42, 42, 42, 0.9) 100%);
+    transform: translateY(-1px) scale(1.01);
+    box-shadow: 
+        0 4px 12px rgba(156, 39, 176, 0.2),
+        0 0 8px rgba(156, 39, 176, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.enchantment-container.clickable-enchantment {
+    cursor: pointer;
+    border-color: #666;
+}
+
+.enchantment-container.clickable-enchantment:hover {
+    border-color: #9c27b0;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 
+        0 6px 16px rgba(156, 39, 176, 0.3),
+        0 0 12px rgba(156, 39, 176, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.enchantment-container.locked {
+    border-color: #ffd700;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(42, 42, 42, 0.9) 100%);
+    box-shadow: 
+        0 2px 8px rgba(255, 215, 0, 0.2),
+        inset 0 1px 0 rgba(255, 215, 0, 0.1);
+}
+
+.enchantment-container.locked:hover {
+    border-color: #ffed4e;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(42, 42, 42, 0.9) 100%);
+    transform: translateY(-1px) scale(1.01);
+    box-shadow: 
+        0 4px 12px rgba(255, 215, 0, 0.3),
+        0 0 8px rgba(255, 215, 0, 0.2),
+        inset 0 1px 0 rgba(255, 215, 0, 0.15);
+}
+
+.stats-section-title {
+    font-size: 1em;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #555;
+    padding-bottom: 4px;
+}
+
+.base-stats-section, 
+.enchanted-stats-section {
+    margin-bottom: 10px;
+}
+
+.base-stat-line {
+    color: #ddd;
+    font-size: 0.9em;
+    margin: 3px 0;
+}
+
+.enchantment-line {
+    font-size: 0.9em;
+    margin: 3px 0;
+    font-weight: bold;
+}
+
+.no-enchantments {
+    color: #777;
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+/* Enhanced Enchantment Tier Options */
+.enchanting-tier-option {
+    background: linear-gradient(135deg, rgba(42, 42, 42, 0.8) 0%, rgba(35, 35, 40, 0.9) 100%);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 15px 0;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(3px);
+}
+
+.enchanting-tier-option::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent, rgba(156, 39, 176, 0.05), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.enchanting-tier-option:hover::before {
+    opacity: 1;
+}
+
+.enchanting-tier-option:hover {
+    border: 2px solid #9c27b0;
+    background: linear-gradient(135deg, rgba(156, 39, 176, 0.2) 0%, rgba(42, 42, 42, 0.9) 100%);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 
+        0 8px 25px rgba(156, 39, 176, 0.3),
+        0 0 20px rgba(156, 39, 176, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.enchanting-tier-option.selected {
+    border: 2px solid #e91e63;
+    background: linear-gradient(135deg, rgba(233, 30, 99, 0.25) 0%, rgba(156, 39, 176, 0.15) 100%);
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 
+        0 12px 30px rgba(233, 30, 99, 0.4),
+        0 0 30px rgba(233, 30, 99, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    animation: tierSelectedPulse 2s ease-in-out infinite;
+}
+
+@keyframes tierSelectedPulse {
+    0%, 100% { 
+        box-shadow: 
+            0 12px 30px rgba(233, 30, 99, 0.4),
+            0 0 30px rgba(233, 30, 99, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+    50% { 
+        box-shadow: 
+            0 12px 35px rgba(233, 30, 99, 0.6),
+            0 0 40px rgba(233, 30, 99, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+}
+
+.enchanting-tier-option.disabled {
+    background: linear-gradient(135deg, rgba(26, 26, 26, 0.5) 0%, rgba(20, 20, 20, 0.7) 100%);
+    border: 2px solid #333;
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(0.7);
+}
+
+.enchanting-tier-option.disabled:hover {
+    border: 2px solid #333;
+    background: linear-gradient(135deg, rgba(26, 26, 26, 0.5) 0%, rgba(20, 20, 20, 0.7) 100%);
+    transform: none;
+    box-shadow: none;
+}
+
+.enchanting-tier-option.disabled::before {
+    display: none;
+}
+
+.tier-option-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.tier-option-name {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #fff;
+}
+
+.tier-option-level {
+    font-size: 0.9em;
+    color: #4CAF50;
+    background-color: #1e1e1e;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.tier-option-description {
+    color: #bbb;
+    font-size: 0.9em;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.tier-option-cost {
+    color: #FFD700;
+    font-size: 0.9em;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.tier-option-potential {
+    color: #9C27B0;
+    font-size: 0.85em;
+    margin-bottom: 12px;
+    line-height: 1.3;
+}
+
+/* Enhanced Enchant Button */
+.enchant-button {
+    background: linear-gradient(135deg, #9c27b0 0%, #e91e63 50%, #3f51b5 100%);
+    background-size: 200% 100%;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 15px 25px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 
+        0 4px 15px rgba(156, 39, 176, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.enchant-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.enchant-button:hover::before {
+    left: 100%;
+}
+
+.enchant-button:hover {
+    background-position: 100% 0;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 
+        0 8px 25px rgba(156, 39, 176, 0.6),
+        0 0 20px rgba(156, 39, 176, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    animation: enchantButtonPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes enchantButtonPulse {
+    0%, 100% { 
+        filter: brightness(1) saturate(1);
+    }
+    50% { 
+        filter: brightness(1.2) saturate(1.3);
+    }
+}
+
+.enchant-button.disabled {
+    background: linear-gradient(135deg, #555 0%, #444 100%);
+    color: #999;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    filter: grayscale(1);
+    animation: none;
+}
+
+.enchant-button.disabled:hover {
+    background: linear-gradient(135deg, #555 0%, #444 100%);
+    transform: none;
+    box-shadow: none;
+}
+
+.enchant-button.disabled::before {
+    display: none;
+}
+
+/* Enhanced Choice Buttons */
+.enchanting-choice-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+.enchanting-choice-buttons button {
+    flex: 1;
+    padding: 10px 15px;
+    font-size: 1em;
+    font-weight: bold;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+}
+
+/* Enchanting Process Visual Effects */
+.enchanting-process-active {
+    animation: enchantingProcess 3s ease-in-out infinite;
+}
+
+@keyframes enchantingProcess {
+    0%, 100% { 
+        filter: brightness(1) hue-rotate(0deg);
+        transform: scale(1);
+    }
+    25% { 
+        filter: brightness(1.2) hue-rotate(90deg);
+        transform: scale(1.02);
+    }
+    50% { 
+        filter: brightness(1.4) hue-rotate(180deg);
+        transform: scale(1.05);
+    }
+    75% { 
+        filter: brightness(1.2) hue-rotate(270deg);
+        transform: scale(1.02);
+    }
+}
+
+/* Magical Particles Effect */
+.enchanting-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: radial-gradient(circle, #9c27b0, transparent);
+    border-radius: 50%;
+    animation: floatParticle 3s ease-in-out infinite;
+}
+
+.particle:nth-child(2n) {
+    background: radial-gradient(circle, #e91e63, transparent);
+    animation-delay: -1s;
+}
+
+.particle:nth-child(3n) {
+    background: radial-gradient(circle, #3f51b5, transparent);
+    animation-delay: -2s;
+}
+
+@keyframes floatParticle {
+    0% { 
+        transform: translateY(100vh) scale(0);
+        opacity: 0;
+    }
+    10% { 
+        opacity: 1;
+        transform: translateY(90vh) scale(1);
+    }
+    90% { 
+        opacity: 1;
+        transform: translateY(10vh) scale(1);
+    }
+    100% { 
+        transform: translateY(0) scale(0);
+        opacity: 0;
+    }
+}
+
+/* Success/Failure Animation */
+.enchant-success {
+    animation: enchantSuccess 1s ease-out;
+}
+
+.enchant-failure {
+    animation: enchantFailure 1s ease-out;
+}
+
+@keyframes enchantSuccess {
+    0% { transform: scale(1); filter: brightness(1); }
+    50% { 
+        transform: scale(1.1); 
+        filter: brightness(1.5) drop-shadow(0 0 20px #4caf50);
+    }
+    100% { transform: scale(1); filter: brightness(1); }
+}
+
+@keyframes enchantFailure {
+    0% { transform: scale(1); filter: brightness(1); }
+    25% { 
+        transform: scale(0.95) rotateZ(-2deg); 
+        filter: brightness(0.8) drop-shadow(0 0 10px #f44336);
+    }
+    75% { 
+        transform: scale(0.95) rotateZ(2deg); 
+        filter: brightness(0.8) drop-shadow(0 0 10px #f44336);
+    }
+    100% { transform: scale(1) rotateZ(0deg); filter: brightness(1); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .enchanting-main-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .enchanting-left-panel {
+        flex: none;
+        width: 100%;
+    }
+    
+    .enchanting-equipment-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .enchanting-equipment-slot {
+        min-height: 120px;
+        padding: 12px;
+    }
+    
+    .enchanting-choice-buttons {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+}
+
+/* Enchanting Info Panel */
+.enchanting-info-panel {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    border-radius: 8px;
+}
+
+.enchanting-info-title {
+    color: #4CAF50;
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.enchanting-info-content {
+    font-size: 0.9em;
+    line-height: 1.4;
+    color: #ccc;
+}
+
+.enchanting-info-content p {
+    margin: 8px 0;
+}
+
+.enchanting-info-content strong {
+    color: #fff;
+}
+
+/* Enchanting Comparison Display */
+.enchanting-comparison-display {
+    display: flex;
+    gap: 20px;
+    margin: 15px 0;
+}
+
+.enchanting-current-side,
+.enchanting-new-side {
+    flex: 1;
+    background-color: #2a2a2a;
+    border: 2px solid #555;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.enchanting-current-side {
+    border-color: #4a4a4a;
+}
+
+.enchanting-new-side {
+    border-color: #4CAF50;
+}
+
+.comparison-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    color: #fff;
+}
+
+.enchanting-new-side .comparison-title {
+    color: #4CAF50;
+}
+
+/* Resource List Overrides for Enchanting */
+.enchanting-section .resource-list {
+    background-color: #252526;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.enchanting-section .section-title {
+    color: #fff !important;
+    margin-bottom: 15px !important;
+    font-size: 1.2em !important;
+    border-bottom: 2px solid #4CAF50 !important;
+    padding-bottom: 8px !important;
+}
+
+/* Permit Status for Enchanting */
+.enchanting-section .permit-status {
+    background-color: #1e1e1e;
+    border: 1px solid #4CAF50;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 15px 0;
+}
+
+/* === New Redesigned Enchanting Layout === */
+
+/* Main container for state management */
+.enchanting-main-container {
+    position: relative;
+    min-height: 400px;
+    height: auto;
+    overflow: visible;
+    flex: 1;
+}
+
+/* State management */
+.enchanting-state {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100%;
+    opacity: 0;
+    transform: translateX(100px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+.enchanting-state.active {
+    position: relative;
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+    top: auto;
+    left: auto;
+}
+
+/* Overview State Styles */
+#enchanting-overview-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    padding: 10px;
+    min-height: 400px;
+}
+
+.enchanting-overview-header {
+    margin-bottom: 15px;
+}
+
+.enchanting-overview-header .section-title {
+    font-size: 2.2em;
+    background: linear-gradient(45deg, #9c27b0, #e91e63, #3f51b5);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.enchanting-overview-subtitle {
+    font-size: 1.1em;
+    color: #aaa;
+    opacity: 0.8;
+}
+
+/* Centered equipment grid */
+.enchanting-equipment-grid.centered {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    max-width: 1000px;
+    padding: 10px;
+}
+
+.enchanting-equipment-grid.centered .enchanting-equipment-slot {
+    transform: scale(0.95);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    background: linear-gradient(#2a2a2a, #2a2a2a) padding-box,
+                linear-gradient(45deg, transparent, rgba(156, 39, 176, 0.3), transparent) border-box;
+}
+
+.enchanting-equipment-grid.centered .enchanting-equipment-slot:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(156, 39, 176, 0.3);
+    border-color: rgba(156, 39, 176, 0.5);
+}
+
+.enchanting-equipment-grid.centered .enchanting-equipment-slot:hover::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #9c27b0, #e91e63, #3f51b5);
+    border-radius: 12px;
+    z-index: -1;
+    opacity: 0.7;
+}
+
+/* Detail State Styles */
+#enchanting-detail-state {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 30px;
+    padding: 20px;
+    min-height: 400px;
+    align-items: start;
+}
+
+/* Selected Item Panel */
+.enchanting-selected-panel {
+    background: linear-gradient(135deg, rgba(42, 42, 42, 0.95), rgba(35, 35, 35, 0.95));
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid rgba(156, 39, 176, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    height: fit-content;
+}
+
+.selected-item-header {
+    margin-bottom: 20px;
+}
+
+.enchanting-back-btn {
+    background: linear-gradient(45deg, #9c27b0, #e91e63);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.enchanting-back-btn:hover {
+    background: linear-gradient(45deg, #ad35c4, #f02d75);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(156, 39, 176, 0.4);
+}
+
+.enchanting-back-btn .button-icon {
+    font-size: 1.1em;
+}
+
+.selected-item-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.selected-item-display {
+    background: rgba(25, 25, 25, 0.5);
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid rgba(156, 39, 176, 0.2);
+}
+
+/* Enchanting Options Panel */
+.enchanting-options-panel {
+    background: linear-gradient(135deg, rgba(42, 42, 42, 0.95), rgba(35, 35, 35, 0.95));
+    border-radius: 15px;
+    padding: 25px;
+    border: 1px solid rgba(156, 39, 176, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    height: fit-content;
+    overflow-y: auto;
+}
+
+.enchanting-options-panel .section-title {
+    background: linear-gradient(45deg, #9c27b0, #e91e63);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Panel transitions within detail state */
+.enchanting-options-panel .enchanting-panel {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.enchanting-options-panel .enchanting-panel.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    position: relative;
+}
+
+/* Enhanced equipment slot animations */
+.enchanting-equipment-slot {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.enchanting-equipment-slot.selecting {
+    animation: selectingPulse 0.6s ease-in-out;
+    border-color: #9c27b0 !important;
+    box-shadow: 0 0 20px rgba(156, 39, 176, 0.5);
+}
+
+@keyframes selectingPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Ring-specific enhancements */
+.ring-enchanting-title {
+    text-align: center;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: linear-gradient(135deg, rgba(156, 39, 176, 0.1), rgba(233, 30, 99, 0.1));
+    border-radius: 10px;
+    border: 1px solid rgba(156, 39, 176, 0.3);
+}
+
+.ring-enchanting-title h3 {
+    background: linear-gradient(45deg, #9c27b0, #e91e63);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0 0 10px 0;
+    font-size: 1.4em;
+}
+
+.ring-already-enchanted {
+    text-align: center;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(255, 193, 7, 0.1));
+    border-radius: 15px;
+    border: 2px solid rgba(255, 152, 0, 0.3);
+}
+
+.enchantment-limit-message h3 {
+    color: #ff9800;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.enchantment-limit-message p {
+    color: #ffc107;
+    margin: 8px 0;
+    line-height: 1.5;
+}
+
+/* Responsive design */
+@media (max-width: 1400px) {
+    .enchanting-main-container {
+        height: auto;
+    }
+    
+    #enchanting-detail-state {
+        gap: 25px;
+        padding: 15px;
+    }
+    
+    .enchanting-equipment-grid.centered {
+        max-width: 900px;
+    }
+}
+
+@media (max-width: 1200px) {
+    #enchanting-detail-state {
+        grid-template-columns: 280px 1fr;
+        gap: 20px;
+        padding: 15px;
+    }
+    
+    .enchanting-selected-panel {
+        padding: 15px;
+    }
+    
+    .enchanting-options-panel {
+        padding: 20px;
+        height: auto;
+    }
+    
+    .enchanting-equipment-grid.centered {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 10px;
+        max-width: 800px;
+        padding: 10px;
+    }
+    
+    .enchanting-overview-header .section-title {
+        font-size: 2em;
+    }
+}
+
+@media (max-width: 992px) {
+    .enchanting-main-container {
+        height: auto;
+    }
+    
+    #enchanting-detail-state {
+        grid-template-columns: 260px 1fr;
+        gap: 15px;
+        padding: 10px;
+    }
+    
+    .enchanting-equipment-grid.centered {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 8px;
+        padding: 8px;
+    }
+    
+    .enchanting-overview-header .section-title {
+        font-size: 1.9em;
+    }
+    
+    .selected-item-title {
+        font-size: 1.2em;
+    }
+    
+    .enchanting-options-panel .section-title {
+        font-size: 1.3em;
+    }
+}
+
+@media (max-width: 768px) {
+    .enchanting-main-container {
+        height: auto;
+        min-height: 400px;
+    }
+    
+    .enchanting-nav {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    .enchanting-nav .compact-nav-title {
+        text-align: center;
+        font-size: 1.2em;
+    }
+    
+    .enchanting-status-info {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .enchanting-nav #gems-conversion-btn {
+        margin: 0 auto;
+    }
+    
+    .enchanting-nav .compact-nav-buttons {
+        margin: 0;
+        justify-content: center;
+    }
+    
+    #enchanting-overview-state {
+        min-height: 400px;
+        padding: 10px 5px;
+    }
+    
+    .enchanting-overview-header {
+        margin-bottom: 10px;
+    }
+    
+    .enchanting-overview-header .section-title {
+        font-size: 1.6em;
+        line-height: 1.2;
+    }
+    
+    .enchanting-overview-subtitle {
+        font-size: 1em;
+    }
+    
+    #enchanting-detail-state {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 10px;
+        min-height: 400px;
+    }
+    
+    .enchanting-selected-panel {
+        order: 2;
+        padding: 15px;
+    }
+    
+    .enchanting-options-panel {
+        order: 1;
+        padding: 15px;
+        height: auto;
+    }
+    
+    .enchanting-equipment-grid.centered {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 4px;
+        padding: 5px;
+        max-width: 100%;
+    }
+    
+    .enchanting-equipment-slot {
+        padding: 4px;
+        min-height: 70px;
+    }
+    
+    .enchanting-slot-name {
+        font-size: 0.8em;
+        font-weight: bold;
+    }
+    
+    .enchanting-item-name {
+        font-size: 0.8em;
+    }
+    
+    .enchanting-item-stats {
+        font-size: 0.75em;
+        line-height: 1.3;
+    }
+    
+    .enchanting-back-btn {
+        padding: 6px 12px;
+        font-size: 0.8em;
+    }
+    
+    .selected-item-title {
+        font-size: 1.1em;
+    }
+    
+    .enchanting-options-panel .section-title {
+        font-size: 1.2em;
+        margin-bottom: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .enchanting-main-container {
+        height: auto;
+        min-height: 400px;
+    }
+    
+    #enchanting-overview-state {
+        min-height: 400px;
+        padding: 8px 4px;
+    }
+    
+    .enchanting-overview-header .section-title {
+        font-size: 1.4em;
+    }
+    
+    .enchanting-overview-subtitle {
+        font-size: 0.9em;
+    }
+    
+    #enchanting-detail-state {
+        gap: 10px;
+        padding: 5px;
+        min-height: 400px;
+    }
+    
+    .enchanting-selected-panel,
+    .enchanting-options-panel {
+        padding: 12px;
+        border-radius: 10px;
+    }
+    
+    .enchanting-options-panel {
+        height: auto;
+    }
+    
+    .enchanting-equipment-grid.centered {
+        grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+        gap: 4px;
+        padding: 6px;
+    }
+    
+    .enchanting-equipment-slot {
+        padding: 6px;
+        border-radius: 8px;
+        min-height: 85px;
+    }
+    
+    .enchanting-slot-name {
+        font-size: 0.9em;
+        margin-bottom: 6px;
+        font-weight: bold;
+    }
+    
+    .enchanting-item-name {
+        font-size: 0.9em;
+    }
+    
+    .enchanting-item-icon {
+        font-size: 1.1em;
+    }
+    
+    .enchanting-item-stats {
+        font-size: 0.8em;
+        line-height: 1.3;
+    }
+    
+    .enchanting-item-enchanted {
+        font-size: 0.7em;
+        padding: 2px 6px;
+    }
+    
+    .enchanting-back-btn {
+        padding: 5px 10px;
+        font-size: 0.75em;
+        margin-bottom: 10px;
+    }
+    
+    .selected-item-title {
+        font-size: 1em;
+        margin-bottom: 8px;
+    }
+    
+    .enchanting-options-panel .section-title {
+        font-size: 1.1em;
+        margin-bottom: 12px;
+    }
+    
+    /* Adjust equipment slot hover effects for mobile */
+    .enchanting-equipment-grid.centered .enchanting-equipment-slot:hover {
+        transform: scale(1.01);
+    }
+    
+    /* Ring enchanting specific mobile adjustments */
+    .ring-enchanting-title {
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .ring-enchanting-title h3 {
+        font-size: 1.1em;
+        margin-bottom: 5px;
+    }
+    
+    .ring-already-enchanted {
+        padding: 20px 15px;
+    }
+    
+    .enchantment-limit-message h3 {
+        font-size: 1.1em;
+        margin-bottom: 10px;
+    }
+    
+    .enchantment-limit-message p {
+        font-size: 0.9em;
+        margin: 6px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .enchanting-overview-header .section-title {
+        font-size: 1.2em;
+    }
+    
+    .enchanting-equipment-grid.centered {
+        grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
+        gap: 4px;
+        padding: 6px;
+    }
+    
+    .enchanting-equipment-slot {
+        padding: 4px;
+        min-height: 80px;
+    }
+    
+    .enchanting-slot-name {
+        font-size: 0.8em;
+        font-weight: bold;
+    }
+    
+    .enchanting-item-name {
+        font-size: 0.8em;
+    }
+    
+    .enchanting-item-stats {
+        font-size: 0.75em;
+        line-height: 1.3;
+    }
+    
+    .enchanting-options-panel {
+        height: auto;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .enchanting-equipment-grid.centered .enchanting-equipment-slot {
+        transform: none;
+    }
+    
+    .enchanting-equipment-grid.centered .enchanting-equipment-slot:hover {
+        transform: none;
+        box-shadow: 0 4px 15px rgba(156, 39, 176, 0.2);
+    }
+    
+    .enchanting-back-btn:hover {
+        transform: none;
+    }
+}
+
+.permit-status-content {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.permit-status-label {
+    color: #bbb;
+    font-size: 0.9em;
+}
+
+.permit-status-value {
+    color: #4CAF50;
+    font-weight: bold;
+    font-size: 1em;
+}
+
+/* Magical Effects */
+.enchanting-glow {
+    animation: enchantingGlow 3s ease-in-out infinite;
+}
+
+@keyframes enchantingGlow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(156, 39, 176, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(156, 39, 176, 0.8), 0 0 30px rgba(156, 39, 176, 0.6);
+    }
+}
+
+.enchanting-sparkle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.sparkle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background-color: #9c27b0;
+    border-radius: 50%;
+    animation: sparkle 2s ease-out infinite;
+}
+
+@keyframes sparkle {
+    0% {
+        opacity: 0;
+        transform: scale(0) rotate(0deg);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1) rotate(180deg);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.5) rotate(360deg);
+    }
+}
+
+/* ===== Gem Conversion Styles ===== */
+.gem-conversion-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.gem-conversion-info {
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid #ffd700;
+}
+
+.gem-conversion-info p {
+    margin: 5px 0;
+    color: #ffffff;
+}
+
+.gem-conversion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.gem-conversion-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid;
+    transition: all 0.3s ease;
+}
+
+.gem-conversion-card.uncommon {
+    border-color: #22c55e;
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.gem-conversion-card.rare {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.gem-conversion-card.epic {
+    border-color: #a855f7;
+    background: rgba(168, 85, 247, 0.1);
+}
+
+.gem-conversion-card.legendary {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.gem-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.gem-name {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.gem-amount {
+    font-size: 1em;
+    color: #ffd700;
+    font-weight: 600;
+}
+
+.gem-conversion-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.gem-conversion-btn {
+    padding: 12px 15px;
+    border: 2px solid;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-size: 0.95em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.gem-conversion-btn.upgrade {
+    border-color: #22c55e;
+    background: rgba(34, 197, 94, 0.2);
+}
+
+.gem-conversion-btn.upgrade:hover:not(.disabled) {
+    background: rgba(34, 197, 94, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.gem-conversion-btn.downgrade {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.gem-conversion-btn.downgrade:hover:not(.disabled) {
+    background: rgba(239, 68, 68, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.gem-conversion-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: rgba(100, 100, 100, 0.2);
+    border-color: #666666;
+    color: #999999;
+}
+
+.gem-conversion-btn small {
+    display: block;
+    font-size: 0.8em;
+    margin-top: 2px;
+    opacity: 0.9;
+}
+
+/* ===== Enchanting Nav Header ===== */
+.enchanting-nav {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.enchanting-nav .compact-nav-title {
+    flex-shrink: 0;
+}
+
+.enchanting-status-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.enchanting-status-info .permit-status-label {
+    color: #bbb;
+    font-size: 0.9em;
+}
+
+.enchanting-status-info .permit-status-value {
+    color: #4CAF50;
+    font-weight: bold;
+    font-size: 1em;
+    margin-right: 15px;
+}
+
+.enchanting-nav #gems-conversion-btn {
+    flex-shrink: 0;
+}
+
+.enchanting-nav .compact-nav-buttons {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+/* ===== Enchanting Section Content Wrapper ===== */
+#enchanting-section .compact-nav {
+    flex-shrink: 0;
+}
+
+/* ===== Enchanting Section Footer ===== */
+#enchanting-section .section-footer-controls {
+    margin-top: auto;
+    padding-top: 20px;
+    flex-shrink: 0;
+}
+
+/* ===== Gems Button Special Styling ===== */
+
+#gems-conversion-btn {
+    position: relative;
+    background: 
+        linear-gradient(135deg, 
+            #22c55e 0%,      /* Green (Assorted Gems) */
+            #3b82f6 20%,     /* Blue (Sapphire) */
+            #10b981 40%,     /* Emerald green */
+            #ef4444 60%,     /* Red (Ruby) */
+            #8b5cf6 80%,     /* Purple (Diamond) */
+            #f59e0b 100%     /* Gold (Dragon Gem) */
+        ),
+        /* Gem facet overlay patterns for crystalline texture */
+        linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 32%, rgba(255,255,255,0.3) 34%, transparent 36%),
+        linear-gradient(-45deg, transparent 30%, rgba(255,255,255,0.1) 32%, rgba(255,255,255,0.2) 34%, transparent 36%),
+        linear-gradient(90deg, transparent 40%, rgba(255,255,255,0.1) 42%, transparent 44%);
+    background-size: 200% 200%, 20px 20px, 25px 25px, 15px 15px;
+    border: 2px solid transparent;
+    border-radius: 0;
+    /* Gem shape using clip-path - octagonal gem cut */
+    clip-path: polygon(
+        20% 0%, 
+        80% 0%, 
+        100% 30%, 
+        100% 70%, 
+        80% 100%, 
+        20% 100%, 
+        0% 70%, 
+        0% 30%
+    );
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    box-shadow: 
+        0 4px 15px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 2px 2px 4px rgba(255, 255, 255, 0.2),
+        inset -2px -2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s ease;
+    animation: gemShimmer 3s ease-in-out infinite;
+    overflow: visible;
+    min-width: 80px;
+    min-height: 40px;
+    flex-shrink: 0;
+}
+
+#gems-conversion-btn::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(135deg, 
+        #22c55e, #3b82f6, #10b981, #ef4444, #8b5cf6, #f59e0b
+    );
+    background-size: 400% 400%;
+    border-radius: 0;
+    clip-path: polygon(
+        20% 0%, 
+        80% 0%, 
+        100% 30%, 
+        100% 70%, 
+        80% 100%, 
+        20% 100%, 
+        0% 70%, 
+        0% 30%
+    );
+    z-index: -1;
+    animation: gemBorderShimmer 4s ease-in-out infinite;
+}
+
+@keyframes gemShimmer {
+    0%, 100% { 
+        background-position: 0% 50%; 
+        filter: brightness(1);
+    }
+    50% { 
+        background-position: 100% 50%; 
+        filter: brightness(1.2);
+    }
+}
+
+@keyframes gemBorderShimmer {
+    0%, 100% { 
+        background-position: 0% 50%; 
+    }
+    50% { 
+        background-position: 100% 50%; 
+    }
+}
+
+#gems-conversion-btn:hover {
+    animation-duration: 1.5s;
+    transform: scale(1.05);
+    filter: brightness(1.3);
+}
+
+/* Responsive Design for Enchanting */
+@media (max-width: 768px) {
+    .enchanting-main-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .enchanting-left-panel {
+        flex: none;
+        order: 2;
+    }
+    
+    .enchanting-equipment-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+    
+    .gem-conversion-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .enchanting-equipment-slot {
+        min-height: 100px;
+        padding: 8px;
+    }
+    
+    .enchanting-item-icon {
+        font-size: 1.5em;
+    }
+    
+    .enchanting-choice-buttons {
+        flex-direction: column;
+    }
+    
+    .gem-conversion-card {
+        padding: 15px;
+    }
+}
+
+/* === Cotton Candy Equip Buttons in Enchanting === */
+.enchanting-equipment-slot .equip-btn {
+    background: linear-gradient(135deg, 
+        #ff9ff3 0%,     /* Light pink */
+        #f368e0 25%,    /* Pink */
+        #cc8ef5 50%,    /* Light purple */
+        #74b9ff 75%,    /* Light blue */
+        #81ecec 100%    /* Cyan */
+    );
+    background-size: 200% 200%;
+    color: #fff;
+    font-weight: bold;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 
+        0 3px 12px rgba(255, 159, 243, 0.4),
+        0 1px 3px rgba(0, 0, 0, 0.2);
+    padding: 6px 12px;
+    margin-top: 6px;
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+    animation: cottonCandyShimmer 3s ease-in-out infinite;
+}
+
+.enchanting-equipment-slot .equip-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.4), 
+        transparent
+    );
+    transition: left 0.5s ease;
+}
+
+.enchanting-equipment-slot .equip-btn:hover::before {
+    left: 100%;
+}
+
+.enchanting-equipment-slot .equip-btn:hover {
+    background-position: 100% 100%;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 
+        0 6px 20px rgba(255, 159, 243, 0.6),
+        0 0 15px rgba(116, 185, 255, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    animation-duration: 1.5s;
+}
+
+.enchanting-equipment-slot .equip-btn:active {
+    transform: translateY(0) scale(1.02);
+    box-shadow: 
+        0 3px 10px rgba(255, 159, 243, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+@keyframes cottonCandyShimmer {
+    0%, 100% { 
+        background-position: 0% 50%; 
+        filter: brightness(1) saturate(1);
+    }
+    50% { 
+        background-position: 100% 50%; 
+        filter: brightness(1.1) saturate(1.2);
+    }
+}
+
+/* === Enchant Button Cost Display === */
+.enchant-cost-display {
+    font-size: 0.85em;
+    line-height: 1.4;
+    margin-top: 6px;
+    opacity: 0.9;
+    text-align: center;
+}
+
+/* === Smaller Cancel Button === */
+#enchanting-cancel-btn {
+    flex: 0 0 auto !important;
+    padding: 8px 16px !important;
+    font-size: 0.9em !important;
+    min-width: 80px;
+    max-width: 120px;
+}
+
+/* === Cotton Candy Enchant Button === */
+#enchanting-perform-btn {
+    background: linear-gradient(135deg, 
+        #ff9ff3 0%,     /* Light pink */
+        #f368e0 25%,    /* Pink */
+        #cc8ef5 50%,    /* Light purple */
+        #74b9ff 75%,    /* Light blue */
+        #81ecec 100%    /* Cyan */
+    ) !important;
+    background-size: 200% 200% !important;
+    color: #fff !important;
+    font-weight: bold;
+    border: none !important;
+    border-radius: 16px !important;
+    box-shadow: 
+        0 4px 16px rgba(255, 159, 243, 0.5),
+        0 2px 4px rgba(0, 0, 0, 0.2) !important;
+    padding: 15px 25px !important;
+    font-size: 1.1em !important;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    position: relative;
+    overflow: hidden;
+    animation: cottonCandyShimmer 3s ease-in-out infinite;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#enchanting-perform-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.5), 
+        transparent
+    );
+    transition: left 0.5s ease;
+}
+
+#enchanting-perform-btn:hover::before {
+    left: 100%;
+}
+
+#enchanting-perform-btn:hover {
+    background-position: 100% 100% !important;
+    transform: translateY(-3px) scale(1.03) !important;
+    box-shadow: 
+        0 8px 28px rgba(255, 159, 243, 0.7),
+        0 0 20px rgba(116, 185, 255, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    animation-duration: 1.5s;
+}
+
+#enchanting-perform-btn:active {
+    transform: translateY(-1px) scale(1.01) !important;
+    box-shadow: 
+        0 4px 16px rgba(255, 159, 243, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+#enchanting-perform-btn.disabled {
+    background: linear-gradient(135deg, #666 0%, #555 100%) !important;
+    color: #999 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+    filter: grayscale(1) !important;
+    animation: none !important;
+}
+
+#enchanting-perform-btn.disabled:hover {
+    background: linear-gradient(135deg, #666 0%, #555 100%) !important;
+    transform: none !important;
+    box-shadow: none !important;
+}

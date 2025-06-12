@@ -12,6 +12,7 @@ import { showSection, updateHud, setActiveSkill, clearActiveSkill } from './ui.j
 import { stopAllAutoActions } from './actions.js';
 import { ORE_DATA, ITEM_DATA, TOOL_DATA } from './data.js';
 import { getSummedPyramidPerkEffects } from './perks.js';
+import { getStructurePerkEffect } from './builds.js';
 
 // Mining state variables
 let isAutoMining = false;
@@ -55,7 +56,7 @@ export function calculateMiningActionTime() {
         } else {
             // Fallback to tier-based multipliers
             const tierMultipliers = {
-                bronze: 1.0, iron: 0.9, steel: 0.85, mithril: 0.8, adamant: 0.75, rune: 0.7, dragon: 0.6
+                bronze: 1.0, iron: 0.967, steel: 0.933, mithril: 0.9, adamant: 0.9, rune: 0.867, dragon: 0.833
             };
             const tier = equippedPickaxeName.toLowerCase();
             if (tierMultipliers[tier]) {
@@ -65,8 +66,15 @@ export function calculateMiningActionTime() {
     }
     
     const speedEffects = getSummedPyramidPerkEffects();
-    if (speedEffects.gather_speed) {
-        interval *= (1 - speedEffects.gather_speed);
+    let totalSpeedBoost = speedEffects.gather_speed || 0;
+    
+    // Add global skill speed boost from perks and structures
+    totalSpeedBoost += speedEffects.global_skill_speed_boost || 0;
+    const structureSpeedBoost = getStructurePerkEffect('stronghold', 'global_skill_speed_boost') || 0;
+    totalSpeedBoost += structureSpeedBoost;
+    
+    if (totalSpeedBoost > 0) {
+        interval *= (1 - totalSpeedBoost);
     }
     
     // Apply gathering speed enchantments from pickaxe
@@ -109,7 +117,7 @@ export function updateMiningDisplay() {
     
     if (availableOresContainer) {
         // Clear the container
-        availableOresContainer.innerHTML = '<div class="section-title" style="text-align:left; font-size:1.2em; border:none; padding-bottom:5px;">Available Ores</div>';
+        availableOresContainer.innerHTML = '';
         
         // Get the player's equipped pickaxe
         const equippedPickaxeName = playerData.equipment ? playerData.equipment.pickaxe || "none" : "none";
@@ -117,9 +125,13 @@ export function updateMiningDisplay() {
         
         // Use ORE_DATA for available ores
         for (const [oreName, oreData] of Object.entries(ORE_DATA)) {
+            // Skip silver and gold ores (isRandomDrop ores)
+            if (oreData.isRandomDrop) continue;
+            
             const oreDiv = document.createElement('div');
             oreDiv.className = 'action-list-item';
             oreDiv.id = `mn-ore-${oreName.replace(/\s+/g, '-')}`;
+            oreDiv.setAttribute('data-ore-type', oreName);
             
             // Check if the player can mine this ore
             const canMine = mnLvl >= oreData.level_req && currentPickaxeTierName !== "none" &&
@@ -130,8 +142,13 @@ export function updateMiningDisplay() {
                 oreDiv.title = mnLvl < oreData.level_req ? `Requires Mining Lvl ${oreData.level_req}` : `Requires a better pickaxe.`;
             }
             
-            // Use ORE_DATA for emoji and name
-            let oreDisplayText = `${oreData.emoji} ${oreData.item_name.replace(/\b(ore)\b/i, 'Ore').replace(/\b(coal)\b/i, 'Coal').replace(/\b(special dragon ore)\b/i, 'Special Dragon Ore')} (Lvl: ${oreData.level_req}, XP: ${oreData.xp})`;
+            // Properly capitalize ore names
+            let itemDisplayName = oreData.item_name
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+            
+            let oreDisplayText = `${oreData.emoji} ${itemDisplayName} (Lvl: ${oreData.level_req}, XP: ${oreData.xp})`;
             if (oreData.required_pickaxe_tier && canMine === false) {
                 oreDisplayText += ` <span class="fore-red">(Req: ${oreData.required_pickaxe_tier.charAt(0).toUpperCase() + oreData.required_pickaxe_tier.slice(1)} Pickaxe)</span>`;
             }
@@ -147,6 +164,19 @@ export function updateMiningDisplay() {
             // Add active class if this is currently selected ore
             if (isAutoMining && currentMiningTarget === oreName) {
                 oreDiv.classList.add('active-action-item');
+                
+                // Add equipped pickaxe data for animation purposes
+                const equippedPickaxe = playerData.equipment?.pickaxe || 'none';
+                console.log('Setting pickaxe animation for:', oreName, 'with pickaxe:', equippedPickaxe);
+                if (equippedPickaxe !== 'none') {
+                    oreDiv.setAttribute('data-equipped-pickaxe', equippedPickaxe);
+                }
+                
+                // Set animation duration based on mining speed
+                const actionTime = calculateMiningActionTime();
+                const animationDuration = actionTime / 1000; // Convert ms to seconds
+                oreDiv.style.setProperty('--pickaxe-animation-duration', `${animationDuration}s`);
+                console.log('Setting pickaxe animation duration:', animationDuration, 'seconds (action time:', actionTime, 'ms)');
             }
             
             availableOresContainer.appendChild(oreDiv);
@@ -407,6 +437,31 @@ function singleMineAction() {
     // Add ore to inventory
     if (!playerData.inventory) playerData.inventory = {};
     playerData.inventory[oreData.item_name] = (playerData.inventory[oreData.item_name] || 0) + totalYield;
+    
+    // Check for random silver and gold ore drops
+    const currentLevel = getLevelFromXp(playerData.skills.mining.xp);
+    
+    // Silver ore random drop (level 25+, not from tin/copper)
+    if (currentLevel >= 25 && currentMiningTarget !== 'tin' && currentMiningTarget !== 'copper') {
+        const silverDropChance = Math.min(0.1, 0.0025 + (currentLevel - 25) * 0.0025); // 0.25% base, +0.25% per level, max 10%
+        if (Math.random() < silverDropChance) {
+            playerData.inventory['silver ore'] = (playerData.inventory['silver ore'] || 0) + 1;
+            logMessage("Rare find: Silver Ore!", "fore-lightgray", "✨");
+            trackStatistic('gathering', 'rare', 1);
+            trackStatistic('gathering', 'item', 1, 'silver ore');
+        }
+    }
+    
+    // Gold ore random drop (level 50+, not from tin/copper/iron)
+    if (currentLevel >= 50 && currentMiningTarget !== 'tin' && currentMiningTarget !== 'copper' && currentMiningTarget !== 'iron') {
+        const goldDropChance = Math.min(0.05, 0.0025 + (currentLevel - 50) * 0.0025); // 0.25% base, +0.25% per level, max 5%
+        if (Math.random() < goldDropChance) {
+            playerData.inventory['gold ore'] = (playerData.inventory['gold ore'] || 0) + 1;
+            logMessage("Rare find: Gold Ore!", "fore-yellow", "✨");
+            trackStatistic('gathering', 'rare', 1);
+            trackStatistic('gathering', 'item', 1, 'gold ore');
+        }
+    }
     
     // Track gathering statistics
     trackStatistic('gathering', 'item', totalYield, oreData.item_name);

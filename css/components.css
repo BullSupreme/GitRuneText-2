@@ -1,0 +1,1163 @@
+/* ========================================
+   COMPONENT-RELATED CSS
+   ======================================== */
+
+/* === Base Button Styles === */
+button, a {
+    cursor: pointer;
+    outline: none;
+}
+
+/* === Focus Styles === */
+button:focus, a:focus, [tabindex]:focus {
+    outline: 2px solid #4caf50;
+    outline-offset: 2px;
+}
+
+/* === Hover Opacity (for devices that support hover) === */
+@media (hover: hover) {
+    button:hover, a:hover {
+        opacity: 0.9;
+    }
+}
+
+/* === Touch Target Sizing (for touch devices) === */
+@media (hover: none) {
+    button, a, .skill-stat-container, .skill-resource {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* === Utility Classes === */
+.hidden {
+    display: none !important;
+}
+
+/* === Requirement Color Classes === */
+.have-enough, .enough {
+    color: #4caf50 !important;
+    font-weight: bold;
+}
+
+.have-not-enough, .missing {
+    color: #f44336 !important;
+    font-weight: bold;
+}
+
+/* === Action List Item Base Styles === */
+.action-list-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    margin: 5px 0;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.action-list-item:hover {
+    background-color: #333;
+    border-color: #666;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.action-list-item.selected,
+.action-list-item.active-action-item {
+    background-color: rgba(76, 175, 80, 0.25) !important;
+    border-color: #4caf50 !important;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.3) !important;
+}
+
+.action-list-item:active:not(.selected):not(.active-action-item) {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #252525;
+}
+
+/* === Top Controls (Save/Load/Settings) === */
+.top-controls {
+    position: absolute; top: 10px; left: 10px; display: flex; gap: 5px; z-index: 1001;
+}
+
+.top-right-controls {
+    position: absolute; top: 10px; right: 20px; z-index: 1001;
+}
+
+.top-controls button,
+.top-right-controls button,
+.settings-btn { /* Added .settings-btn */
+    padding: 7px 12px; font-size: 0.9em; background-color: #333; color: #fff; border: 1px solid #555; border-radius: 3px;
+}
+.settings-btn { /* Specific style for cogwheel */
+    font-size: 1.2em;
+    padding: 5px 10px;
+}
+
+.top-controls button:hover,
+.top-right-controls button:hover,
+.settings-btn:hover {
+    background-color: #444; opacity: 1;
+}
+
+/* === Settings Modal === */
+.settings-modal-content { /* Class applied to modal-content for settings */
+    background: linear-gradient(135deg, #2c2c2e 0%, #1e1e20 100%);
+    border: 2px solid #444;
+    border-radius: 15px;
+    padding: 30px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.settings-modal-content h3 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #ffd700;
+    font-size: 1.8em;
+    font-family: 'Cinzel', 'Georgia', serif;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    border-bottom: 2px solid #ffd700;
+    padding-bottom: 15px;
+    letter-spacing: 1px;
+}
+.setting-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    margin: 10px 0;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.3s ease;
+}
+.setting-option:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: #ffd700;
+    transform: translateX(5px);
+}
+.setting-option label {
+    color: #e0e0e0;
+    font-size: 1.1em;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.sound-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.settings-toggle-btn.icon-btn {
+    padding: 8px 12px;
+    font-size: 1.3em;
+    min-width: 50px;
+}
+.settings-toggle-btn, .settings-action-btn {
+    padding: 10px 20px;
+    font-size: 1em;
+    background: linear-gradient(135deg, #444 0%, #555 100%);
+    color: #fff;
+    border: 2px solid #666;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    min-width: 150px;
+    text-align: center;
+}
+.settings-toggle-btn:hover, .settings-action-btn:hover {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #1a1a1a;
+    border-color: #ffd700;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255,215,0,0.3);
+    opacity: 1;
+}
+.settings-modal-content .modal-buttons {
+    margin-top: 30px;
+    justify-content: center; /* Center close button */
+}
+.settings-modal-content .btn-back {
+    padding: 12px 30px;
+    font-size: 1.1em;
+    background: linear-gradient(135deg, #c9302c 0%, #e04440 100%);
+    border: 2px solid #e04440;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+.settings-modal-content .btn-back:hover {
+    background: linear-gradient(135deg, #e04440 0%, #c9302c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(224,68,64,0.3);
+}
+.settings-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #666 50%, transparent 100%);
+    margin: 20px 0;
+}
+.settings-danger-btn {
+    background: linear-gradient(135deg, #c9302c 0%, #a02622 100%) !important;
+    border-color: #c9302c !important;
+}
+.settings-danger-btn:hover {
+    background: linear-gradient(135deg, #e04440 0%, #c9302c 100%) !important;
+    border-color: #e04440 !important;
+}
+.cheat-code-option .cheat-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.settings-input {
+    padding: 8px 12px;
+    background: #1a1a1a;
+    border: 2px solid #444;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 1em;
+    width: 150px;
+    transition: all 0.3s ease;
+}
+.settings-input:focus {
+    outline: none;
+    border-color: #ffd700;
+    background: #252525;
+    box-shadow: 0 0 8px rgba(255,215,0,0.2);
+}
+.settings-slider {
+    width: 150px;
+    height: 6px;
+    background: #1a1a1a;
+    border-radius: 5px;
+    outline: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid #444;
+    margin-right: 10px;
+}
+.settings-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #666;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+.settings-slider::-webkit-slider-thumb:hover {
+    background: linear-gradient(135deg, #ffed4e 0%, #ffd700 100%);
+    transform: scale(1.1);
+    box-shadow: 0 3px 8px rgba(255,215,0,0.4);
+}
+.settings-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #666;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+#music-volume-display {
+    color: #ffd700;
+    font-weight: 600;
+    min-width: 40px;
+    text-align: right;
+}
+.cheat-input-group .settings-action-btn {
+    min-width: 80px;
+    padding: 8px 15px;
+}
+
+/* === Generic Modal Dialog Styles === */
+.modal {
+    display: none; /* Hidden by default, JS toggles */
+    position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+    overflow: auto; background-color: rgba(0,0,0,0.8);
+    align-items: center; /* For vertical centering */
+    justify-content: center; /* For horizontal centering */
+}
+
+/* Desktop mode modal adjustments - account for left panel */
+body.desktop-mode-active .modal {
+    left: 260px; /* Offset by left panel width */
+    width: calc(100% - 260px); /* Reduce width by left panel */
+}
+.modal-content {
+    background-color: #2a2a2a; margin: auto; padding: 25px; border: 1px solid #444;
+    width: 80%; max-width: 600px; border-radius: 8px; animation-name: animatetop;
+    animation-duration: 0.4s;
+    position: relative; /* For close button positioning */
+}
+@keyframes animatetop { from {top: -300px; opacity: 0} to {top: 0; opacity: 1} }
+.close-button { /* General modal close button */
+    color: #aaa; font-size: 28px; font-weight: bold;
+    position: absolute; top: 10px; right: 15px;
+}
+.close-button:hover, .close-button:focus { color: #fff; text-decoration: none; opacity: 1; }
+.modal-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.modal-buttons button {
+    padding: 10px 15px; border-radius: 4px; border: none;
+}
+#reset-confirm-yes { background-color: #d9534f; color: white; } /* Red for confirm reset */
+#reset-confirm-yes:hover { background-color: #c9302c; opacity: 1; }
+#reset-confirm-no { background-color: #5cb85c; color: white; } /* Green for cancel */
+#reset-confirm-no:hover { background-color: #4cae4c; opacity: 1; }
+
+/* Enhanced Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Desktop mode modal overlay adjustments - account for left panel */
+body.desktop-mode-active .modal-overlay {
+  left: 260px; /* Offset by left panel width */
+  width: calc(100vw - 260px); /* Reduce width by left panel */
+}
+.modal-overlay.hidden {
+  display: none !important;
+}
+.modal-dialog {
+  background: #232526;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.35), 0 2px 8px 0 rgba(255, 196, 81, 0.08);
+  padding: 20px;
+  min-width: 650px;
+  max-width: 1200px;
+  min-height: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+@media (max-width: 900px) {
+  .modal-dialog {
+    min-width: 98vw;
+    max-width: 98vw;
+    min-height: 0;
+    max-height: 90vh;
+    padding: 12px 2vw 10px 2vw;
+  }
+}
+.modal-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 2em;
+  color: #aaa;
+  cursor: pointer;
+  transition: color 0.15s;
+  z-index: 1;
+}
+.modal-close-btn:hover {
+  color: #fff;
+}
+#cancel-equip-btn {
+  margin-top: 18px;
+  background: linear-gradient(90deg, #555 60%, #888 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 22px;
+  font-size: 1.08em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+#cancel-equip-btn:hover {
+  background: linear-gradient(90deg, #888 60%, #555 100%);
+}
+.modal-dialog .inventory-item {
+  font-size: 0.9em;
+  padding: 8px;
+  min-width: 85px;
+  min-height: auto;
+  box-shadow: 0 2px 8px 0 rgba(33, 150, 243, 0.10);
+  border-radius: 8px;
+  border: 2.5px solid transparent;
+  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+  display: flex;
+}
+
+/* === Permit/Unlock Status Display === */
+/* Used in skill sections to show permit/structure status */
+.permit-status {
+    background-color: rgba(76, 175, 80, 0.1); /* Green tint for active */
+    border-left: 3px solid #4caf50;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    font-size: 0.9em;
+    color: #e0e0e0;
+    border-radius: 4px;
+}
+
+.permit-status.inactive {
+    background-color: rgba(244, 67, 54, 0.1); /* Red tint for inactive */
+    border-left-color: #f44336;
+}
+
+/* === Button Color Themes === */
+/* These can be applied to various buttons like .menu-button, .action-button, etc. */
+.btn-woodcutting { background-color: #588f46 !important; } .btn-woodcutting:hover { background-color: #6aab55 !important; }
+.btn-mining { background-color: #6c757d !important; } .btn-mining:hover { background-color: #808890 !important; }
+.btn-blacksmithing { background-color: #d66f2e !important; } .btn-blacksmithing:hover { background-color: #e8823f !important; }
+.btn-combat { background-color: #c9302c !important; } .btn-combat:hover { background-color: #e04440 !important; }
+.btn-eat { background-color: #4cae4c !important; } .btn-eat:hover { background-color: #5cb85c !important; }
+.btn-cook { background-color: #eea236 !important; } .btn-cook:hover { background-color: #f0ad4e !important; }
+.btn-build-structures { background-color: #795548 !important; } .btn-build-structures:hover { background-color: #8d6e63 !important; }
+.btn-buy-tools { background-color: #d4af37 !important; } .btn-buy-tools:hover { background-color: #e6c350 !important; }
+.btn-sell-items { background-color: #a7b0b9 !important; } .btn-sell-items:hover { background-color: #c1c8cf !important; }
+.btn-buy-permits { background-color: #6a0dad !important; color: #fff !important; } .btn-buy-permits:hover { background-color: #832db5 !important; }
+.btn-smelt-bars { background-color: #e07a5f !important; } .btn-smelt-bars:hover { background-color: #f28c70 !important; }
+.btn-smith-weapons { background-color: #8d6e63 !important; } .btn-smith-weapons:hover { background-color: #a18278 !important; }
+/* Guild member task buttons (if using simple color classes instead of makeover's gradients) */
+.member-task-button.btn-woodcutting { background-color: #588f46 !important; }
+.member-task-button.btn-woodcutting:hover { background-color: #6aab55 !important; }
+.member-task-button.btn-mining { background-color: #6c757d !important; }
+.member-task-button.btn-mining:hover { background-color: #808890 !important; }
+.member-task-button.btn-combat { background-color: #c9302c !important; }
+.member-task-button.btn-combat:hover { background-color: #e04440 !important; }
+
+/* === Tooltip Styles === */
+/* HUD Tooltip (for skill names) */
+.tooltip {
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    background-color: #333; color: #fff; padding: 5px 10px; border-radius: 4px;
+    font-size: 12px; white-space: nowrap; z-index: 100; pointer-events: none;
+    opacity: 0; transition: opacity 0.2s; display: none; /* Hidden by default */
+}
+/* Tooltips disabled for skill containers */
+.skill-stat-container .tooltip {
+    display: none !important;
+}
+
+/* Item Tooltip Styles */
+.tooltip-box-title { font-weight: bold; margin-bottom: 5px; color: #fff; border-bottom: 1px solid #555; padding-bottom: 5px; font-size: 1em; }
+.tooltip-box-desc { font-size: 0.9em; margin-bottom: 5px; color: #ccc; }
+.tooltip-box-stats, .tooltip-box-reqs, .tooltip-box-crafting { font-size: 0.85em; margin-bottom:5px; padding-bottom:5px; border-bottom: 1px solid #444; }
+.tooltip-box-stats span, .tooltip-box-reqs span, .tooltip-box-crafting span { display:block; margin-bottom:2px; }
+.tooltip-box-crafting ul { list-style: disc inside; padding-left:10px; margin-top:5px; }
+.tooltip-box-crafting li { margin-bottom:2px; }
+.tooltip-box-value { font-size: 0.85em; color: #ffcc00; margin-top: 5px; font-weight:bold; }
+.tooltip-box-stats:last-child, .tooltip-box-reqs:last-child, .tooltip-box-crafting:last-child { border-bottom:none; padding-bottom:0; margin-bottom:0;}
+
+/* === Notification Styles === */
+/* Loot/XP Notification (Pop-up text) */
+.resource-loot-notification {
+    font-size: 0.9em; color: #4caf50; margin: 0 10px;
+    overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    max-width: 200px; opacity: 0; /* Controlled by JS and animation */
+    position: absolute; /* Positioned relative to .skill-resource or .action-list-item */
+    right: 30%; /* Example, adjust as needed */
+    top: 50%; transform: translateY(-50%);
+    background-color: rgba(20,20,20,0.8); padding: 2px 5px; border-radius: 3px;
+}
+.resource-loot-notification.active {
+    animation: notification-fade 1.5s ease-in-out; opacity: 0; /* Animation handles fade */
+}
+@keyframes notification-fade {
+    0% { opacity: 0; transform: translateY(-50%) scale(0.8); }
+    15% { opacity: 1; transform: translateY(-60%) scale(1); } /* Move up slightly */
+    70% { opacity: 1; transform: translateY(-65%) scale(1); }
+    100% { opacity: 0; transform: translateY(-75%) scale(0.8); } /* Fade out further up */
+}
+
+/* Achievement Notification */
+#achievement-notification {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    z-index: 10000;
+    cursor: pointer;
+}
+#achievement-notification.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+/* === Static Gain Text (XP Popups) === */
+.static-gain-text {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: #aaffaa;
+    font-weight: bold;
+    background: rgba(30,40,30,0.92);
+    border-radius: 8px;
+    padding: 4px 16px;
+    z-index: 10;
+    font-size: 1.13em;
+    pointer-events: none;
+    box-shadow: 0 1px 8px #0007;
+    opacity: 0;
+    animation: staticGainFade 1.7s forwards;
+}
+
+.static-gain-text.right {
+    right: 10px;
+    bottom: 8px;
+    left: auto;
+    top: auto;
+    transform: none;
+}
+
+.static-gain-text.small {
+    font-size: 0.95em;
+    padding: 2px 10px;
+    border-radius: 6px;
+}
+
+@keyframes staticGainFade {
+    0% { opacity: 0; }
+    12% { opacity: 1; }
+    88% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* === Achievement Notification Badge === */
+.achievement-notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: linear-gradient(45deg, #ff4444, #ff6666);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(255, 68, 68, 0.5);
+    animation: pulseBadge 2s infinite;
+}
+
+@keyframes pulseBadge {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(255, 68, 68, 0.5);
+    }
+    50% { 
+        transform: scale(1.1);
+        box-shadow: 0 4px 16px rgba(255, 68, 68, 0.8);
+    }
+}
+
+/* For main menu buttons */
+.menu-button {
+    position: relative;
+}
+
+/* For left panel nav items */
+.left-panel-nav-item {
+    position: relative;
+}
+
+.left-panel-nav-item-header {
+    position: relative;
+}
+
+/* === Auto Status Indicator (pulsing dot for active skills) === */
+.auto-status-indicator {
+    position: absolute; 
+    top: 3px; 
+    right: 3px; 
+    width: 8px; 
+    height: 8px;
+    border-radius: 50%; 
+    background-color: #4caf50; 
+    box-shadow: 0 0 3px #4caf50;
+    animation: pulse 1.5s infinite; 
+    display: none; /* Hidden by default */
+    z-index: 10;
+}
+
+/* Remove test styles - using specific skill animations below */
+
+/* === Pickaxe Mining Animation === */
+#mining-section .action-list-item.active-action-item {
+    position: relative;
+    overflow: visible !important;
+}
+
+#mining-section .action-list-item.active-action-item::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 110px;
+    width: 32px;
+    height: 32px;
+    background-image: url('../assets/bronze-pickaxe.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 10;
+    animation: pickaxeStrike var(--pickaxe-animation-duration, 1.2s) ease-in-out infinite;
+    transform-origin: bottom center;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+}
+
+/* Fallback for no pickaxe equipped (fists) */
+#mining-section .action-list-item.active-action-item:not([data-equipped-pickaxe])::before,
+#mining-section .action-list-item.active-action-item[data-equipped-pickaxe="none"]::before {
+    content: '✊';
+    background-image: none;
+    font-size: 1.8em;
+    width: auto;
+    height: auto;
+    animation: fistMine var(--pickaxe-animation-duration, 1.5s) ease-in-out infinite;
+}
+
+/* Pickaxe type variations */
+#mining-section .action-list-item.active-action-item[data-equipped-pickaxe="iron"]::before {
+    background-image: url('../assets/iron-pickaxe.png');
+}
+
+#mining-section .action-list-item.active-action-item[data-equipped-pickaxe="steel"]::before {
+    background-image: url('../assets/steel-pickaxe.png');
+}
+
+#mining-section .action-list-item.active-action-item[data-equipped-pickaxe="mithril"]::before {
+    background-image: url('../assets/mithril-pickaxe.png');
+}
+
+#mining-section .action-list-item.active-action-item[data-equipped-pickaxe="adamant"]::before {
+    background-image: url('../assets/adamant-pickaxe.png');
+}
+
+#mining-section .action-list-item.active-action-item[data-equipped-pickaxe="rune"]::before {
+    background-image: url('../assets/rune-pickaxe.png');
+}
+
+#mining-section .action-list-item.active-action-item[data-equipped-pickaxe="dragon"]::before {
+    background-image: url('../assets/dragon-pickaxe.png');
+    animation: dragonPickaxeStrike var(--pickaxe-animation-duration, 1.0s) ease-in-out infinite;
+    width: 36px;
+    height: 36px;
+}
+
+/* Blacksmithing HUD animations removed - animations are now on the active resource elements instead */
+
+/* Woodcutting HUD animation removed - animation is now on the active tree element instead */
+
+/* === Combat Weapon Attack Animation === */
+.monster-combat-instance.player-current-target .monster-hp-bar-container {
+    position: relative;
+    overflow: visible !important;
+}
+
+.monster-combat-instance.player-current-target .monster-hp-bar-container::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    background-image: url('../assets/bronze-2hsword.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 10;
+    transform: translateY(-50%);
+    animation: weaponStrike var(--attack-animation-duration, 1.2s) ease-in-out infinite;
+    transform-origin: center center;
+    filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.5));
+    opacity: 0.9;
+}
+
+/* Fallback for no weapon equipped (fists) */
+.monster-combat-instance.player-current-target:not([data-equipped-weapon]) .monster-hp-bar-container::before,
+.monster-combat-instance.player-current-target[data-equipped-weapon="none"] .monster-hp-bar-container::before {
+    content: '✊';
+    background-image: none;
+    font-size: 1.4em;
+    width: auto;
+    height: auto;
+    animation: fistAttack var(--attack-animation-duration, 1.5s) ease-in-out infinite;
+}
+
+/* Weapon type variations */
+.monster-combat-instance.player-current-target[data-equipped-weapon="iron 2h sword"] .monster-hp-bar-container::before {
+    background-image: url('../assets/iron-2hsword.png');
+}
+
+.monster-combat-instance.player-current-target[data-equipped-weapon="steel 2h sword"] .monster-hp-bar-container::before {
+    background-image: url('../assets/steel-2hsword.png');
+}
+
+.monster-combat-instance.player-current-target[data-equipped-weapon="mithril 2h sword"] .monster-hp-bar-container::before {
+    background-image: url('../assets/mithril-2hsword.png');
+}
+
+.monster-combat-instance.player-current-target[data-equipped-weapon="adamant 2h sword"] .monster-hp-bar-container::before {
+    background-image: url('../assets/adamant-2hsword.png');
+}
+
+.monster-combat-instance.player-current-target[data-equipped-weapon="rune 2h sword"] .monster-hp-bar-container::before {
+    background-image: url('../assets/rune-2hsword.png');
+}
+
+.monster-combat-instance.player-current-target[data-equipped-weapon="dragon 2h sword"] .monster-hp-bar-container::before {
+    background-image: url('../assets/dragon-2hsword.png');
+    animation: dragonWeaponStrike var(--attack-animation-duration, 1.0s) ease-in-out infinite;
+    width: 24px;
+    height: 24px;
+}
+
+/* AOE Whirlwind Animation */
+.monster-combat-instance.player-current-target.aoe-attack .monster-hp-bar-container::before {
+    animation: whirlwindStrike var(--attack-animation-duration, 0.8s) ease-in-out infinite;
+    transform: translateY(-50%);
+}
+
+/* Animation keyframes for tool icons */
+@keyframes fistMine {
+    0% {
+        transform: translateX(15px) translateY(2px) rotate(25deg) scale(0.75);
+        opacity: 0.5;
+    }
+    10% {
+        transform: translateX(12px) translateY(0px) rotate(20deg) scale(0.8);
+        opacity: 0.65;
+    }
+    20% {
+        transform: translateX(8px) translateY(-2px) rotate(10deg) scale(0.9);
+        opacity: 0.8;
+    }
+    30% {
+        transform: translateX(3px) translateY(-5px) rotate(-5deg) scale(1.0);
+        opacity: 0.95;
+    }
+    40% {
+        transform: translateX(-2px) translateY(-8px) rotate(-15deg) scale(1.1);
+        opacity: 1;
+    }
+    50% {
+        transform: translateX(-6px) translateY(-10px) rotate(-20deg) scale(1.15);
+        opacity: 1;
+    }
+    60% {
+        transform: translateX(-8px) translateY(-11px) rotate(-22deg) scale(1.2);
+        opacity: 1;
+    }
+    70% {
+        transform: translateX(-5px) translateY(-8px) rotate(-15deg) scale(1.1);
+        opacity: 0.9;
+    }
+    80% {
+        transform: translateX(0px) translateY(-4px) rotate(-5deg) scale(0.95);
+        opacity: 0.75;
+    }
+    90% {
+        transform: translateX(8px) translateY(0px) rotate(15deg) scale(0.8);
+        opacity: 0.6;
+    }
+    100% {
+        transform: translateX(15px) translateY(2px) rotate(25deg) scale(0.75);
+        opacity: 0.5;
+    }
+}
+
+@keyframes pickaxeStrike {
+    0% {
+        transform: translateX(20px) translateY(5px) rotate(50deg) scale(0.7);
+        opacity: 0.6;
+    }
+    5% {
+        transform: translateX(18px) translateY(3px) rotate(45deg) scale(0.75);
+        opacity: 0.7;
+    }
+    10% {
+        transform: translateX(15px) translateY(0px) rotate(35deg) scale(0.8);
+        opacity: 0.8;
+    }
+    15% {
+        transform: translateX(12px) translateY(-2px) rotate(25deg) scale(0.85);
+        opacity: 0.85;
+    }
+    20% {
+        transform: translateX(8px) translateY(-4px) rotate(15deg) scale(0.9);
+        opacity: 0.9;
+    }
+    25% {
+        transform: translateX(5px) translateY(-6px) rotate(5deg) scale(0.95);
+        opacity: 0.95;
+    }
+    30% {
+        transform: translateX(2px) translateY(-8px) rotate(-5deg) scale(1.0);
+        opacity: 1;
+    }
+    35% {
+        transform: translateX(-2px) translateY(-10px) rotate(-15deg) scale(1.05);
+        opacity: 1;
+    }
+    40% {
+        transform: translateX(-5px) translateY(-12px) rotate(-25deg) scale(1.1);
+        opacity: 1;
+    }
+    45% {
+        transform: translateX(-8px) translateY(-14px) rotate(-35deg) scale(1.15);
+        opacity: 1;
+    }
+    50% {
+        transform: translateX(-10px) translateY(-15px) rotate(-40deg) scale(1.2);
+        opacity: 1;
+    }
+    55% {
+        transform: translateX(-8px) translateY(-13px) rotate(-35deg) scale(1.15);
+        opacity: 1;
+    }
+    60% {
+        transform: translateX(-5px) translateY(-10px) rotate(-25deg) scale(1.1);
+        opacity: 1;
+    }
+    65% {
+        transform: translateX(-2px) translateY(-7px) rotate(-15deg) scale(1.05);
+        opacity: 0.95;
+    }
+    70% {
+        transform: translateX(2px) translateY(-4px) rotate(-5deg) scale(1.0);
+        opacity: 0.9;
+    }
+    75% {
+        transform: translateX(5px) translateY(-1px) rotate(5deg) scale(0.95);
+        opacity: 0.85;
+    }
+    80% {
+        transform: translateX(8px) translateY(2px) rotate(15deg) scale(0.9);
+        opacity: 0.8;
+    }
+    85% {
+        transform: translateX(12px) translateY(4px) rotate(25deg) scale(0.85);
+        opacity: 0.75;
+    }
+    90% {
+        transform: translateX(15px) translateY(5px) rotate(35deg) scale(0.8);
+        opacity: 0.7;
+    }
+    95% {
+        transform: translateX(18px) translateY(5px) rotate(45deg) scale(0.75);
+        opacity: 0.65;
+    }
+    100% {
+        transform: translateX(20px) translateY(5px) rotate(50deg) scale(0.7);
+        opacity: 0.6;
+    }
+}
+
+@keyframes dragonPickaxeStrike {
+    0% {
+        transform: translateX(25px) translateY(8px) rotate(55deg) scale(0.65);
+        opacity: 0.5;
+        filter: drop-shadow(2px 2px 8px rgba(255,50,0,0.4));
+    }
+    8% {
+        transform: translateX(22px) translateY(6px) rotate(50deg) scale(0.7);
+        opacity: 0.6;
+        filter: drop-shadow(2px 2px 9px rgba(255,80,0,0.5));
+    }
+    15% {
+        transform: translateX(18px) translateY(4px) rotate(40deg) scale(0.8);
+        opacity: 0.75;
+        filter: drop-shadow(2px 2px 10px rgba(255,120,0,0.6));
+    }
+    22% {
+        transform: translateX(14px) translateY(1px) rotate(30deg) scale(0.9);
+        opacity: 0.85;
+        filter: drop-shadow(2px 2px 11px rgba(255,150,0,0.7));
+    }
+    28% {
+        transform: translateX(10px) translateY(-2px) rotate(20deg) scale(0.95);
+        opacity: 0.9;
+        filter: drop-shadow(2px 2px 12px rgba(255,180,0,0.75));
+    }
+    35% {
+        transform: translateX(5px) translateY(-6px) rotate(5deg) scale(1.05);
+        opacity: 0.95;
+        filter: drop-shadow(2px 2px 13px rgba(255,200,0,0.8));
+    }
+    42% {
+        transform: translateX(0px) translateY(-10px) rotate(-10deg) scale(1.15);
+        opacity: 1;
+        filter: drop-shadow(2px 2px 14px rgba(255,220,0,0.9));
+    }
+    48% {
+        transform: translateX(-6px) translateY(-14px) rotate(-25deg) scale(1.2);
+        opacity: 1;
+        filter: drop-shadow(2px 2px 16px rgba(255,240,0,0.95));
+    }
+    55% {
+        transform: translateX(-12px) translateY(-18px) rotate(-35deg) scale(1.3);
+        opacity: 1;
+        filter: drop-shadow(3px 3px 18px rgba(255,255,0,1)) brightness(1.2);
+    }
+    62% {
+        transform: translateX(-10px) translateY(-16px) rotate(-30deg) scale(1.25);
+        opacity: 1;
+        filter: drop-shadow(2px 2px 16px rgba(255,240,0,0.95));
+    }
+    68% {
+        transform: translateX(-6px) translateY(-12px) rotate(-20deg) scale(1.15);
+        opacity: 0.95;
+        filter: drop-shadow(2px 2px 14px rgba(255,220,0,0.85));
+    }
+    75% {
+        transform: translateX(-2px) translateY(-8px) rotate(-10deg) scale(1.05);
+        opacity: 0.9;
+        filter: drop-shadow(2px 2px 12px rgba(255,200,0,0.8));
+    }
+    82% {
+        transform: translateX(4px) translateY(-4px) rotate(5deg) scale(0.95);
+        opacity: 0.8;
+        filter: drop-shadow(2px 2px 10px rgba(255,150,0,0.7));
+    }
+    88% {
+        transform: translateX(10px) translateY(0px) rotate(20deg) scale(0.85);
+        opacity: 0.7;
+        filter: drop-shadow(2px 2px 9px rgba(255,120,0,0.6));
+    }
+    94% {
+        transform: translateX(18px) translateY(4px) rotate(40deg) scale(0.75);
+        opacity: 0.6;
+        filter: drop-shadow(2px 2px 8px rgba(255,80,0,0.5));
+    }
+    100% {
+        transform: translateX(25px) translateY(8px) rotate(55deg) scale(0.65);
+        opacity: 0.5;
+        filter: drop-shadow(2px 2px 8px rgba(255,50,0,0.4));
+    }
+}
+
+/* === Combat Weapon Attack Animations === */
+
+@keyframes fistAttack {
+    0% {
+        transform: translateY(-50%) translateX(8px) rotate(15deg) scale(0.8);
+        opacity: 0.6;
+    }
+    15% {
+        transform: translateY(-50%) translateX(4px) rotate(5deg) scale(0.9);
+        opacity: 0.8;
+    }
+    30% {
+        transform: translateY(-50%) translateX(0px) rotate(-5deg) scale(1.0);
+        opacity: 1;
+    }
+    45% {
+        transform: translateY(-50%) translateX(-4px) rotate(-15deg) scale(1.1);
+        opacity: 1;
+    }
+    60% {
+        transform: translateY(-50%) translateX(-6px) rotate(-20deg) scale(1.2);
+        opacity: 1;
+    }
+    75% {
+        transform: translateY(-50%) translateX(-2px) rotate(-10deg) scale(1.0);
+        opacity: 0.9;
+    }
+    90% {
+        transform: translateY(-50%) translateX(4px) rotate(5deg) scale(0.85);
+        opacity: 0.7;
+    }
+    100% {
+        transform: translateY(-50%) translateX(8px) rotate(15deg) scale(0.8);
+        opacity: 0.6;
+    }
+}
+
+@keyframes weaponStrike {
+    0% {
+        transform: translateY(-50%) translateX(15px) rotate(45deg) scale(0.8);
+        opacity: 0.7;
+    }
+    10% {
+        transform: translateY(-50%) translateX(12px) rotate(35deg) scale(0.85);
+        opacity: 0.8;
+    }
+    20% {
+        transform: translateY(-50%) translateX(8px) rotate(25deg) scale(0.9);
+        opacity: 0.9;
+    }
+    30% {
+        transform: translateY(-50%) translateX(4px) rotate(10deg) scale(0.95);
+        opacity: 0.95;
+    }
+    40% {
+        transform: translateY(-50%) translateX(0px) rotate(-5deg) scale(1.0);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(-50%) translateX(-4px) rotate(-20deg) scale(1.1);
+        opacity: 1;
+    }
+    60% {
+        transform: translateY(-50%) translateX(-6px) rotate(-30deg) scale(1.15);
+        opacity: 1;
+    }
+    70% {
+        transform: translateY(-50%) translateX(-4px) rotate(-20deg) scale(1.05);
+        opacity: 0.95;
+    }
+    80% {
+        transform: translateY(-50%) translateX(0px) rotate(-5deg) scale(0.95);
+        opacity: 0.9;
+    }
+    90% {
+        transform: translateY(-50%) translateX(8px) rotate(25deg) scale(0.85);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(-50%) translateX(15px) rotate(45deg) scale(0.8);
+        opacity: 0.7;
+    }
+}
+
+@keyframes dragonWeaponStrike {
+    0% {
+        transform: translateY(-50%) translateX(18px) rotate(50deg) scale(0.75);
+        opacity: 0.6;
+        filter: drop-shadow(1px 1px 4px rgba(255,50,0,0.4));
+    }
+    12% {
+        transform: translateY(-50%) translateX(14px) rotate(40deg) scale(0.8);
+        opacity: 0.75;
+        filter: drop-shadow(1px 1px 5px rgba(255,100,0,0.5));
+    }
+    25% {
+        transform: translateY(-50%) translateX(8px) rotate(25deg) scale(0.9);
+        opacity: 0.85;
+        filter: drop-shadow(1px 1px 6px rgba(255,150,0,0.6));
+    }
+    35% {
+        transform: translateY(-50%) translateX(2px) rotate(5deg) scale(1.0);
+        opacity: 0.95;
+        filter: drop-shadow(1px 1px 7px rgba(255,200,0,0.7));
+    }
+    45% {
+        transform: translateY(-50%) translateX(-4px) rotate(-15deg) scale(1.1);
+        opacity: 1;
+        filter: drop-shadow(1px 1px 8px rgba(255,220,0,0.8));
+    }
+    55% {
+        transform: translateY(-50%) translateX(-8px) rotate(-35deg) scale(1.2);
+        opacity: 1;
+        filter: drop-shadow(2px 2px 10px rgba(255,255,0,1)) brightness(1.1);
+    }
+    65% {
+        transform: translateY(-50%) translateX(-6px) rotate(-25deg) scale(1.15);
+        opacity: 1;
+        filter: drop-shadow(1px 1px 8px rgba(255,220,0,0.8));
+    }
+    75% {
+        transform: translateY(-50%) translateX(-2px) rotate(-10deg) scale(1.0);
+        opacity: 0.9;
+        filter: drop-shadow(1px 1px 6px rgba(255,150,0,0.6));
+    }
+    85% {
+        transform: translateY(-50%) translateX(6px) rotate(20deg) scale(0.85);
+        opacity: 0.8;
+        filter: drop-shadow(1px 1px 5px rgba(255,100,0,0.5));
+    }
+    95% {
+        transform: translateY(-50%) translateX(14px) rotate(40deg) scale(0.8);
+        opacity: 0.7;
+        filter: drop-shadow(1px 1px 4px rgba(255,80,0,0.4));
+    }
+    100% {
+        transform: translateY(-50%) translateX(18px) rotate(50deg) scale(0.75);
+        opacity: 0.6;
+        filter: drop-shadow(1px 1px 4px rgba(255,50,0,0.4));
+    }
+}
+
+@keyframes whirlwindStrike {
+    0% {
+        transform: translateY(-50%) rotate(0deg) scale(0.8);
+        opacity: 0.7;
+        filter: drop-shadow(0 0 4px rgba(100,150,255,0.5));
+    }
+    25% {
+        transform: translateY(-50%) rotate(90deg) scale(1.0);
+        opacity: 0.9;
+        filter: drop-shadow(0 0 6px rgba(100,150,255,0.7));
+    }
+    50% {
+        transform: translateY(-50%) rotate(180deg) scale(1.1);
+        opacity: 1;
+        filter: drop-shadow(0 0 8px rgba(100,150,255,0.9)) brightness(1.1);
+    }
+    75% {
+        transform: translateY(-50%) rotate(270deg) scale(1.0);
+        opacity: 0.9;
+        filter: drop-shadow(0 0 6px rgba(100,150,255,0.7));
+    }
+    100% {
+        transform: translateY(-50%) rotate(360deg) scale(0.8);
+        opacity: 0.7;
+        filter: drop-shadow(0 0 4px rgba(100,150,255,0.5));
+    }
+}
+
+@keyframes fire-animation {
+    0% { transform: scale(0.8) translateY(0px); }
+    25% { transform: scale(1.2) translateY(-2px); }
+    50% { transform: scale(1.4) translateY(-3px); }
+    75% { transform: scale(1.1) translateY(-2px); }
+    100% { transform: scale(0.8) translateY(0px); }
+}
+
+@keyframes hammer-animation {
+    0% { transform: rotate(0deg) translateY(0px) scale(1); }
+    25% { transform: rotate(-20deg) translateY(-2px) scale(1.1); }
+    50% { transform: rotate(-40deg) translateY(-3px) scale(1.2); }
+    75% { transform: rotate(-20deg) translateY(-2px) scale(1.1); }
+    100% { transform: rotate(0deg) translateY(0px) scale(1); }
+}
+
+@keyframes axe-animation {
+    0% { transform: rotate(-10deg) translateY(0px) scale(1); }
+    25% { transform: rotate(15deg) translateY(-2px) scale(1.1); }
+    50% { transform: rotate(20deg) translateY(-3px) scale(1.2); }
+    75% { transform: rotate(10deg) translateY(-2px) scale(1.1); }
+    100% { transform: rotate(-10deg) translateY(0px) scale(1); }
+}
+
+/* === Responsive Component Adjustments === */
+@media (max-width: 900px) {
+    .modal-content { width: 95%; padding: 15px; }
+    .resource-loot-notification { display: none; } /* Generally good for smaller screens */
+}

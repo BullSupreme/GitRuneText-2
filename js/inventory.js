@@ -5,7 +5,7 @@
 
 'use strict';
 
-import { playerData, savePlayerData, titleCase, generateItemTooltip, playSound, sounds, formatEnchantmentStat } from './utils.js';
+import { playerData, savePlayerData, titleCase, generateItemTooltip, playSound, sounds, formatEnchantmentStat, logMessage } from './utils.js';
 import { showSection, updateHud } from './ui.js';
 import { getModifiedPrice } from './shop.js';
 import {
@@ -14,10 +14,12 @@ import {
     HELMET_DATA,
     TOOL_DATA,
     ITEM_SELL_PRICES,
+    ITEM_DATA,
     TIERS,
     ENCHANTMENT_STAT_TIER_COLORS,
     getItemDetails, // Import getItemDetails
-    CHEST_LOOT_TABLES
+    CHEST_LOOT_TABLES,
+    MAX_ENCHANTMENTS
 } from './data.js';
 
 // Inventory sorting state
@@ -30,7 +32,17 @@ let currentInventorySort = 'default';
  * @returns {number} - The correct sell price
  */
 function getItemSellPrice(itemName, isEnchanted = false) {
-    const basePrice = ITEM_SELL_PRICES[itemName] || 0;
+    // First check ITEM_SELL_PRICES, then check ITEM_DATA for sell_price
+    let basePrice = ITEM_SELL_PRICES[itemName] || 0;
+    
+    // If not found in ITEM_SELL_PRICES, check ITEM_DATA
+    if (basePrice === 0) {
+        const itemDetails = getItemDetails(itemName);
+        if (itemDetails && itemDetails.sell_price !== undefined) {
+            basePrice = itemDetails.sell_price;
+        }
+    }
+    
     if (basePrice === 0) return 0;
     
     // Apply price modifiers (from structures/perks)
@@ -124,14 +136,14 @@ function getSortFunction(sortType) {
             return (a, b) => b.quantity - a.quantity;
         case 'value_single':
             return (a, b) => {
-                const aValue = ITEM_SELL_PRICES[a.name] || 0;
-                const bValue = ITEM_SELL_PRICES[b.name] || 0;
+                const aValue = getItemSellPrice(a.name, false);
+                const bValue = getItemSellPrice(b.name, false);
                 return bValue - aValue;
             };
         case 'value_stack':
             return (a, b) => {
-                const aValue = (ITEM_SELL_PRICES[a.name] || 0) * a.quantity;
-                const bValue = (ITEM_SELL_PRICES[b.name] || 0) * b.quantity;
+                const aValue = getItemSellPrice(a.name, false) * a.quantity;
+                const bValue = getItemSellPrice(b.name, false) * b.quantity;
                 return bValue - aValue;
             };
         default:
@@ -179,7 +191,7 @@ export function populateInventoryDisplay() {
             }
             
             // Check if this item type can be enchanted and if there are enchanted versions
-            const enchantableSlots = ['sword', 'armor', 'helmet', 'axe', 'pickaxe'];
+            const enchantableSlots = ['sword', 'armor', 'helmet', 'axe', 'pickaxe', 'ring'];
             let enchantedVersions = [];
             
             // Look for enchanted versions of this item
@@ -187,7 +199,9 @@ export function populateInventoryDisplay() {
                 // Search through itemEnchantments for this item
                 if (playerData.itemEnchantments) {
                     for (const [enchantKey, enchantData] of Object.entries(playerData.itemEnchantments)) {
-                        const [slotKey, enchantedItemName] = enchantKey.split(':');
+                        const keyParts = enchantKey.split(':');
+                        const slotKey = keyParts[0];
+                        const enchantedItemName = keyParts[1];
                         if (enchantedItemName === itemName && enchantData.enchantments && enchantData.enchantments.length > 0) {
                             enchantedVersions.push({
                                 key: enchantKey,
@@ -340,7 +354,7 @@ export function populateInventoryDisplay() {
                 });
                 // Show enchantment count if item has been enchanted
                 if (item.enchantmentCount && item.enchantmentCount >= 1) {
-                    enchantmentHtml += `<div class="enchantment-count">Total Enchants: ${item.enchantmentCount}/12</div>`;
+                    enchantmentHtml += `<div class="enchantment-count">Total Enchants: ${item.enchantmentCount}/${MAX_ENCHANTMENTS}</div>`;
                 }
                 enchantmentHtml += '</div>';
             }
@@ -530,37 +544,44 @@ function generateLootItem(lootEntry) {
  * @param {Array} loot - Array of loot items
  */
 function showChestOpeningModal(chestType, loot) {
+    // Auto-collect loot immediately when modal opens
+    collectChestLoot(loot);
+    
     // Create modal if it doesn't exist
     let modal = document.getElementById('chest-opening-modal');
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'chest-opening-modal';
-        modal.className = 'modal';
+        modal.className = 'modal-overlay';
         modal.innerHTML = `
-            <div class="modal-content chest-modal">
+            <div class="modal-dialog chest-modal">
+                <button id="close-chest-modal-btn" class="modal-close-btn" aria-label="Close">×</button>
                 <div class="chest-animation-container">
                     <div class="chest-icon"></div>
                     <div class="chest-particles"></div>
                 </div>
                 <h2 id="chest-title"></h2>
                 <div id="chest-loot-list"></div>
-                <div class="modal-buttons">
-                    <button id="collect-loot-btn" class="success-button">Collect All</button>
+                <div class="chest-modal-buttons">
+                    <button id="close-loot-btn" class="close-button">Close</button>
                 </div>
             </div>
         `;
         document.body.appendChild(modal);
         
-        // Add event listener for collect button
-        document.getElementById('collect-loot-btn').addEventListener('click', () => {
-            collectChestLoot(loot);
+        // Add event listener for close button
+        document.getElementById('close-loot-btn').addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+        
+        // Add event listener for X button
+        document.getElementById('close-chest-modal-btn').addEventListener('click', () => {
             modal.style.display = 'none';
         });
         
         // Close modal if clicking outside
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
-                collectChestLoot(loot);
                 modal.style.display = 'none';
             }
         });
@@ -709,6 +730,41 @@ function applySmartTooltipPositioning() {
             }
         });
     });
+}
+
+/**
+ * Try to drop items into player's inventory
+ * @param {Array<string>} items - Array of item names to drop
+ * @param {number} quantity - Quantity of each item to drop
+ */
+export function tryDropItems(items, quantity = 1) {
+    if (!items || !Array.isArray(items)) return;
+    
+    items.forEach(itemName => {
+        if (quantity > 0) {
+            playerData.inventory[itemName] = (playerData.inventory[itemName] || 0) + quantity;
+            
+            // Get item details for proper display
+            const itemDetails = getItemDetails(itemName);
+            const displayName = itemDetails ? itemDetails.name : titleCase(itemName);
+            const emoji = itemDetails ? itemDetails.emoji : '📦';
+            
+            // Log the drop
+            logMessage(`${emoji} Found ${displayName} x${quantity}!`, "fore-purple", "🎁");
+        }
+    });
+    
+    // Update displays
+    updateHud();
+    
+    // Update inventory display if it's currently shown
+    const inventorySection = document.getElementById('inventory-section');
+    if (inventorySection && inventorySection.style.display !== 'none') {
+        populateInventoryDisplay();
+    }
+    
+    // Save game state
+    savePlayerData();
 }
 
 /**

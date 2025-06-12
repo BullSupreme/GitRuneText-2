@@ -254,7 +254,7 @@ function updateAnimalDisplay() {
                         ${Object.entries(housingInfo.cost).map(([res, amt]) => {
                             const have = res === 'gold' ? playerData.gold : (playerData.inventory[res] || 0);
                             const status = have >= amt ? 'enough' : 'missing';
-                            return `<li>${amt} ${res} (<span class=\"have ${status}\">Have: ${have}</span>)</li>`;
+                            return `<li>${amt} ${res} (<span class=\"have ${status}\">${have}</span>)</li>`;
                         }).join('')}
                     </ul>
                 </div>
@@ -357,7 +357,7 @@ function renderCropPlots() {
                         ${Object.entries(info.cost).map(([res, amt]) => {
                             const have = res === 'gold' ? playerData.gold : (playerData.inventory[res] || 0);
                             const status = have >= amt ? 'enough' : 'missing';
-                            return `<li>${amt} ${res} (<span class='have ${status}'>Have: ${have}</span>)</li>`;
+                            return `<li>${amt} ${res} (<span class='have ${status}'>${have}</span>)</li>`;
                         }).join('')}
                     </ul>
                 </div>
@@ -572,6 +572,12 @@ export function buyPlotSeeds(plotId) {
     const slotCount = info.slotCount || 0;
     plot.slots = plot.slots || [];
     const toBuy = slotCount - plot.slots.length;
+    
+    // Debug logging for large crop plots
+    if (plot.plotType === 'largeCropPlot') {
+        console.log(`[DEBUG] Large crop plot ${plotId}: slotCount=${slotCount}, current slots=${plot.slots.length}, toBuy=${toBuy}`);
+    }
+    
     if (toBuy <= 0) {
         logMessage(`${info.name} seed slots already filled.`, "fore-yellow");
         return;
@@ -579,17 +585,41 @@ export function buyPlotSeeds(plotId) {
     // Determine random seeds and cost
     let totalCost = 0;
     const newSlots = [];
+    
     for (let i = 0; i < toBuy; i++) {
         const rand = Math.random();
         let seedKey;
-        if (rand < 0.5) seedKey = 'wheatSeeds';
-        else if (rand < 0.7) seedKey = 'carrotSeeds';
-        else if (rand < 0.85) seedKey = 'potatoSeeds';
-        else seedKey = 'appleSapling';
+        
+        // Adjust probabilities based on plot type - larger plots get better odds for rarer seeds
+        if (plot.plotType === 'largeCropPlot') {
+            // Large plots: better chance for apple saplings (most valuable)
+            if (rand < 0.4) seedKey = 'appleSapling';
+            else if (rand < 0.6) seedKey = 'wheatSeeds';
+            else if (rand < 0.8) seedKey = 'potatoSeeds';
+            else seedKey = 'carrotSeeds';
+        } else if (plot.plotType === 'mediumCropPlot') {
+            // Medium plots: balanced distribution with slight preference for wheat
+            if (rand < 0.4) seedKey = 'wheatSeeds';
+            else if (rand < 0.6) seedKey = 'potatoSeeds';
+            else if (rand < 0.8) seedKey = 'carrotSeeds';
+            else seedKey = 'appleSapling';
+        } else {
+            // Small plots: original distribution (mostly common seeds)
+            if (rand < 0.5) seedKey = 'carrotSeeds';
+            else if (rand < 0.7) seedKey = 'potatoSeeds';
+            else if (rand < 0.85) seedKey = 'wheatSeeds';
+            else seedKey = 'appleSapling';
+        }
+        
         const seedData = SEED_DATA[seedKey];
         totalCost += seedData.sell_price;
         newSlots.push({ seedType: seedKey, plantTime: Date.now(), isReady: false });
     }
+    // Debug logging for large crop plots
+    if (plot.plotType === 'largeCropPlot') {
+        console.log(`[DEBUG] Large crop plot ${plotId}: totalCost=${totalCost}, playerGold=${playerData.gold}, seeds=`, newSlots.map(s => s.seedType));
+    }
+    
     if (playerData.gold < totalCost) {
         logMessage(`Not enough gold to buy seeds: need ${totalCost}g.`, "fore-red");
         return;
@@ -636,7 +666,7 @@ export function processCropGrowth() {
                     if (Date.now() - slot.plantTime >= waitTime) {
                         if (cropManagerAssigned) {
                             // Auto-harvest for manager
-                            harvestPlot(plotId);
+                            harvestPlot(plotId, true);
                         } else {
                             slot.isReady = true;
                             logMessage(`Your ${sd.name} in ${info.name} is ready to harvest!`, "fore-green", sd.emoji);
@@ -660,11 +690,15 @@ export function processCropGrowth() {
  * Harvest a crop plot, adding yields to storage and resetting slots.
  * @param {string} plotId - The ID of the crop plot.
  */
-function harvestPlot(plotId) {
+function harvestPlot(plotId, isAutoHarvest = false) {
     const plot = playerData.farm_crop_plots[plotId];
     if (!plot?.built || !Array.isArray(plot.slots)) return;
     // Only harvest if at least one slot is ready
     if (!plot.slots.some(slot => slot.isReady)) return;
+    
+    // Track harvest statistics
+    const slotsHarvested = plot.slots.filter(slot => slot.isReady).length;
+    
     // Determine yield range based on plot size
     let min = 1, max = 10;
     if (plot.plotType === 'mediumCropPlot') [min, max] = [2, 20];
@@ -681,6 +715,17 @@ function harvestPlot(plotId) {
     plot.slots = [];
     // Ensure farm storage exists
     playerData.farm_storage = playerData.farm_storage || {};
+    
+    // Initialize harvest tracking on plot if not exists
+    if (!plot.harvestStats) {
+        plot.harvestStats = {
+            totalHarvests: 0,
+            manualHarvests: 0,
+            autoHarvests: 0,
+            totalCrops: 0
+        };
+    }
+    
     // Add yields to storage and notify
     let totalHarvested = 0;
     Object.entries(harvestTotals).forEach(([crop, qty]) => {
@@ -689,6 +734,18 @@ function harvestPlot(plotId) {
         const emoji = CROP_ITEMS[crop]?.emoji || '';
         logMessage(`Harvested ${qty} ${emoji} ${crop}!`, "fore-green", emoji);
     });
+    
+    // Update harvest statistics
+    plot.harvestStats.totalHarvests++;
+    plot.harvestStats.totalCrops += totalHarvested;
+    if (isAutoHarvest) {
+        plot.harvestStats.autoHarvests++;
+    } else {
+        plot.harvestStats.manualHarvests++;
+    }
+    
+    // Track global farming statistics
+    trackStatistic('farming', 'harvest', totalHarvested);
     
     // Grant farming XP based on crops harvested (2 XP per crop harvested)
     if (totalHarvested > 0) {
@@ -1007,7 +1064,7 @@ export function renderFarmWorkers() {
                 <div class="worker-actions">
                     ${w.status === 'idle' && w.type === 'farmhand' ? '<button class="assign-btn">Assign</button>' : ''}
                     ${w.status === 'idle' && w.type === 'farm_manager' ? '<button class="assign-animal-btn">Animal Overseer</button><button class="assign-crop-btn">Crop Overseer</button>' : ''}
-                    <button class="fire-btn">Fire</button>
+                    ${w.status !== 'idle' ? '<button class="fire-btn">Fire</button>' : ''}
                 </div>`;
             workersContainer.appendChild(workerEl);
             // Attach event handlers
@@ -1018,7 +1075,11 @@ export function renderFarmWorkers() {
                 workerEl.querySelector('.assign-animal-btn').addEventListener('click', () => assignManager(id, 'animal_manager'));
                 workerEl.querySelector('.assign-crop-btn').addEventListener('click', () => assignManager(id, 'crop_manager'));
             }
-            workerEl.querySelector('.fire-btn').addEventListener('click', () => fireWorker(id));
+            // Only attach fire button event if button exists (not idle workers)
+            const fireBtn = workerEl.querySelector('.fire-btn');
+            if (fireBtn) {
+                fireBtn.addEventListener('click', () => fireWorker(id));
+            }
         });
         if (upkeepCostEl) upkeepCostEl.textContent = formatNumber(totalUpkeep);
         // Next hourly payment countdown
@@ -1476,14 +1537,14 @@ Yield/hr: ${perHour.toFixed(1)} ${animalInfo.produces}
         const built = !!stateEntry;
         const state = stateEntry ? stateEntry[1] : null;
         const tile = document.createElement('div');
-        // Force crop plots onto the second row of the grid
-        tile.style.gridRowStart = '2';
         tile.className = 'farm-tile plot-tile';
-        // Enlarge tile by plot type for visibility
-        if (plotType === 'mediumCropPlot') {
-            tile.style.minWidth = '200px';
+        // Add size classes for different plot types
+        if (plotType === 'smallCropPlot') {
+            tile.classList.add('small-plot');
+        } else if (plotType === 'mediumCropPlot') {
+            tile.classList.add('medium-plot');
         } else if (plotType === 'largeCropPlot') {
-            tile.style.minWidth = '300px';
+            tile.classList.add('large-plot');
         }
         if (built) tile.classList.add('built');
         const label = document.createElement('div');
@@ -1597,11 +1658,261 @@ Yield/harvest: ${yieldStrings}
     });
     // Add map to overview
     overview.appendChild(mapDiv);
+    
+    // Add comprehensive farm information section
+    const farmInfoDiv = document.createElement('div');
+    farmInfoDiv.className = 'farm-info-section';
+    farmInfoDiv.innerHTML = '<h3>Farm Statistics</h3>';
+    
+    // Calculate farm statistics
+    const farmStats = calculateFarmStatistics();
+    
+    // Create stats grid
+    const statsGrid = document.createElement('div');
+    statsGrid.className = 'farm-stats-grid';
+    
+    // Farming skill info
+    const farmingLevel = getLevelFromXp(playerData.skills.farming.xp);
+    const nextLevelXp = Math.pow(farmingLevel + 1, 2) * 100;
+    const currentXpToNext = nextLevelXp - playerData.skills.farming.xp;
+    
+    statsGrid.innerHTML = `
+        <div class="stat-card">
+            <h4>🌱 Farming Skill</h4>
+            <p>Level: ${farmingLevel}</p>
+            <p>XP: ${formatNumber(playerData.skills.farming.xp)}</p>
+            <p>To Next Level: ${formatNumber(currentXpToNext)}</p>
+        </div>
+        
+        <div class="stat-card">
+            <h4>🐄 Animals</h4>
+            <p>Manager Present: ${farmStats.animalManagerPresent ? 'Yes' : 'No'}</p>
+            <p>Total Animals: ${farmStats.totalAnimals}</p>
+            <p>Animal Types: ${farmStats.animalTypes}</p>
+            <p>Housing Built: ${farmStats.housingBuilt}/${farmStats.totalHousing}</p>
+        </div>
+        
+        <div class="stat-card">
+            <h4>🌾 Crops</h4>
+            <p>Manager Present: ${farmStats.cropManagerPresent ? 'Yes' : 'No'}</p>
+            <p>Auto Harvest: ${farmStats.cropManagerPresent ? 'Enabled' : 'Disabled'}</p>
+            <p>Active Plots: ${farmStats.activePlots}</p>
+            <p>Seeds Planted: ${farmStats.seedsPlanted}</p>
+            <p>Total Harvests: ${farmStats.totalHarvests}</p>
+            <p>Manual/Auto: ${farmStats.manualHarvests}/${farmStats.autoHarvests}</p>
+        </div>
+        
+        <div class="stat-card">
+            <h4>👨‍🌾 Workers</h4>
+            <p>Total Workers: ${farmStats.totalWorkers}</p>
+            <p>Active Workers: ${farmStats.activeWorkers}</p>
+            <p>Idle Workers: ${farmStats.idleWorkers}</p>
+            <p>Managers: ${farmStats.managers}</p>
+        </div>
+        
+        <div class="stat-card">
+            <h4>📦 Farm Storage</h4>
+            <p>Item Types: ${farmStats.storageItemTypes}</p>
+            <p>Total Items: ${formatNumber(farmStats.totalStorageItems)}</p>
+            <p>Most Stocked: ${farmStats.mostStockedItem}</p>
+        </div>
+        
+        <div class="stat-card">
+            <h4>💰 Production Value</h4>
+            <p>Hourly Animal Income: ${formatNumber(farmStats.hourlyAnimalIncome)} gold</p>
+            <p>Storage Value: ${formatNumber(farmStats.storageValue)} gold</p>
+            <p>Worker Costs/Day: ${formatNumber(farmStats.dailyWorkerCosts)} gold</p>
+        </div>
+    `;
+    
+    farmInfoDiv.appendChild(statsGrid);
+    overview.appendChild(farmInfoDiv);
+}
+
+/**
+ * Calculate comprehensive farm statistics
+ */
+function calculateFarmStatistics() {
+    const stats = {
+        totalAnimals: 0,
+        animalTypes: 0,
+        housingBuilt: 0,
+        totalHousing: Object.keys(FARM_ANIMAL_HOUSING_DATA).length,
+        animalManagerPresent: false,
+        activePlots: 0,
+        seedsPlanted: 0,
+        readyToHarvest: 0,
+        cropManagerPresent: false,
+        totalHarvests: 0,
+        manualHarvests: 0,
+        autoHarvests: 0,
+        totalWorkers: 0,
+        activeWorkers: 0,
+        idleWorkers: 0,
+        managers: 0,
+        storageItemTypes: 0,
+        totalStorageItems: 0,
+        mostStockedItem: 'None',
+        hourlyAnimalIncome: 0,
+        storageValue: 0,
+        dailyWorkerCosts: 0
+    };
+    
+    // Animal statistics
+    const animalHousing = playerData.farm_animal_housing || {};
+    Object.entries(animalHousing).forEach(([id, housing]) => {
+        if (housing.built) {
+            stats.housingBuilt++;
+            stats.totalAnimals += housing.animals || 0;
+            if (housing.animals > 0) stats.animalTypes++;
+        }
+    });
+    
+    // Crop statistics
+    const cropPlots = playerData.farm_crop_plots || {};
+    Object.values(cropPlots).forEach(plot => {
+        stats.activePlots++;
+        if (plot.slots) {
+            stats.seedsPlanted += plot.slots.length;
+            stats.readyToHarvest += plot.slots.filter(slot => slot.isReady).length;
+        }
+        
+        // Add harvest statistics from plot data
+        if (plot.harvestStats) {
+            stats.totalHarvests += plot.harvestStats.totalHarvests || 0;
+            stats.manualHarvests += plot.harvestStats.manualHarvests || 0;
+            stats.autoHarvests += plot.harvestStats.autoHarvests || 0;
+        }
+    });
+    
+    // Worker statistics
+    const workers = playerData.farm_workers || {};
+    const managers = playerData.farm_managers_roles || {};
+    
+    // Check for managers
+    stats.animalManagerPresent = Boolean(managers.animal);
+    stats.cropManagerPresent = Boolean(managers.crop);
+    
+    Object.values(workers).forEach(worker => {
+        stats.totalWorkers++;
+        if (worker.status === 'active') {
+            stats.activeWorkers++;
+        } else {
+            stats.idleWorkers++;
+        }
+    });
+    stats.managers = Object.values(managers).filter(id => id !== null).length;
+    
+    // Storage statistics
+    const storage = playerData.farm_storage || {};
+    let maxStorageQty = 0;
+    let maxStorageItem = 'None';
+    Object.entries(storage).forEach(([item, qty]) => {
+        if (qty > 0) {
+            stats.storageItemTypes++;
+            stats.totalStorageItems += qty;
+            stats.storageValue += (ITEM_SELL_PRICES[item] || 0) * qty;
+            if (qty > maxStorageQty) {
+                maxStorageQty = qty;
+                maxStorageItem = `${item} (${qty})`;
+            }
+        }
+    });
+    stats.mostStockedItem = maxStorageItem;
+    
+    // Calculate hourly animal income
+    Object.entries(animalHousing).forEach(([id, housing]) => {
+        if (housing.built && housing.animals > 0) {
+            const animalType = Object.keys(FARM_ANIMAL_DATA).find(key => FARM_ANIMAL_DATA[key].housingId === id);
+            const animalInfo = FARM_ANIMAL_DATA[animalType];
+            if (animalInfo) {
+                const assignedWorkers = Object.values(workers).filter(w => 
+                    w.status === 'active' && w.type === 'farmhand' && w.assignedTo === id
+                ).length;
+                const animalManagerAssigned = Boolean(managers.animal);
+                
+                const baseInterval = animalInfo.intervalMs;
+                const effectiveInterval = Math.max(
+                    baseInterval
+                    - Math.min(assignedWorkers, MAX_WORKERS_PER_HOUSING) * WORKER_INTERVAL_REDUCTION
+                    - (animalManagerAssigned ? MANAGER_INTERVAL_REDUCTION : 0),
+                    MIN_INTERVAL_MS
+                );
+                
+                const avgQty = (animalInfo.quantity[0] + animalInfo.quantity[1]) / 2;
+                const yieldPerCycle = avgQty * (animalManagerAssigned ? (1 + (FARM_WORKER_DATA.farm_manager.yield_boost_value || 0)) : 1);
+                const perHour = yieldPerCycle * (3600000 / effectiveInterval) * housing.animals;
+                const sellPrice = ITEM_SELL_PRICES[animalInfo.produces] || 0;
+                stats.hourlyAnimalIncome += perHour * sellPrice;
+            }
+        }
+    });
+    
+    // Calculate daily worker costs
+    Object.values(workers).forEach(worker => {
+        const workerInfo = FARM_WORKER_DATA[worker.type];
+        if (workerInfo && workerInfo.dailyWage) {
+            stats.dailyWorkerCosts += workerInfo.dailyWage;
+        }
+    });
+    
+    return stats;
 }
 
 /**
  * Render the farm storage contents
  */
+/**
+ * Withdraw items from farm storage to player inventory
+ * @param {string} itemName - Name of the item to withdraw
+ * @param {number} quantity - Quantity to withdraw
+ */
+function withdrawFromFarmStorage(itemName, quantity) {
+    // Ensure farm storage exists
+    if (!playerData.farm_storage || !playerData.farm_storage[itemName]) {
+        logMessage('No items to withdraw from farm storage!', 'fore-red', '❌');
+        return;
+    }
+    
+    const availableQty = playerData.farm_storage[itemName];
+    const withdrawQty = Math.min(quantity, availableQty);
+    
+    if (withdrawQty <= 0) {
+        logMessage('No items to withdraw!', 'fore-red', '❌');
+        return;
+    }
+    
+    // Transfer items from farm storage to player inventory
+    playerData.inventory[itemName] = (playerData.inventory[itemName] || 0) + withdrawQty;
+    playerData.farm_storage[itemName] -= withdrawQty;
+    
+    // Remove item from farm storage if quantity reaches 0
+    if (playerData.farm_storage[itemName] <= 0) {
+        delete playerData.farm_storage[itemName];
+    }
+    
+    // Get item details for proper display
+    const itemDetails = getItemDetails(itemName);
+    const displayName = itemDetails ? itemDetails.name : titleCase(itemName);
+    const emoji = itemDetails ? itemDetails.emoji : '📦';
+    
+    // Log the withdrawal
+    logMessage(`${emoji} Withdrew ${displayName} x${withdrawQty} from farm storage!`, 'fore-green', '📦➡️🎒');
+    
+    // Update displays
+    renderFarmStorage();
+    updateHud();
+    savePlayerData();
+    
+    // Update inventory display if it's currently shown
+    const inventorySection = document.getElementById('inventory-section');
+    if (inventorySection && !inventorySection.classList.contains('hidden')) {
+        import('./inventory.js').then(module => {
+            module.populateInventoryDisplay();
+        });
+    }
+}
+
 function renderFarmStorage() {
     const storageContainer = document.getElementById('storage-content');
     if (!storageContainer) return;
@@ -1647,6 +1958,10 @@ function renderFarmStorage() {
                         <span class="item-value fore-gold">🪙 ${sellPrice} each</span>
                         <span class="item-total-value fore-gold">(${formatNumber(totalItemValue)} total)</span>
                     </div>
+                </div>
+                <div class="item-actions">
+                    <button class="withdraw-btn btn-primary" onclick="withdrawFromFarmStorage('${item}', 1)">Withdraw 1</button>
+                    <button class="withdraw-all-btn btn-secondary" onclick="withdrawFromFarmStorage('${item}', ${qty})">Withdraw All</button>
                 </div>
             `;
             grid.appendChild(itemDiv);
@@ -1816,6 +2131,32 @@ function updateCropTimers() {
     const plotsChanged = new Set();
     Object.entries(playerData.farm_crop_plots || {}).forEach(([plotId, plot]) => {
         if (!plot.built || !Array.isArray(plot.slots)) return;
+        
+        // First, check if any slots are already ready and auto-harvest them if manager is assigned
+        if (cropManagerAssigned && plot.slots.some(slot => slot.isReady)) {
+            harvestPlot(plotId, true);
+            // Auto-buy seeds after a brief delay, ONLY if the plot is not already full
+            const currentPlot = playerData.farm_crop_plots[plotId];
+            const info = FARM_CROP_PLOT_DATA[currentPlot.plotType];
+            const slotCount = info.slotCount || 0;
+            if ((currentPlot.slots || []).length < slotCount) {
+                setTimeout(() => buyPlotSeeds(plotId), 3000);
+            }
+            plotsChanged.add(plotId);
+            return; // Skip further processing for this plot since we harvested it
+        }
+        
+        // Also check for empty plots that need seeds when manager is assigned
+        if (cropManagerAssigned && plot.slots.length === 0) {
+            const info = FARM_CROP_PLOT_DATA[plot.plotType];
+            const slotCount = info.slotCount || 0;
+            if (slotCount > 0) {
+                setTimeout(() => buyPlotSeeds(plotId), 1000);
+                plotsChanged.add(plotId);
+                return; // Skip further processing for this plot since we're buying seeds
+            }
+        }
+        
         plot.slots.forEach(slot => {
             if (!slot.isReady) {
                 const sd = SEED_DATA[slot.seedType];
@@ -1832,7 +2173,7 @@ function updateCropTimers() {
                 if (Date.now() - slot.plantTime >= wait) {
                     if (cropManagerAssigned) {
                         // Manager auto-harvest
-                        harvestPlot(plotId);
+                        harvestPlot(plotId, true);
                         // Auto-buy seeds after a brief delay, ONLY if the plot is not already full
                         const currentPlot = playerData.farm_crop_plots[plotId];
                         const info = FARM_CROP_PLOT_DATA[currentPlot.plotType];
@@ -1850,9 +2191,16 @@ function updateCropTimers() {
     });
     if (plotsChanged.size > 0) {
         savePlayerData();
-        updateFarmingDisplay();
+        // Only update crop displays, not the entire overview which resets animal animations
+        updateAnimalDisplay();
+        renderFarmContent();
+        renderFarmWorkers();
+        renderFarmStorage();
+        // Update overview crop plots without rebuilding animal elements
+        updateOverviewCropPlots(plotsChanged);
     }
-    // Update timer text for all plots
+    // Update timer text for all plots and check for newly ready crops
+    const newlyReadyPlots = new Set();
     Object.entries(playerData.farm_crop_plots || {}).forEach(([plotId, plot]) => {
         const el = document.querySelector(`.crop-plot-slot[data-plot-id="${plotId}"] .plot-timer`);
         if (!el) return;
@@ -1860,8 +2208,11 @@ function updateCropTimers() {
             el.textContent = '';
         } else {
             let minTimeLeft = Infinity;
+            let hasReady = false;
             plot.slots.forEach(slot => {
-                if (!slot.isReady) {
+                if (slot.isReady) {
+                    hasReady = true;
+                } else {
                     const sd = SEED_DATA[slot.seedType]; if (!sd) return;
                     const baseGrow = Math.max(sd.growTimeMs, 30 * 60 * 1000);
                     const workerCount = Object.entries(playerData.farm_workers || {}).filter(([, w]) =>
@@ -1873,10 +2224,57 @@ function updateCropTimers() {
                     const wait = Math.max(reducedGrow, MIN_INTERVAL_MS);
                     const elapsed = Date.now() - slot.plantTime;
                     const left = wait - elapsed;
-                    if (left > 0 && left < minTimeLeft) minTimeLeft = left;
+                    
+                    // Check if this slot just became ready
+                    if (left <= 0) {
+                        slot.isReady = true;
+                        newlyReadyPlots.add(plotId);
+                        hasReady = true;
+                    } else if (left > 0 && left < minTimeLeft) {
+                        minTimeLeft = left;
+                    }
                 }
             });
-            el.textContent = minTimeLeft === Infinity ? 'Ready!' : formatTime(minTimeLeft);
+            el.textContent = hasReady ? 'Ready!' : (minTimeLeft === Infinity ? '' : formatTime(minTimeLeft));
         }
     });
-} 
+    
+    // Update overview for newly ready crops (emojis) and handle auto-harvest
+    if (newlyReadyPlots.size > 0) {
+        updateOverviewCropPlots(newlyReadyPlots);
+        savePlayerData();
+    }
+}
+
+/**
+ * Update only the crop plot tiles in the overview without rebuilding animals
+ * @param {Set} changedPlotIds - Set of plot IDs that changed
+ */
+function updateOverviewCropPlots(changedPlotIds) {
+    changedPlotIds.forEach(plotId => {
+        const tile = document.querySelector(`.farm-tile[data-plot-id="${plotId}"]`);
+        if (!tile) return;
+        
+        const plot = playerData.farm_crop_plots[plotId];
+        if (!plot) return;
+        
+        // Update the tile content without rebuilding the entire overview
+        const tileContent = tile.querySelector('.tile-content');
+        if (tileContent && plot.slots) {
+            tileContent.innerHTML = plot.slots.map(slot => 
+                slot.isReady ? `<span style="filter: brightness(1.3);">${SEED_DATA[slot.seedType]?.emoji || '🌱'}</span>` 
+                : `<span>${SEED_DATA[slot.seedType]?.emoji || '🌱'}</span>`
+            ).join('');
+        }
+        
+        // Update built status
+        if (plot.built) {
+            tile.classList.add('built');
+        } else {
+            tile.classList.remove('built');
+        }
+    });
+}
+
+// Export functions for global access
+window.withdrawFromFarmStorage = withdrawFromFarmStorage; 

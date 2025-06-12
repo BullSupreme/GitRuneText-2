@@ -6,12 +6,35 @@
 'use strict';
 
 // Import necessary data and functions
-import { ITEM_DATA, EQUIPMENT_DATA, STRUCTURE_DATA, TIERS, getItemDetails, TOOL_DATA, SWORD_DATA, ARMOR_DATA, HELMET_DATA, PERMIT_MASTER_LIST, PERK_DATA, FOOD_DATA, ENCHANTMENT_STAT_TIER_COLORS } from './data.js';
+import { ITEM_DATA, EQUIPMENT_DATA, STRUCTURE_DATA, TIERS, getItemDetails, TOOL_DATA, SWORD_DATA, ARMOR_DATA, HELMET_DATA, RING_DATA, PERMIT_MASTER_LIST, PERK_DATA, FOOD_DATA, ENCHANTMENT_STAT_TIER_COLORS } from './data.js';
 import { playerData, savePlayerData, logMessage, addItemToInventory, removeItemFromInventory, titleCase, generateItemTooltip, playSound, sounds } from './utils.js';
 import { applySmartTooltipPositioning } from './inventory.js';
 import { updateHud, showSection } from './ui.js';
 import { isPerkActive } from './perks.js';
-import { trackEquipmentCollection } from './achievements.js';
+import { trackEquipmentCollection, isAchievementCompleted } from './achievements.js';
+import { populateEquipmentDisplay } from './characterinfo.js';
+
+// Helper function to get achievement ID for armor items
+function getArmorAchievementId(armorName) {
+    const achievementMap = {
+        'bronze chestplate': 'bronzeChestplateDiscovery',
+        'iron chestplate': 'ironChestplateDiscovery',
+        'steel chestplate': 'steelChestplateDiscovery',
+        'mithril chestplate': 'mithrilChestplateDiscovery',
+        'adamant chestplate': 'adamantChestplateDiscovery',
+        'rune chestplate': 'runeChestplateDiscovery',
+        'dragon chestplate': 'dragonChestplateDiscovery'
+    };
+    return achievementMap[armorName] || null;
+}
+
+// Helper function to get achievement ID for helmet items
+function getHelmetAchievementId(helmetName) {
+    const achievementMap = {
+        'full dragon helmet': 'fullDragonHelmetDiscovery'
+    };
+    return achievementMap[helmetName] || null;
+}
 
 /**
  * Shows the shop section
@@ -161,13 +184,22 @@ function renderShopItems(category) {
     else if (cat === 'misc') cat = 'other';
     else if (cat === 'permits') cat = 'permit';
 
-    // Added: check for god mode cheat and chestplate unlock for armor
+    // Check for god mode cheat and armor unlock via achievements
     const godMode = !!playerData.godModeActive;
     if (cat === 'armor' && !godMode) {
-        const armorCollection = playerData.collection && playerData.collection.armorFound;
-        const hasFoundAnyArmor = armorCollection && Object.keys(armorCollection).length > 0;
-        if (!hasFoundAnyArmor) {
-            shopItemsContainer.innerHTML = '<p class="no-items-message">Find a chestplate first to unlock armor</p>';
+        // Check if any armor discovery achievements are completed
+        const armorAchievements = [
+            'bronzeChestplateDiscovery',
+            'ironChestplateDiscovery', 
+            'steelChestplateDiscovery',
+            'mithrilChestplateDiscovery',
+            'adamantChestplateDiscovery',
+            'runeChestplateDiscovery',
+            'dragonChestplateDiscovery'
+        ];
+        const hasUnlockedAnyArmor = armorAchievements.some(achievementId => isAchievementCompleted(achievementId));
+        if (!hasUnlockedAnyArmor) {
+            shopItemsContainer.innerHTML = '<p class="no-items-message">Find a chestplate first to unlock armor shop</p>';
             return;
         }
     }
@@ -202,8 +234,8 @@ function renderShopItems(category) {
         }
     };
 
-    if (cat === 'all' || cat === 'axe') addItemsFromSource(TOOL_DATA.axe, 'axe');
-    if (cat === 'all' || cat === 'pickaxe') addItemsFromSource(TOOL_DATA.pickaxe, 'pickaxe');
+    if (cat === 'axe') addItemsFromSource(TOOL_DATA.axe, 'axe');
+    if (cat === 'pickaxe') addItemsFromSource(TOOL_DATA.pickaxe, 'pickaxe');
     if (cat === 'all' || cat === 'sword') addItemsFromSource(SWORD_DATA, 'sword');
     if (cat === 'all' || cat === 'food') addItemsFromSource(FOOD_DATA, 'food');
     if (cat === 'all' || cat === 'armor') addItemsFromSource(ARMOR_DATA, 'armor');
@@ -290,18 +322,24 @@ function renderShopItems(category) {
         // Skip items that shouldn't be in the shop (double-check in case getItemDetails missed it)
         if (item.noShop) return;
         
-        // Adjust base price by material tier multipliers
+        // Check if armor/helmet items are unlocked via achievements (unless in god mode)
+        const godMode = !!playerData.godModeActive;
+        if (!godMode) {
+            if (item.itemType === 'armor') {
+                const achievementId = getArmorAchievementId(item.id);
+                const isUnlocked = achievementId && isAchievementCompleted(achievementId);
+                if (!isUnlocked) return; // Skip this armor item if achievement not completed
+            } else if (item.itemType === 'helmet') {
+                const achievementId = getHelmetAchievementId(item.id);
+                const isUnlocked = achievementId && isAchievementCompleted(achievementId);
+                if (!isUnlocked) return; // Skip this helmet item if achievement not completed
+            }
+        }
+        
+        // Use base price directly from item data
         let basePrice = item.price !== undefined ? item.price
                        : item.sell_price !== undefined ? item.sell_price
                        : 100;
-        const nameLower = (item.name || item.id || '').toLowerCase();
-        if (nameLower.includes('iron') || nameLower.includes('steel')) {
-            basePrice *= 3;
-        } else if (nameLower.includes('mithril') || nameLower.includes('adamant') || nameLower.includes('rune')) {
-            basePrice *= 10;
-        } else if (nameLower.includes('dragon')) {
-            basePrice *= 8;
-        }
         // Calculate price with modifiers
         let actualPrice = getModifiedPrice(basePrice, false); // Use helper function
 
@@ -433,7 +471,9 @@ function renderSellItems() {
     if (playerData.itemEnchantments) {
         for (const [enchantKey, enchantData] of Object.entries(playerData.itemEnchantments)) {
             if (enchantData.enchantments && enchantData.enchantments.length > 0) {
-                const [slotKey, itemId] = enchantKey.split(':');
+                const keyParts = enchantKey.split(':');
+                const slotKey = keyParts[0];
+                const itemId = keyParts[1];
                 enchantedItemCounts[itemId] = (enchantedItemCounts[itemId] || 0) + 1;
             }
         }
@@ -454,6 +494,7 @@ function renderSellItems() {
              SWORD_DATA[itemId]?.sell_price !== undefined ||
              ARMOR_DATA[itemId]?.sell_price !== undefined ||
              HELMET_DATA[itemId]?.sell_price !== undefined ||
+             RING_DATA[itemId]?.sell_price !== undefined ||
              PERMIT_MASTER_LIST[itemId]?.sell_price !== undefined ||
              PERK_DATA[itemId]?.sell_price !== undefined)) {
 
@@ -549,12 +590,14 @@ function renderSellItems() {
 
     // Now handle enchanted items
     if (playerData.itemEnchantments) {
-        const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe'];
+        const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe', 'left_ring', 'right_ring'];
         
         for (const [enchantKey, enchantData] of Object.entries(playerData.itemEnchantments)) {
             if (!enchantData.enchantments || enchantData.enchantments.length === 0) continue;
             
-            const [slotKey, itemId] = enchantKey.split(':');
+            const keyParts = enchantKey.split(':');
+            const slotKey = keyParts[0];
+            const itemId = keyParts[1];
             
             // Check if player has this item in inventory and it's enchantable
             if (playerData.inventory[itemId] && playerData.inventory[itemId] > 0 && 
@@ -760,6 +803,12 @@ function sellEnchantedItem(enchantKey, itemId, price) {
     // Update UI
     updateHud();
     renderSellItems(); // Refresh the sell items display
+    
+    // Update character display if it's visible
+    const characterSection = document.getElementById('character-section');
+    if (characterSection && !characterSection.classList.contains('hidden')) {
+        populateEquipmentDisplay();
+    }
 }
 
 /**
@@ -803,6 +852,12 @@ function sellItem(itemId, price, quantity) {
     // Update UI
     updateHud();
     renderSellItems(); // Refresh the sell items display
+    
+    // Update character display if it's visible
+    const characterSection = document.getElementById('character-section');
+    if (characterSection && !characterSection.classList.contains('hidden')) {
+        populateEquipmentDisplay();
+    }
 }
 
 /**

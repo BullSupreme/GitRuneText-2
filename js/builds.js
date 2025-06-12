@@ -138,9 +138,9 @@ function createStructureCard(structureId, structureInfo, isBuilt) {
             const details = getItemDetails(res);
             emoji = details && details.emoji ? details.emoji : '';
         }
-        return `${emoji} ${amt} ${resName} (<span class="perk-cost-have ${enough ? 'have-enough' : 'have-not-enough'}">Have: ${haveAmt}</span>)`;
+        return `${emoji} ${amt} ${resName} (<span class="perk-cost-have ${enough ? 'have-enough' : 'have-not-enough'}">${haveAmt}</span>)`;
     });
-    const costDisplay = costParts.join(', ');
+    const costDisplay = costParts.join('<br>');
     // Check affordability of all resources
     let affordable = true;
     for (const [res, amt] of Object.entries(costObj)) {

@@ -96,11 +96,17 @@ export function initializeStatistics() {
                 armorFound: {}, // Track which armor pieces have been found
                 helmetsFound: {}, // Track which helmets have been found
                 toolsFound: {}, // Track which tools have been found
+                itemsObtained: {}, // Track when items are first obtained for achievements
                 allWeapons: 0, // Achievement flag: 1 if all weapons collected
                 allArmor: 0, // Achievement flag: 1 if all armor collected
                 allHelmets: 0, // Achievement flag: 1 if all helmets collected
                 allTools: 0, // Achievement flag: 1 if all tools collected
                 allEquipment: 0 // Achievement flag: 1 if everything collected
+            },
+            
+            // Equipment Statistics - Track what has been equipped
+            equipment: {
+                equipped: {} // Track which items have been equipped { "steel 2h sword": 1, etc. }
             }
         };
         savePlayerData();
@@ -241,6 +247,55 @@ export function trackEquipmentCollection(itemName, category) {
         
     } catch (error) {
         console.error('Error tracking equipment collection:', error);
+    }
+}
+
+// Track item discovery for achievements
+export function trackItemObtained(itemName) {
+    if (!playerData.statistics) {
+        initializeStatistics();
+    }
+    
+    try {
+        const stats = playerData.statistics.collection;
+        
+        // Only track the first time an item is obtained
+        if (!stats.itemsObtained[itemName]) {
+            stats.itemsObtained[itemName] = 1;
+            
+            // Save and check achievements
+            savePlayerData();
+            checkAchievements();
+        }
+        
+    } catch (error) {
+        console.error('Error tracking item obtained:', error);
+    }
+}
+
+// Track when equipment is equipped
+export function trackEquipmentEquipped(itemName) {
+    if (!playerData.statistics) {
+        initializeStatistics();
+    }
+    
+    try {
+        // Initialize equipment tracking if not present
+        if (!playerData.statistics.equipment) {
+            playerData.statistics.equipment = { equipped: {} };
+        }
+        
+        const normalizedName = itemName.toLowerCase();
+        
+        // Mark this item as equipped
+        playerData.statistics.equipment.equipped[normalizedName] = 1;
+        
+        // Save and check achievements
+        savePlayerData();
+        checkAchievements();
+        
+    } catch (error) {
+        console.error('Error tracking equipment equipped:', error);
     }
 }
 
@@ -553,7 +608,7 @@ export const ACHIEVEMENTS = {
         name: 'Dragon Hunter',
         description: 'Kill 100 dragons',
         category: 'Combat',
-        requirement: { type: 'combat.monsterKills.dragon', value: 100 },
+        requirement: { type: 'combat.monsterKills.dark dragon', value: 100 },
         reward: { gold: 10000, xp: { attack: 2000 } },
         icon: '🐉',
         tier: 'rare'
@@ -564,7 +619,7 @@ export const ACHIEVEMENTS = {
         name: 'Dragon Slayer',
         description: 'Kill 1,000 dragons',
         category: 'Combat',
-        requirement: { type: 'combat.monsterKills.dragon', value: 1000 },
+        requirement: { type: 'combat.monsterKills.dark dragon', value: 1000 },
         reward: { gold: 50000, xp: { attack: 10000 } },
         icon: '🐉',
         tier: 'epic'
@@ -575,7 +630,7 @@ export const ACHIEVEMENTS = {
         name: 'Dragonlord',
         description: 'Kill 5,000 dragons',
         category: 'Combat',
-        requirement: { type: 'combat.monsterKills.dragon', value: 5000 },
+        requirement: { type: 'combat.monsterKills.dark dragon', value: 5000 },
         reward: { gold: 150000, xp: { attack: 30000 } },
         icon: '🐉',
         tier: 'legendary'
@@ -1169,6 +1224,242 @@ export const ACHIEVEMENTS = {
     
     // === EQUIPMENT COLLECTION ACHIEVEMENTS ===
     
+    // === STEEL EQUIPMENT ACHIEVEMENTS ===
+    steelWarrior: {
+        id: 'steelWarrior',
+        name: 'Steel Warrior',
+        description: 'Equip a Steel 2H Sword',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.steel 2h sword', value: 1 },
+        reward: { gold: 2500, xp: { attack: 500 } },
+        icon: '⚔️',
+        tier: 'uncommon'
+    },
+    
+    steelLumberjack: {
+        id: 'steelLumberjack',
+        name: 'Steel Lumberjack',
+        description: 'Equip a Steel Axe',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.steel axe', value: 1 },
+        reward: { gold: 2000, xp: { woodcutting: 400 } },
+        icon: '🪓',
+        tier: 'uncommon'
+    },
+    
+    steelMiner: {
+        id: 'steelMiner',
+        name: 'Steel Miner',
+        description: 'Equip a Steel Pickaxe',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.steel pickaxe', value: 1 },
+        reward: { gold: 2000, xp: { mining: 400 } },
+        icon: '⛏️',
+        tier: 'uncommon'
+    },
+    
+    steelProtector: {
+        id: 'steelProtector',
+        name: 'Steel Protector',
+        description: 'Equip a Steel Chestplate',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.steel chestplate', value: 1 },
+        reward: { gold: 3000, xp: { attack: 600 } },
+        icon: '🛡️',
+        tier: 'uncommon'
+    },
+    
+    // === MITHRIL EQUIPMENT ACHIEVEMENTS ===
+    mithrilWarrior: {
+        id: 'mithrilWarrior',
+        name: 'Mithril Warrior',
+        description: 'Equip a Mithril 2H Sword',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.mithril 2h sword', value: 1 },
+        reward: { gold: 5000, xp: { attack: 1000 } },
+        icon: '⚔️',
+        tier: 'rare'
+    },
+    
+    mithrilLumberjack: {
+        id: 'mithrilLumberjack',
+        name: 'Mithril Lumberjack',
+        description: 'Equip a Mithril Axe',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.mithril axe', value: 1 },
+        reward: { gold: 4000, xp: { woodcutting: 800 } },
+        icon: '🪓',
+        tier: 'rare'
+    },
+    
+    mithrilMiner: {
+        id: 'mithrilMiner',
+        name: 'Mithril Miner',
+        description: 'Equip a Mithril Pickaxe',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.mithril pickaxe', value: 1 },
+        reward: { gold: 4000, xp: { mining: 800 } },
+        icon: '⛏️',
+        tier: 'rare'
+    },
+    
+    mithrilProtector: {
+        id: 'mithrilProtector',
+        name: 'Mithril Protector',
+        description: 'Equip a Mithril Chestplate',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.mithril chestplate', value: 1 },
+        reward: { gold: 6000, xp: { attack: 1200 } },
+        icon: '🛡️',
+        tier: 'rare'
+    },
+    
+    // === ADAMANT EQUIPMENT ACHIEVEMENTS ===
+    adamantWarrior: {
+        id: 'adamantWarrior',
+        name: 'Adamant Warrior',
+        description: 'Equip an Adamant 2H Sword',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.adamant 2h sword', value: 1 },
+        reward: { gold: 10000, xp: { attack: 2000 } },
+        icon: '⚔️',
+        tier: 'epic'
+    },
+    
+    adamantLumberjack: {
+        id: 'adamantLumberjack',
+        name: 'Adamant Lumberjack',
+        description: 'Equip an Adamant Axe',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.adamant axe', value: 1 },
+        reward: { gold: 8000, xp: { woodcutting: 1600 } },
+        icon: '🪓',
+        tier: 'epic'
+    },
+    
+    adamantMiner: {
+        id: 'adamantMiner',
+        name: 'Adamant Miner',
+        description: 'Equip an Adamant Pickaxe',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.adamant pickaxe', value: 1 },
+        reward: { gold: 8000, xp: { mining: 1600 } },
+        icon: '⛏️',
+        tier: 'epic'
+    },
+    
+    adamantProtector: {
+        id: 'adamantProtector',
+        name: 'Adamant Protector',
+        description: 'Equip an Adamant Chestplate',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.adamant chestplate', value: 1 },
+        reward: { gold: 12000, xp: { attack: 2400 } },
+        icon: '🛡️',
+        tier: 'epic'
+    },
+    
+    // === RUNE EQUIPMENT ACHIEVEMENTS ===
+    runeWarrior: {
+        id: 'runeWarrior',
+        name: 'Rune Warrior',
+        description: 'Equip a Rune 2H Sword',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.rune 2h sword', value: 1 },
+        reward: { gold: 20000, xp: { attack: 4000 } },
+        icon: '⚔️',
+        tier: 'epic'
+    },
+    
+    runeLumberjack: {
+        id: 'runeLumberjack',
+        name: 'Rune Lumberjack',
+        description: 'Equip a Rune Axe',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.rune axe', value: 1 },
+        reward: { gold: 16000, xp: { woodcutting: 3200 } },
+        icon: '🪓',
+        tier: 'epic'
+    },
+    
+    runeMiner: {
+        id: 'runeMiner',
+        name: 'Rune Miner',
+        description: 'Equip a Rune Pickaxe',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.rune pickaxe', value: 1 },
+        reward: { gold: 16000, xp: { mining: 3200 } },
+        icon: '⛏️',
+        tier: 'epic'
+    },
+    
+    runeProtector: {
+        id: 'runeProtector',
+        name: 'Rune Protector',
+        description: 'Equip a Rune Chestplate',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.rune chestplate', value: 1 },
+        reward: { gold: 24000, xp: { attack: 4800 } },
+        icon: '🛡️',
+        tier: 'epic'
+    },
+    
+    // === DRAGON EQUIPMENT ACHIEVEMENTS ===
+    dragonWarrior: {
+        id: 'dragonWarrior',
+        name: 'Dragon Warrior',
+        description: 'Equip a Dragon 2H Sword',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.dragon 2h sword', value: 1 },
+        reward: { gold: 50000, xp: { attack: 10000 } },
+        icon: '🐉',
+        tier: 'legendary'
+    },
+    
+    dragonLumberjack: {
+        id: 'dragonLumberjack',
+        name: 'Dragon Lumberjack',
+        description: 'Equip a Dragon Axe',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.dragon axe', value: 1 },
+        reward: { gold: 40000, xp: { woodcutting: 8000 } },
+        icon: '🐉',
+        tier: 'legendary'
+    },
+    
+    dragonMiner: {
+        id: 'dragonMiner',
+        name: 'Dragon Miner',
+        description: 'Equip a Dragon Pickaxe',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.dragon pickaxe', value: 1 },
+        reward: { gold: 40000, xp: { mining: 8000 } },
+        icon: '🐉',
+        tier: 'legendary'
+    },
+    
+    dragonProtector: {
+        id: 'dragonProtector',
+        name: 'Dragon Protector',
+        description: 'Equip a Dragon Chestplate',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.dragon chestplate', value: 1 },
+        reward: { gold: 60000, xp: { attack: 12000 } },
+        icon: '🐉',
+        tier: 'legendary'
+    },
+    
+    dragonHelmBearer: {
+        id: 'dragonHelmBearer',
+        name: 'Dragon Helm Bearer',
+        description: 'Equip a Full Dragon Helmet',
+        category: 'Equipment',
+        requirement: { type: 'equipment.equipped.full dragon helmet', value: 1 },
+        reward: { gold: 100000, xp: { attack: 20000 } },
+        icon: '👑',
+        tier: 'legendary'
+    },
+    
     weaponCollector: {
         id: 'weaponCollector',
         name: 'Weapon Collector',
@@ -1210,6 +1501,119 @@ export const ACHIEVEMENTS = {
         requirement: { type: 'collection.allTools', value: 1 },
         reward: { gold: 15000, xp: { mining: 3000, woodcutting: 3000 } },
         icon: '🔨',
+        tier: 'rare'
+    },
+    
+    // Individual Armor Discoveries
+    bronzeChestplateDiscovery: {
+        id: 'bronzeChestplateDiscovery',
+        name: 'Bronze Defender',
+        description: 'Discover a Bronze Chestplate',
+        category: 'Discovery',
+        requirement: { type: 'item.obtained.bronze chestplate', value: 1 },
+        reward: { gold: 100 },
+        icon: '🛡️',
+        tier: 'common'
+    },
+    
+    ironChestplateDiscovery: {
+        id: 'ironChestplateDiscovery',
+        name: 'Iron Guardian',
+        description: 'Discover an Iron Chestplate',
+        category: 'Discovery',
+        requirement: { type: 'item.obtained.iron chestplate', value: 1 },
+        reward: { gold: 250 },
+        icon: '🛡️',
+        tier: 'common'
+    },
+    
+    steelChestplateDiscovery: {
+        id: 'steelChestplateDiscovery',
+        name: 'Steel Protector',
+        description: 'Discover a Steel Chestplate',
+        category: 'Discovery',
+        requirement: { type: 'item.obtained.steel chestplate', value: 1 },
+        reward: { gold: 500 },
+        icon: '🛡️',
+        tier: 'uncommon'
+    },
+    
+    mithrilChestplateDiscovery: {
+        id: 'mithrilChestplateDiscovery',
+        name: 'Mithril Knight',
+        description: 'Discover a Mithril Chestplate',
+        category: 'Discovery',
+        requirement: { type: 'item.obtained.mithril chestplate', value: 1 },
+        reward: { gold: 1000 },
+        icon: '🛡️',
+        tier: 'rare'
+    },
+    
+    adamantChestplateDiscovery: {
+        id: 'adamantChestplateDiscovery',
+        name: 'Adamant Warrior',
+        description: 'Discover an Adamant Chestplate',
+        category: 'Discovery',
+        requirement: { type: 'item.obtained.adamant chestplate', value: 1 },
+        reward: { gold: 2500 },
+        icon: '🛡️',
+        tier: 'rare'
+    },
+    
+    runeChestplateDiscovery: {
+        id: 'runeChestplateDiscovery',
+        name: 'Rune Champion',
+        description: 'Discover a Rune Chestplate',
+        category: 'Discovery',
+        requirement: { type: 'item.obtained.rune chestplate', value: 1 },
+        reward: { gold: 5000 },
+        icon: '🛡️',
+        tier: 'epic'
+    },
+    
+    dragonChestplateDiscovery: {
+        id: 'dragonChestplateDiscovery',
+        name: 'Dragon Lord',
+        description: 'Discover a Dragon Chestplate',
+        category: 'Discovery',
+        requirement: { type: 'item.obtained.dragon chestplate', value: 1 },
+        reward: { gold: 10000 },
+        icon: '🛡️🔥',
+        tier: 'legendary'
+    },
+    
+    // Individual Helmet Discovery
+    fullDragonHelmetDiscovery: {
+        id: 'fullDragonHelmetDiscovery',
+        name: 'Crown Bearer',
+        description: 'Discover a Full Dragon Helmet',
+        category: 'Discovery',
+        requirement: { type: 'item.obtained.full dragon helmet', value: 1 },
+        reward: { gold: 15000 },
+        icon: '👑',
+        tier: 'legendary'
+    },
+    
+    // Ring Discovery Achievements
+    silverRingDiscovery: {
+        id: 'silverRingDiscovery',
+        name: 'Silver Signet',
+        description: 'Discover a Silver Ring',
+        category: 'Discovery',
+        requirement: { type: 'item.obtained.silver ring', value: 1 },
+        reward: { gold: 500 },
+        icon: '💍',
+        tier: 'uncommon'
+    },
+    
+    goldRingDiscovery: {
+        id: 'goldRingDiscovery',
+        name: 'Golden Circle',
+        description: 'Discover a Gold Ring',
+        category: 'Discovery',
+        requirement: { type: 'item.obtained.gold ring', value: 1 },
+        reward: { gold: 1500 },
+        icon: '💍🌟',
         tier: 'rare'
     },
     
@@ -1261,12 +1665,13 @@ function checkAchievements() {
     const stats = playerData.statistics;
     
     Object.values(ACHIEVEMENTS).forEach(achievement => {
+        // Skip if already completed
+        if (playerData.achievements.completed.includes(achievement.id)) {
+            return;
+        }
+        
         // Custom achievements for Rune & Dragon Gear separately
         if (achievement.requirement.type === 'custom.runeGear') {
-            // Skip if already completed
-            if (playerData.achievements.completed.includes(achievement.id)) {
-                return;
-            }
             const coll = stats.collection;
             if (coll.weaponsFound['rune 2h sword'] && coll.armorFound['rune chestplate']) {
                 unlockAchievement(achievement);
@@ -1274,18 +1679,10 @@ function checkAchievements() {
             return;
         }
         if (achievement.requirement.type === 'custom.dragonGear') {
-            // Skip if already completed
-            if (playerData.achievements.completed.includes(achievement.id)) {
-                return;
-            }
             const coll = stats.collection;
             if (coll.weaponsFound['dragon 2h sword'] && coll.armorFound['dragon chestplate']) {
                 unlockAchievement(achievement);
             }
-            return;
-        }
-        // Skip if already completed
-        if (playerData.achievements.completed.includes(achievement.id)) {
             return;
         }
         
@@ -1299,6 +1696,14 @@ function checkAchievements() {
         // For economy achievements, use highestGoldAmount instead of totalGoldEarned
         if (reqType === 'economy.totalGoldEarned') {
             currentValue = stats.economy.highestGoldAmount || 0;
+        } else if (reqType.startsWith('equipment.equipped.')) {
+            // Handle equipment achievements
+            const itemName = reqType.substring('equipment.equipped.'.length);
+            currentValue = (stats.equipment && stats.equipment.equipped && stats.equipment.equipped[itemName]) ? 1 : 0;
+        } else if (reqType.startsWith('item.obtained.')) {
+            // Handle item discovery achievements
+            const itemName = reqType.substring('item.obtained.'.length);
+            currentValue = (stats.collection && stats.collection.itemsObtained && stats.collection.itemsObtained[itemName]) ? 1 : 0;
         } else {
             try {
                 // Navigate through the nested object path
@@ -1333,6 +1738,9 @@ function unlockAchievement(achievement) {
         playSound(achievementSound);
     }
     savePlayerData();
+    
+    // Update notification badges after unlocking an achievement
+    updateAchievementNotifications();
 }
 
 // Get achievement progress
@@ -1351,6 +1759,11 @@ export function getAchievementProgress(achievementId) {
     // For economy achievements, use highestGoldAmount instead of totalGoldEarned
     if (reqType === 'economy.totalGoldEarned') {
         currentValue = playerData.statistics.economy.highestGoldAmount || 0;
+    } else if (reqType.startsWith('equipment.equipped.')) {
+        // Handle equipment achievements
+        const itemName = reqType.substring('equipment.equipped.'.length);
+        const stats = playerData.statistics;
+        currentValue = (stats.equipment && stats.equipment.equipped && stats.equipment.equipped[itemName]) ? 1 : 0;
     } else {
         try {
             // Navigate through the nested object path
@@ -1450,10 +1863,11 @@ function updateAchievementsDisplay() {
         achievements.forEach(achievement => {
             const isCompleted = playerData.achievements?.completed.includes(achievement.id);
             const isClaimed = playerData.achievements?.claimed.includes(achievement.id);
+            const isClaimable = isCompleted && !isClaimed;
             const progress = getAchievementProgress(achievement.id);
             const achievementCard = document.createElement('div');
             achievementCard.setAttribute('data-achievement-id', achievement.id);
-            achievementCard.className = `achievement-card ${achievement.tier} ${isCompleted ? 'completed' : ''}`;
+            achievementCard.className = `achievement-card ${achievement.tier} ${isCompleted ? 'completed' : ''} ${isClaimable ? 'claimable' : ''}`;
             achievementCard.innerHTML = `
                 <div class="achievement-icon">${achievement.icon}</div>
                 <div class="achievement-content">
@@ -1468,10 +1882,10 @@ function updateAchievementsDisplay() {
                     ${isClaimed ? '<div class="achievement-completed">✓ CLAIMED</div>' : ''}
                 </div>`;
             const contentDiv = achievementCard.querySelector('.achievement-content');
-            if (isCompleted && !isClaimed) {
+            if (isClaimable) {
                 const btn = document.createElement('button');
                 btn.className = 'achievement-claim-btn';
-                btn.textContent = 'Claim Reward';
+                btn.textContent = '✨ Claim Reward ✨';
                 btn.addEventListener('click', () => claimAchievement(achievement.id));
                 contentDiv.appendChild(btn);
             }
@@ -1493,6 +1907,71 @@ export function initializeAchievements() {
     setInterval(() => {
         trackStatistic('progression', 'playTime', 60);
     }, 60000);
+}
+
+// Check if there are any achievements that can be claimed
+export function hasClaimableAchievements() {
+    if (!playerData.achievements) return false;
+    
+    const completed = playerData.achievements.completed || [];
+    const claimed = playerData.achievements.claimed || [];
+    
+    // Return true if there are completed achievements that haven't been claimed yet
+    return completed.some(achievementId => !claimed.includes(achievementId));
+}
+
+// Update achievement notification badges
+export function updateAchievementNotifications() {
+    const hasClaimable = hasClaimableAchievements();
+    
+    // Update main menu achievements button
+    const mainMenuButton = document.getElementById('achievements-menu-button');
+    if (mainMenuButton) {
+        // Remove existing badge
+        const existingBadge = mainMenuButton.querySelector('.achievement-notification-badge');
+        if (existingBadge) {
+            existingBadge.remove();
+        }
+        
+        // Add badge if there are claimable achievements
+        if (hasClaimable) {
+            const badge = document.createElement('span');
+            badge.className = 'achievement-notification-badge';
+            badge.textContent = '!';
+            mainMenuButton.appendChild(badge);
+        }
+    }
+    
+    // Update left panel achievements navigation item
+    const leftPanelAchievementsNav = document.querySelector('.left-panel-nav-item[data-target-section="achievements-section"]');
+    if (leftPanelAchievementsNav) {
+        // Remove existing badge
+        const existingBadge = leftPanelAchievementsNav.querySelector('.achievement-notification-badge');
+        if (existingBadge) {
+            existingBadge.remove();
+        }
+        
+        // Add badge if there are claimable achievements
+        if (hasClaimable) {
+            const badge = document.createElement('span');
+            badge.className = 'achievement-notification-badge';
+            badge.textContent = '!';
+            
+            // Add to the header container
+            const header = leftPanelAchievementsNav.querySelector('.left-panel-nav-item-header');
+            if (header) {
+                header.appendChild(badge);
+            }
+        }
+    }
+}
+
+// Check if a specific achievement is completed
+export function isAchievementCompleted(achievementId) {
+    if (!playerData.achievements || !playerData.achievements.completed) {
+        return false;
+    }
+    return playerData.achievements.completed.includes(achievementId);
 }
 
 // Global functions
@@ -1522,5 +2001,8 @@ function claimAchievement(achievementId) {
     playerData.achievements.claimed.push(achievementId);
     savePlayerData();
     updateAchievementsDisplay();
+    
+    // Update notification badges after claiming an achievement
+    updateAchievementNotifications();
 }
 window.claimAchievement = claimAchievement;

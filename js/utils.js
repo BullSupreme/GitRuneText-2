@@ -6,7 +6,7 @@
 'use strict';
 
 // Import game data constants
-import { LEVEL_PROGRESSION, TOOL_DATA, ITEM_DATA, TREE_DATA, ORE_DATA, BAR_DATA, PERK_DATA, FOOD_DATA, SWORD_DATA, ARMOR_DATA, HELMET_DATA, ENCHANTMENT_STAT_TIER_COLORS } from './data.js'; // Added more imports
+import { LEVEL_PROGRESSION, TOOL_DATA, ITEM_DATA, TREE_DATA, ORE_DATA, BAR_DATA, PERK_DATA, FOOD_DATA, SWORD_DATA, ARMOR_DATA, HELMET_DATA, RING_DATA, ENCHANTMENT_STAT_TIER_COLORS, MAX_ENCHANTMENTS } from './data.js'; // Added more imports
 import { getSummedPyramidPerkEffects } from './perks.js';
 
 
@@ -374,40 +374,32 @@ export function getXpForDisplay(xp) {
 }
 
 export function getEnchantmentBonus(statType, slot = null) {
-    if (!playerData || !playerData.itemEnchantments) return 0;
+    if (!playerData || !playerData.enchantedStats) return 0;
     
     let totalBonus = 0;
     
     if (slot) {
-        // Get enchantments from specific slot
-        const equippedItemName = playerData.equipment && playerData.equipment[slot];
-        if (equippedItemName && equippedItemName !== 'none') {
-            const itemKey = `${slot}:${equippedItemName}`;
-            const itemEnchantData = playerData.itemEnchantments[itemKey];
-            if (itemEnchantData && itemEnchantData.enchantments) {
-                itemEnchantData.enchantments.forEach(enchantment => {
+        // Get enchantments from specific slot using enchantedStats (currently active enchantments)
+        const enchantments = playerData.enchantedStats[slot];
+        if (enchantments && enchantments.length > 0) {
+            enchantments.forEach(enchantment => {
+                if (enchantment.stat === statType) {
+                    totalBonus += enchantment.value;
+                }
+            });
+        }
+    } else {
+        // Get enchantments from all enchantable slots using enchantedStats (currently active enchantments)
+        const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe', 'left_ring', 'right_ring'];
+        
+        enchantableSlots.forEach(slotKey => {
+            const enchantments = playerData.enchantedStats[slotKey];
+            if (enchantments && enchantments.length > 0) {
+                enchantments.forEach(enchantment => {
                     if (enchantment.stat === statType) {
                         totalBonus += enchantment.value;
                     }
                 });
-            }
-        }
-    } else {
-        // Get enchantments from all enchantable slots (backward compatibility)
-        const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe'];
-        
-        enchantableSlots.forEach(slotKey => {
-            const equippedItemName = playerData.equipment && playerData.equipment[slotKey];
-            if (equippedItemName && equippedItemName !== 'none') {
-                const itemKey = `${slotKey}:${equippedItemName}`;
-                const itemEnchantData = playerData.itemEnchantments[itemKey];
-                if (itemEnchantData && itemEnchantData.enchantments) {
-                    itemEnchantData.enchantments.forEach(enchantment => {
-                        if (enchantment.stat === statType) {
-                            totalBonus += enchantment.value;
-                        }
-                    });
-                }
             }
         });
     }
@@ -464,6 +456,17 @@ export function formatEnchantmentStat(statType, value) {
             return `+${Math.floor(value)} Fire DoT`;
         case 'ice_damage':
             return `+${Math.floor(value * 100)}% Ice Slow`;
+        // Ring enchantments
+        case 'hp_percent':
+            return `+${(value * 100).toFixed(1)}% of Max HP`;
+        case 'crit_damage':
+            return `+${(value * 100).toFixed(1)}% Crit Damage`;
+        case 'aoe_damage':
+            return `+${(value * 100).toFixed(1)}% AOE Damage`;
+        case 'aoe_chance':
+            return `+${(value * 100).toFixed(1)}% AOE Chance`;
+        case 'crafting_speed':
+            return `${value.toFixed(1)}s Crafting Speed`;
         default:
             return `+${value} ${statType}`;
     }
@@ -472,10 +475,27 @@ export function formatEnchantmentStat(statType, value) {
 export function getMaxHp(attackLevel) {
     const base = 10 + Math.floor(attackLevel * 2.5);
     const effects = getSummedPyramidPerkEffects();
-    const flatHpPerk = effects.hp || 0; // Assuming 'hp' is the key from pyramid for flat HP
+    const flatHpPerk = effects.max_hp || 0; // Fixed: HP perks use 'max_hp' type, not 'hp'
     const enchantmentHp = getEnchantmentBonus('hp_flat');
     const toolBonusHp = getEnchantmentBonus('bonus_hp');
-    return base + flatHpPerk + enchantmentHp + toolBonusHp;
+    const hpPercentBonus = getEnchantmentBonus('hp_percent');
+    
+    // Calculate base HP with flat bonuses
+    const baseWithFlat = base + flatHpPerk + enchantmentHp + toolBonusHp;
+    
+    // Apply percentage bonuses to the base HP (including flat bonuses)
+    const totalHp = Math.floor(baseWithFlat * (1 + hpPercentBonus));
+    
+    return totalHp;
+}
+
+// Function to cap current HP at max HP
+export function capCurrentHp() {
+    const attackLevel = getLevelFromXp(playerData.skills.attack.xp || 0);
+    const maxHP = getMaxHp(attackLevel);
+    if (playerData.hp > maxHP) {
+        playerData.hp = maxHP;
+    }
 }
 
 // Function to handle low health warning reset on heal
@@ -670,7 +690,7 @@ export function getDefaultPlayerData() {
             enchanting: { level: 1, xp: 0 }
         },
         inventory: {},
-        equipment: { weapon: "none", axe: "none", pickaxe: "none", armor: "none", helmet: "none" },
+        equipment: { weapon: "none", axe: "none", pickaxe: "none", armor: "none", helmet: "none", left_ring: "none", right_ring: "none" },
         tools: {},
         perk_points_earned: 0, perk_points_spent: 0,
         active_perks: {}, // For legacy, should be migrated to pyramidNodes
@@ -683,8 +703,45 @@ export function getDefaultPlayerData() {
         last_animal_production: 0, last_farm_worker_payment: 0,
         farm_storage: {}, farm_managers_roles: { animal: null, crop: null },
         enchantedStats: {}, itemEnchantments: {}, // No enchantmentCounters needed if count is in itemEnchantments
-        settings: { mute: false, uiMode: 'mobile', musicVolume: 50 } // Added uiMode and musicVolume
+        settings: { mute: false, uiMode: 'mobile', musicVolume: 50 }, // Added uiMode and musicVolume
+        combat: { enemiesKilled: {} },
+        dungeoneering: {
+            unlocked: false,
+            level: 1,
+            exp: 0,
+            dungeonsCompleted: {},
+            totalDungeonsCompleted: 0,
+            abilities: {},
+            abilityUpgrades: {}
+        }
     };
+}
+
+export function cleanupCorruptedEnchantments() {
+    // Clean up corrupted enchantment data
+    if (playerData.itemEnchantments) {
+        Object.keys(playerData.itemEnchantments).forEach(itemKey => {
+            const keyParts = itemKey.split(':');
+            const slotKey = keyParts[0];
+            const itemName = keyParts[1];
+            const enchantData = playerData.itemEnchantments[itemKey];
+            
+            // Import MAX_ENCHANTMENTS for validation
+            const MAX_ENCHANTMENTS = 12;
+            
+            // Fix counts that exceed maximum enchantment sessions
+            if (enchantData.count > MAX_ENCHANTMENTS) {
+                console.log(`[CLEANUP] Fixing enchantment count exceeding maximum for ${itemKey}: count=${enchantData.count}, setting to ${MAX_ENCHANTMENTS}`);
+                enchantData.count = MAX_ENCHANTMENTS;
+            }
+            
+            // Remove empty enchantment entries
+            if (!enchantData.enchantments || enchantData.enchantments.length === 0) {
+                console.log(`[CLEANUP] Removing empty enchantment entry for ${itemKey}`);
+                delete playerData.itemEnchantments[itemKey];
+            }
+        });
+    }
 }
 
 export function migratePlayerData(data) {
@@ -699,6 +756,27 @@ export function migratePlayerData(data) {
     migratedData.enchantedStats = { ...getDefaultPlayerData().enchantedStats, ...data.enchantedStats };
     migratedData.itemEnchantments = { ...getDefaultPlayerData().itemEnchantments, ...data.itemEnchantments };
     migratedData.pyramidNodes = Array.isArray(data.pyramidNodes) ? data.pyramidNodes : [];
+    
+    // Initialize dungeoneering if not present
+    if (!migratedData.dungeoneering) {
+        migratedData.dungeoneering = {
+            unlocked: false,
+            level: 1,
+            exp: 0,
+            dungeonsCompleted: {},
+            totalDungeonsCompleted: 0,
+            abilities: {},
+            abilityUpgrades: {}
+        };
+    }
+    
+    // Initialize combat enemiesKilled if not present
+    if (!migratedData.combat) {
+        migratedData.combat = { enemiesKilled: {} };
+    }
+    if (!migratedData.combat.enemiesKilled) {
+        migratedData.combat.enemiesKilled = {};
+    }
 
 
     // Specific Migrations
@@ -905,13 +983,97 @@ export function generateItemTooltip(item) {
     if (item.tooltipDesc) tooltipHtml += `<div class="tooltip-box-desc">${item.tooltipDesc}</div>`;
 
     let statsHtml = '';
-    // Example stats based on common properties. Adjust as needed.
+    
+    // Level requirement
+    if (item.level_req !== undefined) statsHtml += `<span>Level Required: ${item.level_req}</span>`;
+    
+    // Damage stats
     if (item.min_dmg !== undefined) statsHtml += `<span>Damage: ${item.min_dmg}-${item.max_dmg}</span>`;
-    if (item.attack_speed !== undefined) statsHtml += `<span>Speed: ${item.attack_speed.toFixed(1)}</span>`;
+    
+    // Speed (attack speed for weapons, skill speed for tools)
+    if (item.attack_speed !== undefined) {
+        if (item.skill_type === 'woodcutting') {
+            // Calculate actual woodcutting speed using tier multipliers (same logic as woodcutting.js)
+            const baseTime = 3000; // 3 seconds in ms
+            const tierMultipliers = {
+                bronze: 1.0, iron: 0.967, steel: 0.933, mithril: 0.9, adamant: 0.9, rune: 0.867, dragon: 0.833
+            };
+            const tier = item.id ? item.id.toLowerCase() : 'bronze';
+            const multiplier = tierMultipliers[tier] || 1.0;
+            const actualSpeed = (baseTime * multiplier) / 1000; // Convert to seconds
+            statsHtml += `<span>Woodcutting Speed: ${actualSpeed.toFixed(1)}s</span>`;
+        } else if (item.skill_type === 'mining') {
+            // Calculate actual mining speed using tier multipliers (same logic as mining.js)
+            const baseTime = 3000; // 3 seconds in ms
+            const tierMultipliers = {
+                bronze: 1.0, iron: 0.967, steel: 0.933, mithril: 0.9, adamant: 0.9, rune: 0.867, dragon: 0.833
+            };
+            const tier = item.id ? item.id.toLowerCase() : 'bronze';
+            const multiplier = tierMultipliers[tier] || 1.0;
+            const actualSpeed = (baseTime * multiplier) / 1000; // Convert to seconds
+            statsHtml += `<span>Mining Speed: ${actualSpeed.toFixed(1)}s</span>`;
+        } else {
+            statsHtml += `<span>Attack Speed: ${item.attack_speed.toFixed(1)}s</span>`;
+        }
+    }
+    
+    // Defense
     if (item.defense !== undefined) statsHtml += `<span>Defense: ${Math.floor(item.defense * 100)}%</span>`;
+    
+    // Healing
     if (item.heal_amount !== undefined) statsHtml += `<span>Heals: ${item.heal_amount} HP</span>`;
     
-    if (item.effects && Array.isArray(item.effects)) { // Potion/Elixir effects
+    // AoE capabilities
+    if (item.aoe_chance !== undefined) {
+        statsHtml += `<span>AoE Chance: ${(item.aoe_chance * 100).toFixed(0)}%</span>`;
+        if (item.aoe_targets !== undefined) {
+            statsHtml += `<span>AoE Targets: ${item.aoe_targets}</span>`;
+        }
+        if (item.aoe_damage_percentage !== undefined) {
+            statsHtml += `<span>AoE Damage: ${(item.aoe_damage_percentage * 100).toFixed(0)}%</span>`;
+        }
+    }
+    
+    // Crit chance (for weapons)
+    if (item.crit_chance !== undefined) {
+        statsHtml += `<span>Crit Chance: ${(item.crit_chance * 100).toFixed(0)}%</span>`;
+    }
+    
+    // Lifesteal (for weapons)
+    if (item.lifesteal_chance !== undefined) {
+        const lifestealAmount = Array.isArray(item.lifesteal_amount) 
+            ? `${item.lifesteal_amount[0]}-${item.lifesteal_amount[1]}` 
+            : item.lifesteal_amount;
+        statsHtml += `<span>Lifesteal: ${(item.lifesteal_chance * 100).toFixed(0)}% (${lifestealAmount} HP)</span>`;
+    }
+    
+    // Yield configuration for tools
+    if (item.yield_config) {
+        if (item.yield_config.base !== undefined) {
+            statsHtml += `<span>Base Yield: ${item.yield_config.base}</span>`;
+        }
+        
+        // Axe yield bonuses by tree type
+        if (item.yield_config.bonuses_by_tree) {
+            statsHtml += `<span>Yield Bonuses:</span>`;
+            const trees = item.yield_config.bonuses_by_tree;
+            for (const [treeType, bonuses] of Object.entries(trees)) {
+                if (bonuses && bonuses.length > 0) {
+                    const bonusText = bonuses.map(b => `${(b.chance * 100).toFixed(0)}% (+${b.amount})`).join(', ');
+                    statsHtml += `<span style="margin-left: 10px;">${treeType}: ${bonusText}</span>`;
+                }
+            }
+        }
+        
+        // Pickaxe yield bonuses (simpler structure)
+        if (item.yield_config.bonuses && Array.isArray(item.yield_config.bonuses)) {
+            const bonusText = item.yield_config.bonuses.map(b => `${(b.chance * 100).toFixed(0)}% (+${b.amount})`).join(', ');
+            statsHtml += `<span>Yield Bonuses: ${bonusText}</span>`;
+        }
+    }
+    
+    // Potion/Elixir effects
+    if (item.effects && Array.isArray(item.effects)) {
         statsHtml += '<span>Effects:<ul>';
         item.effects.forEach(eff => {
             statsHtml += `<li>+${eff.value * 100}% ${eff.type.replace(/_/g, ' ')} (${Math.floor(eff.duration / 60)} min)</li>`;
@@ -927,7 +1089,7 @@ export function generateItemTooltip(item) {
             statsHtml += `<span class="${colorClass}">${statDisplay}</span>`;
         });
         if(item.enchantmentCount) {
-            statsHtml += `<span class="enchantment-count">Enchants: ${item.enchantmentCount}/12</span>`;
+            statsHtml += `<span class="enchantment-count">Enchants: ${item.enchantmentCount}/${MAX_ENCHANTMENTS}</span>`;
         }
     }
 

@@ -5,11 +5,11 @@
 
 'use strict';
 
-import { playerData, getLevelFromXp, getXpForDisplay, playSound, sounds, getMaxHp, logMessage, savePlayerData, soundsMuted, soundVolume, setSoundVolume, toggleMute as utilToggleMute, exportSaveData, handleImportFile, confirmResetGame, resetGame, applyCheat, getXpForLevel, musicVolume, setMusicVolume, initializeMainThemeMusic, startMainThemeMusic } from './utils.js';
+import { playerData, getLevelFromXp, getXpForDisplay, playSound, sounds, getMaxHp, capCurrentHp, logMessage, savePlayerData, soundsMuted, soundVolume, setSoundVolume, toggleMute as utilToggleMute, exportSaveData, handleImportFile, confirmResetGame, resetGame, applyCheat, getXpForLevel, musicVolume, setMusicVolume, initializeMainThemeMusic, startMainThemeMusic } from './utils.js';
 import { calculateAvailablePerkPoints } from './perks.js';
 import { showCharacterSection } from './characterinfo.js';
 import { showInventorySection } from './inventory.js';
-import { showActionsMenu } from './actions.js';
+import { showActionsMenu, stopAllAutoActions } from './actions.js';
 import { showPerkTreeSection } from './perks.js';
 import { showShopSection } from './shop.js';
 import { showBuildStructuresMenu } from './builds.js';
@@ -18,10 +18,11 @@ import { showBlacksmithingMenu } from './blacksmithing.js';
 import { showWoodcutting } from './woodcutting.js';
 import { showMining } from './mining.js';
 import { showCooking } from './cooking.js';
-import { showCombat } from './combat.js';
+import { showCombat, stopAutoAttack, isAutoAttacking } from './combat.js';
 import { showFarmingMenu } from './farming.js';
 import { showEnchantingMenu } from './enchanting.js';
-import { showAchievementsMenu } from './achievements.js';
+import { showDungeoneeringMenu } from './dungeoneering.js';
+import { showAchievementsMenu, updateAchievementNotifications } from './achievements.js';
 import { trackStatistic } from './achievements.js';
 
 // Track current visible section
@@ -55,6 +56,15 @@ export function hideAllSections() {
  */
 export function showSection(sectionId) {
     // console.log(`Attempting to show section: ${sectionId}`);
+    
+    // Stop all auto actions when switching away from action-based sections
+    const actionSections = ['combat-section', 'woodcutting-section', 'mining-section', 'cooking-section', 'blacksmithing-section', 'actions-section'];
+    const isLeavingActionSection = actionSections.includes(currentSection) && !actionSections.includes(sectionId);
+    
+    if (isLeavingActionSection) {
+        stopAllAutoActions();
+    }
+    
     hideAllSections();
     
     const section = document.getElementById(sectionId);
@@ -111,11 +121,25 @@ function updateSkillLockStates() {
         const tooltip = farmingHud.querySelector('.tooltip');
         
         if (farmingUnlocked) {
-            farmingHud.classList.remove('locked');
+            farmingHud.classList.remove('locked', 'hidden');
             if (tooltip) tooltip.textContent = 'Farming';
         } else {
-            farmingHud.classList.add('locked');
+            farmingHud.classList.add('locked', 'hidden');
             if (tooltip) tooltip.textContent = 'Build Farm Land to unlock Farming';
+        }
+    }
+    
+    const dungeoneeringHud = document.getElementById('hud-dg');
+    if (dungeoneeringHud) {
+        const dungeoneeringUnlocked = playerData.dungeoneering?.unlocked;
+        const tooltip = dungeoneeringHud.querySelector('.tooltip');
+        
+        if (dungeoneeringUnlocked) {
+            dungeoneeringHud.classList.remove('locked', 'hidden');
+            if (tooltip) tooltip.textContent = 'Dungeoneering';
+        } else {
+            dungeoneeringHud.classList.add('locked', 'hidden');
+            if (tooltip) tooltip.textContent = 'Defeat 100 Dark Dragons to unlock Dungeoneering';
         }
     }
 }
@@ -130,6 +154,9 @@ export function updateHud() {
         trackStatistic('economy', 'goldEarned', deltaGold);
     }
     lastGold = currentGold;
+    
+    // Update town menu appearance based on buildings
+    updateTownMenuAppearance();
 
     // Update left navigation if in desktop mode
     if (currentUIMode === 'desktop') {
@@ -142,11 +169,11 @@ export function updateHud() {
             playerData.skills = {
                 attack: { level: 1, xp: 0 }, woodcutting: { level: 1, xp: 0 },
                 mining: { level: 1, xp: 0 }, blacksmithing: { level: 1, xp: 0 },
-                cooking: { level: 1, xp: 0 }, farming: {level: 1, xp: 0}, enchanting: {level: 1, xp: 0}
+                cooking: { level: 1, xp: 0 }, farming: {level: 1, xp: 0}, enchanting: {level: 1, xp: 0}, dungeoneering: {level: 1, xp: 0}
             };
         }
 
-        const requiredSkills = ['attack', 'woodcutting', 'mining', 'blacksmithing', 'cooking', 'farming', 'enchanting'];
+        const requiredSkills = ['attack', 'woodcutting', 'mining', 'blacksmithing', 'cooking', 'farming', 'enchanting', 'dungeoneering'];
         requiredSkills.forEach(skill => {
             if (!playerData.skills[skill]) {
                 console.warn(`Initializing missing skill: ${skill}`);
@@ -161,6 +188,7 @@ export function updateHud() {
         updateSkillHud('cooking', playerData.skills.cooking.xp, 'ck');
         updateSkillHud('farming', playerData.skills.farming.xp, 'fm');
         updateSkillHud('enchanting', playerData.skills.enchanting.xp, 'en');
+        updateSkillHud('dungeoneering', playerData.skills.dungeoneering.xp, 'dg');
         
         updateSkillLockStates();
         updateGuildButtonVisibility();
@@ -180,8 +208,94 @@ export function updateHud() {
             }
         }
         updateHpDisplays();
+        
+        // Update achievement notification badges
+        updateAchievementNotifications();
     } catch (error) {
         console.error('Error in updateHud:', error);
+    }
+}
+
+/**
+ * Updates the Town menu container with building emojis and dynamic styles
+ */
+function updateTownMenuAppearance() {
+    const townMenuContainer = document.getElementById('town-menu-container');
+    const leftEmojisSpan = document.getElementById('town-building-emojis-left');
+    const rightEmojisSpan = document.getElementById('town-building-emojis-right');
+    
+    if (!townMenuContainer || !leftEmojisSpan || !rightEmojisSpan) return;
+    
+    // Building data with emojis and names
+    const buildingData = {
+        camp: { emoji: '⛺', name: 'Camp', side: 'left' },
+        well: { emoji: '⛲', name: 'Well', side: 'right' },
+        shed: { emoji: '🛖', name: 'Shed', side: 'left' },
+        cabin: { emoji: '🏡', name: 'Cabin', side: 'left' },
+        house: { emoji: '🏠', name: 'House', side: 'left' },
+        farmLand: { emoji: '🏞️', name: 'Farm Land', side: 'left' },
+        lumberMill: { emoji: '🏭', name: 'Lumber Mill', side: 'left' },
+        mansion: { emoji: '🏯', name: 'Mansion', side: 'right' },
+        castle: { emoji: '🏰', name: 'Castle', side: 'right' },
+        stronghold: { emoji: '🛡️', name: 'The Stronghold', side: 'right' }
+    };
+    
+    // Reset classes and clear emojis
+    townMenuContainer.className = 'town-menu-container';
+    leftEmojisSpan.innerHTML = '';
+    rightEmojisSpan.innerHTML = '';
+    
+    // Build emoji spans with tooltips
+    if (playerData.built_structures) {
+        for (const [buildingId, isBuilt] of Object.entries(playerData.built_structures)) {
+            if (isBuilt && buildingData[buildingId]) {
+                const building = buildingData[buildingId];
+                
+                // Add class to container
+                townMenuContainer.classList.add(`has-${buildingId}`);
+                
+                // Create emoji span with tooltip
+                const emojiSpan = document.createElement('span');
+                emojiSpan.className = 'town-building-emoji';
+                emojiSpan.setAttribute('data-building', buildingId);
+                emojiSpan.textContent = building.emoji;
+                emojiSpan.title = building.name;
+                
+                // Add to appropriate side
+                if (building.side === 'left') {
+                    leftEmojisSpan.appendChild(emojiSpan);
+                } else {
+                    rightEmojisSpan.appendChild(emojiSpan);
+                }
+            }
+        }
+    }
+    
+    // Update Build button effects
+    updateBuildButtonEffects();
+}
+
+/**
+ * Updates the Build button appearance based on structures
+ */
+function updateBuildButtonEffects() {
+    const buildButton = document.getElementById('build-structures-menu-button');
+    if (!buildButton) return;
+    
+    // Reset classes
+    buildButton.className = 'town-button';
+    
+    // Add classes based on highest tier building
+    if (playerData.built_structures) {
+        if (playerData.built_structures.stronghold) {
+            buildButton.classList.add('build-button-epic');
+        } else if (playerData.built_structures.castle || playerData.built_structures.mansion) {
+            buildButton.classList.add('build-button-rare');
+        } else if (playerData.built_structures.house) {
+            buildButton.classList.add('build-button-uncommon');
+        } else if (playerData.built_structures.camp) {
+            buildButton.classList.add('build-button-common');
+        }
     }
 }
 
@@ -202,9 +316,12 @@ function updateSkillHud(skillName, xp, xpBarClass) {
 
 
 function updateHpDisplays() {
+    // Cap current HP at max HP before displaying
+    capCurrentHp();
+    
     const attackLevel = getLevelFromXp(playerData.skills.attack.xp || 0);
-    const maxHp = getMaxHp(attackLevel);
-    const currentHp = playerData.hp !== undefined ? Math.ceil(playerData.hp) : 0;
+    const maxHp = Math.floor(getMaxHp(attackLevel));
+    const currentHp = playerData.hp !== undefined ? Math.floor(playerData.hp) : 0;
 
     const mainMenuHpBar = document.getElementById('main-menu-hp-bar-fill');
     const mainMenuHpText = document.getElementById('main-menu-hp-bar-text');
@@ -445,7 +562,8 @@ function populateLeftNavPanel() {
         { id: 'mining-section', label: 'Mining', icon: '⛏️', handler: showMining },
         { id: 'blacksmithing-menu-section', label: 'Blacksmithing', icon: '🛠️', handler: showBlacksmithingMenu },
         { id: 'cooking-section', label: 'Cooking', icon: '🍳', handler: showCooking },
-        { id: 'enchanting-section', label: 'Enchanting', icon: '✨', handler: showEnchantingMenu }
+        { id: 'enchanting-section', label: 'Enchanting', icon: '✨', handler: showEnchantingMenu },
+        { id: 'dungeoneering-menu', label: 'Dungeoneering', icon: '🏰', handler: showDungeoneeringMenu, condition: () => playerData.dungeoneering?.unlocked }
     ];
 
     navItems.forEach(item => {
@@ -477,7 +595,8 @@ function populateLeftNavPanel() {
             'blacksmithing-menu-section': 'blacksmithing',
             'cooking-section': 'cooking',
             'enchanting-section': 'enchanting',
-            'farming-section': 'farming'
+            'farming-section': 'farming',
+            'dungeoneering-menu': 'dungeoneering'
         };
         
         const skillKey = skillMap[item.id];
@@ -498,6 +617,7 @@ function populateLeftNavPanel() {
             
             const progressFill = document.createElement('div');
             progressFill.className = 'nav-item-progress-fill';
+            progressFill.classList.add(skillKey);
             
             const currentXp = playerData.skills[skillKey].xp || 0;
             const currentLevel = getLevelFromXp(currentXp);
@@ -516,6 +636,9 @@ function populateLeftNavPanel() {
         navPanel.appendChild(navItem);
     });
     updateLeftNavActiveState(currentSection);
+    
+    // Update achievement notifications after populating left nav
+    updateAchievementNotifications();
 }
 
 function updateLeftNavActiveState(activeSectionId) {
@@ -541,7 +664,8 @@ function updateLeftNavSkills() {
         'blacksmithing-menu-section': 'blacksmithing',
         'cooking-section': 'cooking',
         'enchanting-section': 'enchanting',
-        'farming-section': 'farming'
+        'farming-section': 'farming',
+        'dungeoneering-menu': 'dungeoneering'
     };
 
     Object.entries(skillMap).forEach(([sectionId, skillKey]) => {
@@ -580,6 +704,7 @@ export function initGameUi() {
     }
     updateFarmButtonVisibility();
     updateGuildButtonVisibility();
+    updateDungeoneeringButtonVisibility();
 
      // Update mute button icon based on loaded state
     const muteSettingBtn = document.getElementById('mute-toggle-setting');
@@ -603,7 +728,8 @@ function initHudSkillButtons() {
         'hud-bs': () => showBlacksmithingMenu(),
         'hud-ck': () => showCooking(),
         'hud-fm': () => showFarmingMenu(),
-        'hud-en': () => showEnchantingMenu()
+        'hud-en': () => showEnchantingMenu(),
+        'hud-dg': () => showDungeoneeringMenu()
     };
     Object.keys(skillButtonActions).forEach(id => {
         const container = document.getElementById(id);
@@ -692,10 +818,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const newBtn = combatBackBtn.cloneNode(true);
         combatBackBtn.parentNode.replaceChild(newBtn, combatBackBtn);
         newBtn.addEventListener('click', () => {
-            import('./combat.js').then(combatModule => {
-                if (combatModule.isAutoAttacking) combatModule.stopAutoAttack();
-                showActionsMenu(); // Always go to actions menu from here
-            }).catch(() => showActionsMenu());
+            // Stop auto-attack and show actions menu
+            if (isAutoAttacking) stopAutoAttack();
+            showActionsMenu();
         });
     }
     const combatFooterBackBtn = document.getElementById('combat-footer-back-btn');
@@ -738,9 +863,15 @@ export function updateGuildButtonVisibility() {
         } else {
             guildTownBtn.classList.add('locked');
             guildTownBtn.classList.remove('hidden');
-            guildTownBtn.title = 'Requires all skills at level 35 (except Enchanting and Farming)';
+            guildTownBtn.title = 'Requires all skills at level 35 (except Enchanting, Farming, and Dungeoneering)';
         }
     }
+}
+
+export function updateDungeoneeringButtonVisibility() {
+    const dungeoneeringActionBtn = document.getElementById('dungeoneering-menu-button');
+    const unlocked = playerData && playerData.dungeoneering && playerData.dungeoneering.unlocked;
+    if (dungeoneeringActionBtn) dungeoneeringActionBtn.classList.toggle('hidden', !unlocked);
 }
 
 /**

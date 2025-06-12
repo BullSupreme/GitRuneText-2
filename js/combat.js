@@ -17,15 +17,17 @@ import {
     titleCase,
     getEnchantmentBonus,
     setLowHealthWarningResetCallback,
-    handleLevelUp
+    handleLevelUp,
+    getMaxHp
 } from './utils.js';
-import { trackStatistic } from './achievements.js';
+import { trackStatistic, trackEquipmentCollection, trackItemObtained } from './achievements.js';
 import { showSection, updateHud, showFloatingCombatText, setActiveSkill, clearActiveSkill } from './ui.js';
 import { stopAllAutoActions, showActionsMenu } from './actions.js';
 import { MONSTER_DATA, ALL_MONSTER_NAMES, SWORD_DATA, ARMOR_DATA, HELMET_DATA, TOOL_DATA, FOOD_DATA, PERK_DATA, CHEST_DROP_RATES } from './data.js';
 import { getSummedPyramidPerkEffects } from './perks.js';
 import { showEatFoodModal, setupEatFoodModalEvents } from './cooking.js'; // Import showEatFoodModal and setupEatFoodModalEvents
 import { getPlayerCombatStats } from './characterinfo.js';
+import { getStructurePerkEffect } from './builds.js';
 
 // Constants for combat settings
 export const BASE_COMBAT_INTERVAL = 3000; // 3 seconds base interval
@@ -38,6 +40,7 @@ export let currentEncounter = []; // Array of active monster instances
 export let currentPlayerTargetIndex = 0; // Index of the current target in the encounter
 let lowHealthWarningTriggered = false; // Track if low health warning has been shown
 let pendingMonsterAttacks = []; // Track all pending monster attack timeouts
+let manuallyStoppedAutoAttack = false; // Track if user manually stopped auto-attack
 
 // Export functions to manage low health warning state
 export function isLowHealthWarningTriggered() {
@@ -112,6 +115,7 @@ export function showCombat(skipStop = false) {
             monsterDiv.id = `combat-monster-${monsterName.replace(/\s+/g, '-').toLowerCase()}`;
             // Display Lvl: 1 if monster.level_req is undefined
             monsterDiv.innerHTML = `<span class="resource-main-text">${monster.emoji} ${titleCase(monsterName)}</span>`;
+            // Click handler for monster selection
             monsterDiv.onclick = () => selectMonsterForCombat(monsterName);
             
             // Add active class if this monster is currently being attacked
@@ -126,6 +130,12 @@ export function showCombat(skipStop = false) {
     // Show message if no monsters available
     if (!available) {
         monsterListDiv.innerHTML += "<p style='text-align:center;'>No monsters available at your level.</p>";
+    }
+    
+    // Remove any existing dungeon entrance from combat section
+    const existingEntrance = document.getElementById('dungeon-entrance-container');
+    if (existingEntrance) {
+        existingEntrance.remove();
     }
     
     // Show the combat section
@@ -175,6 +185,9 @@ export function selectMonsterForCombat(monsterName) {
  * @param {string} monsterName - Name of the monster to attack
  */
 export function startAutoAttack(monsterName) {
+    // Reset manual stop flag when starting new auto-attack
+    manuallyStoppedAutoAttack = false;
+    
     // Prevent duplicate intervals: clear any existing auto-attack interval
     if (autoAttackInterval) {
         clearInterval(autoAttackInterval);
@@ -212,14 +225,30 @@ export function startAutoAttack(monsterName) {
         encounterSize = Math.random() < 0.5 ? 2 : 3; // 50% chance for 2 monsters, 50% for 3 if multi-monster
     }
     
+    // Check if manually stopped during encounter creation
+    if (manuallyStoppedAutoAttack) {
+        return; // Exit early if manually stopped
+    }
+    
     // Create monster instances for the encounter
     for (let i = 0; i < encounterSize; i++) {
+        // Check again during loop in case user stops mid-creation
+        if (manuallyStoppedAutoAttack) {
+            return;
+        }
+        
         currentEncounter.push({
             id: `${monsterName}_${i + 1}`, // Unique ID for each monster
-            name: monsterName,
+            name: baseMonsterData.name || monsterName, // Use the display name from data, fallback to key
+            monsterKey: monsterName, // Keep the key for reference
             currentHP: baseMonsterData.hp,
             data: baseMonsterData // Reference to base monster data
         });
+    }
+    
+    // Final check before setting target  
+    if (manuallyStoppedAutoAttack) {
+        return;
     }
     
     // Set current target
@@ -238,6 +267,15 @@ export function startAutoAttack(monsterName) {
         if (el.id === `combat-monster-${monsterName.replace(/\\s+/g, '-').toLowerCase()}`) {
             el.classList.remove('hidden');
             el.classList.add('active-action-item', 'attacking-monster-list-item');
+            
+            // Add enhanced click handling for the active monster
+            const newEl = el.cloneNode(true);
+            el.parentNode.replaceChild(newEl, el);
+            newEl.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                selectMonsterForCombat(monsterName);
+            }, { passive: false });
         } else {
             el.classList.add('hidden');
         }
@@ -283,6 +321,9 @@ export function startAutoAttack(monsterName) {
     // Update HUD
     updateHud();
     setActiveSkill('atk');
+    
+    // Setup weapon animation on current target
+    setupWeaponAnimation(interval);
 }
 
 /**
@@ -292,6 +333,7 @@ export function stopAutoAttack() {
     if (!isAutoAttacking) return;
     
     isAutoAttacking = false;
+    manuallyStoppedAutoAttack = true; // Mark as manually stopped
     
     // Clear interval and pending attacks
     if (autoAttackInterval) {
@@ -388,13 +430,15 @@ export function prepareCombatArena(monsterEncounter) {
             </div>
         `;
         
-        // Add click event for targeting
-        monsterCard.addEventListener('click', () => {
+        // Add click event for targeting with improved responsiveness
+        monsterCard.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             // Only allow targeting if not defeated
             if (monsterInstance.currentHP > 0) {
                 manualTargetMonster(index);
             }
-        });
+        }, { passive: false });
         
         monsterDisplayContainer.appendChild(monsterCard);
     });
@@ -402,7 +446,9 @@ export function prepareCombatArena(monsterEncounter) {
     // Update player HP display
     const playerHpDisplayElement = document.getElementById('player-hp-combat-display');
     if (playerHpDisplayElement) {
-        playerHpDisplayElement.textContent = `${playerData.hp}/${getMaxHp(getLevelFromXp(playerData.skills.attack.xp))}`;
+        const currentHp = Math.round(Math.max(0, playerData.hp));
+        const maxHp = Math.round(getMaxHp(getLevelFromXp(playerData.skills.attack.xp)));
+        playerHpDisplayElement.textContent = `${currentHp}/${maxHp}`;
     } else {
         console.error("Error: player-hp-combat-display element not found in prepareCombatArena.");
     }
@@ -439,6 +485,14 @@ export function manualTargetMonster(targetIndex) {
         }
     });
     
+    // Setup weapon animation on new target
+    if (isAutoAttacking && autoAttackInterval) {
+        // Get current attack interval from the existing interval
+        // We'll use a default duration and let it sync up on next attack
+        const estimatedInterval = BASE_COMBAT_INTERVAL; // Default fallback
+        setupWeaponAnimation(estimatedInterval);
+    }
+    
     logMessage(`Targeting ${titleCase(currentEncounter[targetIndex].name)} #${targetIndex + 1}...`, "fore-cyan", "🎯");
 }
 
@@ -449,8 +503,9 @@ export function updatePlayerCombatInfo() {
     const playerHpDisplay = document.getElementById('player-hp-combat-display');
     if (!playerHpDisplay) return;
     
-    const maxHp = getMaxHp(getLevelFromXp(playerData.skills.attack.xp));
-    playerHpDisplay.textContent = `${Math.max(0, playerData.hp)}/${maxHp}`;
+    const currentHp = Math.round(Math.max(0, playerData.hp));
+    const maxHp = Math.round(getMaxHp(getLevelFromXp(playerData.skills.attack.xp)));
+    playerHpDisplay.textContent = `${currentHp}/${maxHp}`;
     
     // Update health bar if it exists
     const playerHpBar = document.getElementById('player-hp-combat-bar');
@@ -460,33 +515,6 @@ export function updatePlayerCombatInfo() {
     }
 }
 
-/**
- * Get the max HP for a given combat level
- * @param {number} combatLevel - Combat level
- * @returns {number} - Max HP
- */
-export function getMaxHp(combatLevel) {
-    // Import getEnchantmentBonus from utils if needed
-    const base = 10 + combatLevel * 2;
-    
-    // Add enchantment hp_flat bonus
-    let enchantmentHp = 0;
-    if (typeof playerData !== 'undefined' && playerData.enchantedStats) {
-        const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe'];
-        enchantableSlots.forEach(slotKey => {
-            const enchantments = playerData.enchantedStats[slotKey];
-            if (enchantments && enchantments.length > 0) {
-                enchantments.forEach(enchantment => {
-                    if (enchantment.stat === 'hp_flat') {
-                        enchantmentHp += enchantment.value;
-                    }
-                });
-            }
-        });
-    }
-    
-    return base + enchantmentHp;
-}
 
 /**
  * Execute a single combat round
@@ -499,9 +527,15 @@ export function singleCombatRound() {
         stopAutoAttack();
         return;
     }
-    // If all monsters defeated, spawn next until level up stops it
+    // If all monsters defeated, spawn next until level up stops it (unless manually stopped)
     if (!currentEncounter.some(m => m.currentHP > 0)) {
-        startAutoAttack(currentMonsterTarget);
+        // Only restart if not manually stopped
+        if (!manuallyStoppedAutoAttack) {
+            // Small delay to let player see the last monster die visually
+            setTimeout(() => {
+                startAutoAttack(currentMonsterTarget);
+            }, 300); // Brief 300ms delay for visual feedback
+        }
         return;
     }
     
@@ -552,7 +586,9 @@ export function executePlayerAttack() {
             axe: "none",
             pickaxe: "none",
             helmet: "none",
-            armor: "none"
+            armor: "none",
+            left_ring: "none",
+            right_ring: "none"
         };
         console.warn("Player equipment was not initialized, setting defaults");
     }
@@ -601,8 +637,15 @@ export function executePlayerAttack() {
         maxDmg = Math.ceil(maxDmg * (1 + weaponDamageMultiplier));
     }
     
+    // Apply global damage boost from structures (percentage-based)
+    const structureGlobalDamageBoost = getStructurePerkEffect('stronghold', 'global_damage_boost') || 0;
+    if (structureGlobalDamageBoost > 0) {
+        minDmg = Math.ceil(minDmg * (1 + structureGlobalDamageBoost));
+        maxDmg = Math.ceil(maxDmg * (1 + structureGlobalDamageBoost));
+    }
+    
     // Apply enchanted stats from all equipment slots (same logic as characterinfo.js)
-    const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe'];
+    const enchantableSlots = ['weapon', 'armor', 'helmet', 'axe', 'pickaxe', 'left_ring', 'right_ring'];
     enchantableSlots.forEach(slotKey => {
         const enchantments = playerData.enchantedStats[slotKey];
         if (enchantments && enchantments.length > 0) {
@@ -653,10 +696,24 @@ export function executePlayerAttack() {
         });
         // Determine crit
         const isCrit = critChance > 0 && Math.random() < critChance;
-        // Determine crit multiplier (base 1.5x plus any perk tree bonus)
+        // Determine crit multiplier (base 1.5x plus any perk tree bonus and enchantments)
         const baseCritMult = 1.5;
         const extraCritMult = critEffects.crit_multiplier || 0;
-        const critMult = isCrit ? (baseCritMult + extraCritMult) : 1;
+        
+        // Apply enchantment crit damage bonuses from rings
+        let enchantmentCritDamage = 0;
+        enchantableSlots.forEach(slotKey => {
+            const enchantments = playerData.enchantedStats[slotKey];
+            if (enchantments && enchantments.length > 0) {
+                enchantments.forEach(enchantment => {
+                    if (enchantment.stat === 'crit_damage') {
+                        enchantmentCritDamage += enchantment.value;
+                    }
+                });
+            }
+        });
+        
+        const critMult = isCrit ? (baseCritMult + extraCritMult + enchantmentCritDamage) : 1;
         const finalDmg = Math.floor(playerDmg * critMult);
         if (isCrit) logMessage("CRITICAL HIT!", "fore-lightred_ex", "💥");
         // Deal damage to monster
@@ -687,12 +744,29 @@ export function executePlayerAttack() {
         if (hpBarContainer) {
             showFloatingCombatText(`-${finalDmg}`, isCrit ? 'crit' : 'damage', hpBarContainer);
             }
-        // AoE damage: combine weapon and perk chances
+        // AoE damage: combine weapon, perk, and enchantment chances
         const weaponAoE = actualWeaponStats.aoe_chance || 0;
         const perkAoE = (combatEffects.aoe_chance_attack || 0) + (combatEffects.aoe_chance || 0);
-        const aoeChance = weaponAoE + perkAoE;
+        
+        // Apply enchantment AOE chance bonuses from rings
+        let enchantmentAoeChance = 0;
+        enchantableSlots.forEach(slotKey => {
+            const enchantments = playerData.enchantedStats[slotKey];
+            if (enchantments && enchantments.length > 0) {
+                enchantments.forEach(enchantment => {
+                    if (enchantment.stat === 'aoe_chance') {
+                        enchantmentAoeChance += enchantment.value;
+                    }
+                });
+            }
+        });
+        
+        const aoeChance = weaponAoE + perkAoE + enchantmentAoeChance;
         if (aoeChance > 0 && Math.random() < aoeChance) {
             logMessage("AOE attack triggered!", "fore-magenta", "💥");
+            
+            // Trigger whirlwind animation
+            triggerAOEAnimation();
             
             // Play triple attack sound for AOE
             if (sounds && sounds.attackLight) {
@@ -719,7 +793,21 @@ export function executePlayerAttack() {
             
             const weaponPct = actualWeaponStats.aoe_damage_percentage || 0;
             const perkPct = (combatEffects.aoe_damage_attack || 0) + (combatEffects.aoe_damage || 0);
-            let aoePct = weaponPct + perkPct;
+            
+            // Apply enchantment AOE damage bonuses from rings
+            let enchantmentAoeDamage = 0;
+            enchantableSlots.forEach(slotKey => {
+                const enchantments = playerData.enchantedStats[slotKey];
+                if (enchantments && enchantments.length > 0) {
+                    enchantments.forEach(enchantment => {
+                        if (enchantment.stat === 'aoe_damage') {
+                            enchantmentAoeDamage += enchantment.value;
+                        }
+                    });
+                }
+            });
+            
+            let aoePct = weaponPct + perkPct + enchantmentAoeDamage;
             
             // If no weapon AOE damage but perk AOE is active, use default 30% damage
             if (aoePct === 0 && perkAoE > 0) {
@@ -740,15 +828,20 @@ export function executePlayerAttack() {
                         }
                     }
                 }
-        // Apply weapon lifesteal
-        if (actualWeaponStats.lifesteal_chance && Math.random() < actualWeaponStats.lifesteal_chance) {
-            const lifestealAmount = Array.isArray(actualWeaponStats.lifesteal_amount) 
-                ? Math.floor(Math.random() * (actualWeaponStats.lifesteal_amount[1] - actualWeaponStats.lifesteal_amount[0] + 1)) + actualWeaponStats.lifesteal_amount[0]
-                : actualWeaponStats.lifesteal_amount;
+        // Apply weapon + perk lifesteal
+        const totalWeaponLifestealChance = (actualWeaponStats.lifesteal_chance || 0) + (combatEffects.lifesteal || 0);
+        if (totalWeaponLifestealChance > 0 && Math.random() < totalWeaponLifestealChance) {
+            const lifestealAmount = Math.floor(finalDmg * totalWeaponLifestealChance);
             const oldHp = playerData.hp;
             const maxHp = getMaxHp(getLevelFromXp(playerData.skills.attack.xp));
-            playerData.hp = Math.min(maxHp, playerData.hp + lifestealAmount);
-            logMessage(`Lifesteal! +${playerData.hp - oldHp} HP`, "fore-green", "💚");
+            
+            if (oldHp < maxHp) {
+                playerData.hp = Math.min(maxHp, playerData.hp + lifestealAmount);
+                const actualHeal = playerData.hp - oldHp;
+                logMessage(`Lifesteal! +${actualHeal} HP`, "fore-green", "💚");
+            } else {
+                logMessage(`Lifesteal blocked (at max HP)`, "fore-yellow", "⚠️");
+            }
         }
         
         // Apply enchantment lifesteal
@@ -769,8 +862,14 @@ export function executePlayerAttack() {
             const healAmount = Math.floor(finalDmg * totalLifestealChance);
             const oldHp = playerData.hp;
             const maxHp = getMaxHp(getLevelFromXp(playerData.skills.attack.xp));
-            playerData.hp = Math.min(maxHp, playerData.hp + healAmount);
-            logMessage(`Enchantment Lifesteal! +${playerData.hp - oldHp} HP`, "fore-magenta", "💜");
+            
+            if (oldHp < maxHp) {
+                playerData.hp = Math.min(maxHp, playerData.hp + healAmount);
+                const actualHeal = playerData.hp - oldHp;
+                logMessage(`Enchantment Lifesteal! +${actualHeal} HP`, "fore-magenta", "💜");
+            } else {
+                logMessage(`Enchantment Lifesteal blocked (at max HP)`, "fore-yellow", "⚠️");
+            }
         }
         
         // Apply elemental damage effects
@@ -840,14 +939,16 @@ export function executePlayerAttack() {
         // Check if monster is defeated
         if (targetMonsterInstance.currentHP <= 0) {
             handleMonsterDefeat(targetMonsterInstance);
+        } else {
+            // Only update HP display if monster is still alive
+            updateMonsterHpDisplay(targetMonsterInstance);
         }
     } else {
         // Miss
         logMessage(`You missed ${titleCase(targetMonsterInstance.name)} (#${currentPlayerTargetIndex + 1})!`, "fore-yellow", "⚔️❌");
+        // Update HP display for misses (monster still alive)
+        updateMonsterHpDisplay(targetMonsterInstance);
     }
-    
-    // Update monster HP display
-    updateMonsterHpDisplay(targetMonsterInstance);
     
     // If monster is still alive, schedule its attack
     if (targetMonsterInstance.currentHP > 0 && currentEncounter.some(m => m.currentHP > 0)) {
@@ -878,6 +979,9 @@ export function executePlayerAttack() {
 export function handleMonsterDefeat(monsterInstance) {
     // Mark as defeated
     monsterInstance.currentHP = 0;
+    
+    // Update HP display to show 0 HP immediately
+    updateMonsterHpDisplay(monsterInstance);
     
     // Update UI to show defeated state and display skull
     const monsterCard = document.getElementById(`monster-instance-${monsterInstance.id}`);
@@ -917,8 +1021,32 @@ export function handleMonsterDefeat(monsterInstance) {
     
     const newLevel = getLevelFromXp(playerData.skills.attack.xp);
     
-    // Track monster kill
-    trackStatistic('combat', 'kill', 1, monsterInstance.name);
+    // Track monster kill (use lowercase name for achievements)
+    trackStatistic('combat', 'kill', 1, monsterInstance.name.toLowerCase());
+    
+    // Check for dungeoneering unlock (after 100 Dark Dragon kills)
+    if (monsterInstance.name === 'Dark Dragon') {
+        // Check if we need to initialize the kill count
+        if (!playerData.combat) {
+            playerData.combat = { enemiesKilled: {} };
+        }
+        if (!playerData.combat.enemiesKilled) {
+            playerData.combat.enemiesKilled = {};
+        }
+        
+        // Track Dark Dragon kills
+        playerData.combat.enemiesKilled['Dark Dragon'] = 
+            (playerData.combat.enemiesKilled['Dark Dragon'] || 0) + 1;
+        
+        // Check for dungeoneering unlock
+        if (playerData.combat.enemiesKilled['Dark Dragon'] === 100) {
+            // Import and check dungeoneering unlock
+            import('./dungeoneering.js').then(module => {
+                module.checkDungeoneeringUnlock();
+                updateMonsterList(); // Refresh the monster list to show dungeon entrance
+            });
+        }
+    }
     
     // Log victory and rewards
     logMessage(`Defeated ${titleCase(monsterInstance.name)}! +${(typeof xpReward === 'number' && !isNaN(xpReward) ? xpReward : 0)} XP`, "fore-green", "🏆");
@@ -953,8 +1081,10 @@ export function handleMonsterDefeat(monsterInstance) {
         playerData.hp = Math.min(maxHp, playerData.hp + healFlat);
         logMessage(`Perk heal on kill: +${playerData.hp - oldHp} HP`, "fore-green", "💚");
     }
-    // Percent heal on kill
-    const healPercent = combatEffects.heal_on_kill_percent || 0;
+    // Percent heal on kill (pyramid perks + structure perks)
+    const pyramidHealPercent = combatEffects.heal_on_kill_percent || 0;
+    const structureHealPercent = getStructurePerkEffect('stronghold', 'heal_on_kill_percent') || 0;
+    const healPercent = pyramidHealPercent + structureHealPercent;
     if (healPercent > 0) {
         const maxHp = getMaxHp(getLevelFromXp(playerData.skills.attack.xp));
         const healAmt = Math.floor(maxHp * healPercent);
@@ -1011,6 +1141,20 @@ export function handleLoot(monsterInstance) {
                 // Add to inventory
                 playerData.inventory[drop.item_name] = (playerData.inventory[drop.item_name] || 0) + qty;
                 logMessage(`${monster.emoji} ${titleCase(monsterInstance.name)} dropped ${titleCase(drop.item_name)} x${qty}!`, "fore-purple", "🎁");
+                
+                // Track item discovery for achievements
+                trackItemObtained(drop.item_name);
+                
+                // Track equipment collection for unlocking crafting/shop
+                if (ARMOR_DATA[drop.item_name]) {
+                    trackEquipmentCollection(drop.item_name, 'armor');
+                } else if (HELMET_DATA[drop.item_name]) {
+                    trackEquipmentCollection(drop.item_name, 'helmet');
+                } else if (SWORD_DATA[drop.item_name]) {
+                    trackEquipmentCollection(drop.item_name, 'weapon');
+                } else if (TOOL_DATA.axe[drop.item_name] || TOOL_DATA.pickaxe[drop.item_name]) {
+                    trackEquipmentCollection(drop.item_name, 'tool');
+                }
             }
         }
     }
@@ -1039,6 +1183,20 @@ export function handleLoot(monsterInstance) {
                     if (drop.always_drop_one && qty < 1) qty = 1;
                     playerData.inventory[drop.item_name] = (playerData.inventory[drop.item_name] || 0) + qty;
                     logMessage(`Extra loot: ${titleCase(drop.item_name)} x${qty}!`, "fore-purple", "🎁");
+                    
+                    // Track item discovery for achievements
+                    trackItemObtained(drop.item_name);
+                    
+                    // Track equipment collection for unlocking crafting/shop
+                    if (ARMOR_DATA[drop.item_name]) {
+                        trackEquipmentCollection(drop.item_name, 'armor');
+                    } else if (HELMET_DATA[drop.item_name]) {
+                        trackEquipmentCollection(drop.item_name, 'helmet');
+                    } else if (SWORD_DATA[drop.item_name]) {
+                        trackEquipmentCollection(drop.item_name, 'weapon');
+                    } else if (TOOL_DATA.axe[drop.item_name] || TOOL_DATA.pickaxe[drop.item_name]) {
+                        trackEquipmentCollection(drop.item_name, 'tool');
+                    }
                 }
             }
         }
@@ -1069,6 +1227,20 @@ export function handleLoot(monsterInstance) {
                         if (drop.always_drop_one && qty < 1) qty = 1;
                         playerData.inventory[drop.item_name] = (playerData.inventory[drop.item_name] || 0) + qty;
                         logMessage(`Lucky bonus: ${titleCase(drop.item_name)} x${qty}!`, "fore-purple", "🎁🍀");
+                        
+                        // Track item discovery for achievements
+                        trackItemObtained(drop.item_name);
+                        
+                        // Track equipment collection for unlocking crafting/shop
+                        if (ARMOR_DATA[drop.item_name]) {
+                            trackEquipmentCollection(drop.item_name, 'armor');
+                        } else if (HELMET_DATA[drop.item_name]) {
+                            trackEquipmentCollection(drop.item_name, 'helmet');
+                        } else if (SWORD_DATA[drop.item_name]) {
+                            trackEquipmentCollection(drop.item_name, 'weapon');
+                        } else if (TOOL_DATA.axe[drop.item_name] || TOOL_DATA.pickaxe[drop.item_name]) {
+                            trackEquipmentCollection(drop.item_name, 'tool');
+                        }
                     }
                 }
             }
@@ -1226,13 +1398,29 @@ export function performMonsterAttack() {
             let monsterDmg = Math.floor(Math.random() * (maxHit - minHit + 1)) + minHit;
             console.log(`[performMonsterAttack] Monster: ${monsterInstance.name}, Initial monsterDmg: ${monsterDmg}`);
             
-            // Apply block perk chance (full block)
-            const effects = getSummedPyramidPerkEffects();
-            const blockChancePerk = effects.block || 0;
-            if (Math.random() < blockChancePerk) {
-                logMessage("Perk block negated the damage!", "fore-blue", "🛡️");
-                continue;
+            // Apply block system: chance → amount → defense
+            const combatStats = getPlayerCombatStats();
+            let blockChance = 0;
+            let blockAmount = 0;
+            
+            // Parse block chance and amount from combat stats
+            if (combatStats && combatStats.blockChance && combatStats.blockChance.value) {
+                blockChance = parseFloat(combatStats.blockChance.value) / 100; // Convert "15%" to 0.15
             }
+            if (combatStats && combatStats.blockAmount && combatStats.blockAmount.value) {
+                blockAmount = parseFloat(combatStats.blockAmount.value) / 100; // Convert "48%" to 0.48
+            }
+            
+            // Check for block
+            let damageAfterBlock = monsterDmg;
+            if (blockChance > 0 && Math.random() < blockChance) {
+                // Block succeeded - apply block amount mitigation
+                const blockedDamage = Math.floor(monsterDmg * blockAmount);
+                damageAfterBlock = monsterDmg - blockedDamage;
+                logMessage(`🛡️ Blocked! Reduced ${blockedDamage} damage (${Math.floor(blockAmount * 100)}% mitigation)`, "fore-blue", "🛡️");
+            }
+            
+            monsterDmg = damageAfterBlock;
             // Apply defense reduction
             let actualDamageTaken = monsterDmg; // Start with monsterDmg
             let damageMitigatedByDefense = 0;
@@ -1332,4 +1520,54 @@ export function handlePlayerDefeat() {
     stopAutoAttack();
     // Return to main menu to trigger revive logic
     showSection('main-menu-section');
+}
+
+/**
+ * Setup weapon animation attributes on the current target monster
+ * @param {number} attackInterval - The attack interval in milliseconds
+ */
+function setupWeaponAnimation(attackInterval) {
+    // Find the current target monster
+    const targetElement = document.querySelector('.monster-combat-instance.player-current-target');
+    if (!targetElement) return;
+    
+    // Get equipped weapon info
+    let equippedWeapon = "none";
+    if (playerData.equipment && playerData.equipment.weapon !== "none" && SWORD_DATA[playerData.equipment.weapon]) {
+        equippedWeapon = playerData.equipment.weapon;
+    } else if (playerData.equipment && playerData.equipment.axe !== "none") {
+        equippedWeapon = playerData.equipment.axe + " axe";
+    } else if (playerData.equipment && playerData.equipment.pickaxe !== "none") {
+        equippedWeapon = playerData.equipment.pickaxe + " pickaxe";
+    }
+    
+    console.log('Setting weapon animation for combat with weapon:', equippedWeapon);
+    
+    // Set weapon data attribute
+    if (equippedWeapon !== "none") {
+        targetElement.setAttribute('data-equipped-weapon', equippedWeapon);
+    } else {
+        targetElement.removeAttribute('data-equipped-weapon');
+    }
+    
+    // Set animation duration based on attack speed
+    const animationDuration = attackInterval / 1000; // Convert ms to seconds
+    targetElement.style.setProperty('--attack-animation-duration', `${animationDuration}s`);
+    console.log('Setting attack animation duration:', animationDuration, 'seconds (attack interval:', attackInterval, 'ms)');
+}
+
+/**
+ * Add AOE attack class for whirlwind animation
+ */
+export function triggerAOEAnimation() {
+    const targetElement = document.querySelector('.monster-combat-instance.player-current-target');
+    if (!targetElement) return;
+    
+    // Add AOE class
+    targetElement.classList.add('aoe-attack');
+    
+    // Remove AOE class after animation completes
+    setTimeout(() => {
+        targetElement.classList.remove('aoe-attack');
+    }, 1000); // Remove after 1 second
 }

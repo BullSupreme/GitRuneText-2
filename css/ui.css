@@ -1,0 +1,291 @@
+/* === UI Components === */
+
+/* Main Menu Buttons */
+.menu-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.menu-button {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 12px;
+    font-size: 14px;
+    text-align: center;
+    transition: background-color 0.2s, transform 0.2s ease-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.menu-button:hover {
+    background-color: #444;
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+.menu-button .button-icon {
+    font-size: 24px;
+    margin-bottom: 5px;
+    display: inline-block;
+    transition: transform 0.2s ease-out, filter 0.2s ease-out;
+}
+
+.menu-button:hover .button-icon {
+    transform: scale(1.3);
+    filter: drop-shadow(0 0 5px #fff);
+}
+
+.menu-button .button-label {
+    font-weight: 500;
+}
+
+/* Actions Menu */
+.actions-menu-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.action-button {
+    padding: 15px;
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #555;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.action-button:hover {
+    background-color: #444;
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+.action-button .button-icon {
+    font-size: 1.5em;
+}
+
+.action-button .button-label {
+    font-weight: 500;
+}
+
+/* Color-coded Action Buttons */
+#combat-menu-button {
+    background-color: #4a2626;
+    border-color: #8b3a3a;
+}
+
+#combat-menu-button:hover {
+    background-color: #6b3737;
+    border-color: #cc5555;
+    box-shadow: 0 4px 12px rgba(204, 85, 85, 0.3);
+}
+
+#woodcutting-menu-button {
+    background-color: #2a4a26;
+    border-color: #3a8b3a;
+}
+
+#woodcutting-menu-button:hover {
+    background-color: #376b37;
+    border-color: #55cc55;
+    box-shadow: 0 4px 12px rgba(85, 204, 85, 0.3);
+}
+
+#mining-menu-button {
+    background-color: #3d3d26;
+    border-color: #7a7a3a;
+}
+
+#mining-menu-button:hover {
+    background-color: #595937;
+    border-color: #b3b355;
+    box-shadow: 0 4px 12px rgba(179, 179, 85, 0.3);
+}
+
+#cooking-menu-button {
+    background-color: #4a3426;
+    border-color: #8b5f3a;
+}
+
+#cooking-menu-button:hover {
+    background-color: #6b4a37;
+    border-color: #cc8855;
+    box-shadow: 0 4px 12px rgba(204, 136, 85, 0.3);
+}
+
+#blacksmithing-menu-button {
+    background-color: #3a3a4a;
+    border-color: #5f5f8b;
+}
+
+#blacksmithing-menu-button:hover {
+    background-color: #4a4a6b;
+    border-color: #8888cc;
+    box-shadow: 0 4px 12px rgba(136, 136, 204, 0.3);
+}
+
+#enchanting-menu-button {
+    background-color: #4a264a;
+    border-color: #8b3a8b;
+}
+
+#enchanting-menu-button:hover {
+    background-color: #6b376b;
+    border-color: #cc55cc;
+    box-shadow: 0 4px 12px rgba(204, 85, 204, 0.3);
+}
+
+#dungeoneering-menu-button {
+    background-color: #26334a;
+    border-color: #3a5f8b;
+}
+
+#dungeoneering-menu-button:hover {
+    background-color: #37486b;
+    border-color: #5588cc;
+    box-shadow: 0 4px 12px rgba(85, 136, 204, 0.3);
+}
+
+#farming-menu-action-button {
+    background-color: #3e4226;
+    border-color: #717a3a;
+}
+
+#farming-menu-action-button:hover {
+    background-color: #585f37;
+    border-color: #a3b355;
+    box-shadow: 0 4px 12px rgba(163, 179, 85, 0.3);
+}
+
+/* Skill Resources */
+.skill-resource, .action-list-item {
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 5px;
+    padding: 15px;
+    margin: 10px 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.skill-resource:hover, .action-list-item:hover {
+    background-color: #333;
+    border-color: #666;
+    opacity: 1;
+}
+
+.skill-resource.active-action-item {
+    background-color: #0e639c;
+    border-color: #1177bb;
+}
+
+.resource-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-grow: 1;
+}
+
+.resource-emoji {
+    font-size: 1.5em;
+}
+
+.resource-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.resource-name {
+    font-weight: bold;
+    color: #e0e0e0;
+}
+
+.resource-description {
+    color: #aaa;
+    font-size: 0.9em;
+}
+
+/* Inventory count - positioned absolutely to the right */
+.resource-inventory-count {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background-color: #555;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8em;
+}
+
+/* Level requirement - inline with item name (no absolute positioning) */
+.action-item-level {
+    background-color: #555;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8em;
+    display: inline;
+    margin-left: 6px;
+}
+
+/* Compact Navigation */
+.compact-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 5px;
+}
+
+.compact-nav h3 {
+    margin: 0;
+    color: #e0e0e0;
+}
+
+.compact-nav-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.compact-nav-button {
+    padding: 8px 15px;
+    background-color: #444;
+    color: #fff;
+    border: 1px solid #666;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s;
+}
+
+.compact-nav-button:hover {
+    background-color: #555;
+    opacity: 1;
+}
+
+.compact-nav-button.active {
+    background-color: #0e639c;
+    border-color: #1177bb;
+}

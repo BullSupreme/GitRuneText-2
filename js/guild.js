@@ -14,21 +14,23 @@ import {
     GUILD_LEVEL_PROGRESSION_XP,
     MEMBER_RECRUIT_TIER_SETTINGS, // NEW: For tiered recruitment
     TITLE_STAT_PROFILES,          // NEW: For title-based stat distribution
-    GUILD_MISSION_TEMPLATES       // <-- Added for mission generation
+    GUILD_MISSION_TEMPLATES,      // <-- Added for mission generation
+    getItemDetails,               // Import the helper function
+    ARMOR_DATA, HELMET_DATA, SWORD_DATA, TOOL_DATA // For equipment tracking
 } from './data.js';
-import { playerData, savePlayerData, logMessage, formatNumber, getLevelFromXp, getXpForLevel, removeItemFromInventory, addItemToInventory, formatDurationHHMMSS } from './utils.js';
+import { playerData, savePlayerData, logMessage, formatNumber, getLevelFromXp, getXpForLevel, removeItemFromInventory, addItemToInventory, formatDurationHHMMSS, titleCase } from './utils.js';
 import { updateHud, showSection } from './ui.js';
-import { trackStatistic } from './achievements.js';
+import { trackStatistic, trackEquipmentCollection } from './achievements.js';
 
 /**
  * Checks if the Guild Hall is unlocked based on skill level requirements
- * Requirements: All skills at level 35 except Enchanting and Farming
+ * Requirements: All skills at level 35 except Enchanting, Farming, and Dungeoneering
  */
 export function isGuildHallUnlocked() {
     if (!playerData || !playerData.skills) return false;
     
     const requiredLevel = 35;
-    const excludedSkills = ['enchanting', 'farming'];
+    const excludedSkills = ['enchanting', 'farming', 'dungeoneering'];
     
     for (const skillName in playerData.skills) {
         if (excludedSkills.includes(skillName)) continue;
@@ -51,6 +53,77 @@ const GUILD_MISSION_CHECK_INTERVAL_MS = 3 * 60000; // 3 minutes in milliseconds
 // Guild state tracking variables
 let guildMemberTaskInterval = null;
 let guildMissionCheckInterval = null;
+
+// Guild log system (session-only)
+let guildLog = [];
+const MAX_GUILD_LOG_ENTRIES = 100; // Keep last 100 entries
+
+/**
+ * Adds a message to the guild log
+ * @param {string} message - The message to log
+ * @param {string} type - Type of message (task, mission, assignment, etc.)
+ * @param {string} icon - Optional icon for the message
+ */
+function addToGuildLog(message, type = 'info', icon = '') {
+    const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
+    const logEntry = {
+        timestamp,
+        message,
+        type,
+        icon,
+        id: Date.now() + Math.random() // Simple unique ID
+    };
+    
+    guildLog.unshift(logEntry); // Add to beginning of array
+    
+    // Keep only the last MAX_GUILD_LOG_ENTRIES
+    if (guildLog.length > MAX_GUILD_LOG_ENTRIES) {
+        guildLog = guildLog.slice(0, MAX_GUILD_LOG_ENTRIES);
+    }
+    
+    // Update the guild log display if it's currently visible
+    if (document.getElementById('guild-log-tab')?.classList.contains('active')) {
+        renderGuildLog();
+    }
+}
+
+/**
+ * Renders the guild log content
+ */
+function renderGuildLog() {
+    const logTab = document.getElementById('guild-log-tab');
+    if (!logTab) return;
+    
+    let logHtml = `
+        <div class="guild-log-header">
+            <h3>🏛️ Guild Activity Log</h3>
+            <p class="guild-log-subtitle">Recent guild activities (session only)</p>
+        </div>
+        <div class="guild-log-container">
+    `;
+    
+    if (guildLog.length === 0) {
+        logHtml += `
+            <div class="guild-log-empty">
+                <p>No guild activities yet. Start assigning tasks to see them here!</p>
+            </div>
+        `;
+    } else {
+        guildLog.forEach(entry => {
+            const typeClass = `guild-log-${entry.type}`;
+            logHtml += `
+                <div class="guild-log-entry ${typeClass}">
+                    <span class="guild-log-timestamp">${entry.timestamp}</span>
+                    <span class="guild-log-icon">${entry.icon}</span>
+                    <span class="guild-log-message">${entry.message}</span>
+                </div>
+            `;
+        });
+    }
+    
+    logHtml += '</div>';
+    logTab.innerHTML = logHtml;
+}
 
 /**
  * Shows the guild hall section
@@ -109,6 +182,7 @@ function renderGuildContent() {
             <div class="tab" data-tab="missions">Missions</div>
             <div class="tab" data-tab="upgrades">Upgrades</div>
             <div class="tab" data-tab="stash">Guild Stash</div>
+            <div class="tab" data-tab="log">Guild Log</div>
         `;
         guildSection.appendChild(guildTabs);
         
@@ -138,6 +212,11 @@ function renderGuildContent() {
         stashTabContent.className = 'tab-content';
         stashTabContent.id = 'guild-stash-tab';
         guildTabContents.appendChild(stashTabContent);
+        
+        const logTabContent = document.createElement('div');
+        logTabContent.className = 'tab-content';
+        logTabContent.id = 'guild-log-tab';
+        guildTabContents.appendChild(logTabContent);
         
         guildSection.appendChild(guildTabContents);
         
@@ -177,6 +256,7 @@ function renderGuildContent() {
                         case 'missions': renderGuildMissions(); break;
                         case 'upgrades': renderGuildUpgrades(); break;
                         case 'stash': renderGuildStash(); break;
+                        case 'log': renderGuildLog(); break;
                     }
                 }
             });
@@ -198,6 +278,7 @@ function renderGuildContent() {
         case 'missions': renderGuildMissions(); break;
         case 'upgrades': renderGuildUpgrades(); break;
         case 'stash': renderGuildStash(); break;
+        case 'log': renderGuildLog(); break;
         default: renderGuildMembers(); break;
     }
 }
@@ -228,10 +309,46 @@ function renderGuildMembers() {
         // Add Change Professions button
         let changeCost = memberData.changeProfessionCost || 100;
         const changeBtn = document.createElement('button');
-        changeBtn.className = 'change-profession-btn small-btn';
+        changeBtn.className = 'change-profession-btn small-btn has-tooltip';
         changeBtn.textContent = `Change Professions (${formatNumber(changeCost)} gold)`;
-        changeBtn.title = 'Randomly change this member\'s title and stats. Chance to increase tier.';
         changeBtn.disabled = playerData.gold < changeCost;
+        changeBtn.style.position = 'relative'; // Ensure proper tooltip positioning
+        
+        // Create detailed tooltip for Change Professions
+        const changeProfessionTooltip = document.createElement('span');
+        changeProfessionTooltip.className = 'change-profession-tooltip member-tooltip';
+        changeProfessionTooltip.innerHTML = `
+            <strong>Change Professions</strong><br>
+            • Randomly assigns a new title and profession<br>
+            • Redistributes stat points (Fighter/Miner/Lumberjack)<br>
+            • Small chance to increase member tier (max tier: 14)<br>
+            • Cost doubles each use (max 100,000g)<br>
+            ${playerData.gold < changeCost ? '<br><span style="color: #ff6b6b;">Insufficient gold!</span>' : ''}
+        `;
+        changeBtn.appendChild(changeProfessionTooltip);
+        
+        // Add tooltip event handlers for Change Professions button specifically
+        changeBtn.addEventListener('mouseenter', () => {
+            const tooltip = changeBtn.querySelector('.change-profession-tooltip');
+            if (tooltip) tooltip.classList.add('show');
+        });
+        
+        changeBtn.addEventListener('mouseleave', () => {
+            const tooltip = changeBtn.querySelector('.change-profession-tooltip');
+            if (tooltip) tooltip.classList.remove('show');
+        });
+        
+        // Handle focus for accessibility
+        changeBtn.addEventListener('focus', () => {
+            const tooltip = changeBtn.querySelector('.change-profession-tooltip');
+            if (tooltip) tooltip.classList.add('show');
+        });
+        
+        changeBtn.addEventListener('blur', () => {
+            const tooltip = changeBtn.querySelector('.change-profession-tooltip');
+            if (tooltip) tooltip.classList.remove('show');
+        });
+        
         changeBtn.addEventListener('click', () => {
             if (playerData.gold < changeCost) {
                 logMessage(`Not enough gold! Need ${formatNumber(changeCost)} gold to change profession.`, 'fore-danger');
@@ -340,6 +457,33 @@ function renderGuildMembers() {
  * @param {object} memberData - The member data object
  * @returns {HTMLElement} - The member card element
  */
+/**
+ * Gets the tier name based on recruit tier number
+ * @param {number} recruitTier - The recruit tier number (0-14)
+ * @returns {string} - The tier name
+ */
+function getTierName(recruitTier) {
+    const tierNames = [
+        'Recruit',      // Tier 0
+        'Novice',       // Tier 1
+        'Apprentice',   // Tier 2
+        'Journeyman',   // Tier 3
+        'Skilled',      // Tier 4
+        'Expert',       // Tier 5
+        'Veteran',      // Tier 6
+        'Elite',        // Tier 7
+        'Master',       // Tier 8
+        'Champion',     // Tier 9
+        'Hero',         // Tier 10
+        'Legend',       // Tier 11
+        'Mythic',       // Tier 12
+        'Immortal',     // Tier 13
+        'Godlike'       // Tier 14
+    ];
+    
+    return tierNames[recruitTier] || 'Unknown';
+}
+
 function createMemberCard(memberId, memberData) {
     if (!memberData.stats) { memberData.stats = { fighter: 1, miner: 1, lumberjack: 1 }; }
     const memberCard = document.createElement('div');
@@ -392,8 +536,11 @@ function createMemberCard(memberId, memberData) {
     }
     memberCard.innerHTML = `
         <div class="member-header">
-            <div class="member-name">${memberName} <span class="member-title-emoji">${titleEmoji}</span></div>
-            <div class="member-status ${statusClass}">${statusText}</div>
+            <div class="member-tier-label">Tier: ${memberData.recruitTier || 0} - ${getTierName(memberData.recruitTier || 0)}</div>
+            <div class="member-header-name-row">
+                <div class="member-name">${memberName} <span class="member-title-emoji">${titleEmoji}</span></div>
+                <div class="member-status ${statusClass}">${statusText}</div>
+            </div>
         </div>
         <div class="member-main-content">
             <div class="member-stats vertical-stats">
@@ -488,6 +635,30 @@ function createMemberCard(memberId, memberData) {
                 trainMemberStat(badge.dataset.id, badge.dataset.stat);
             }
         });
+    });
+
+    // Add tooltip functionality for all has-tooltip elements in this member card
+    const tooltipElements = memberCard.querySelectorAll('.has-tooltip');
+    tooltipElements.forEach(element => {
+        const tooltip = element.querySelector('.member-tooltip');
+        if (tooltip) {
+            element.addEventListener('mouseenter', () => {
+                tooltip.classList.add('show');
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                tooltip.classList.remove('show');
+            });
+            
+            // Handle focus for accessibility
+            element.addEventListener('focus', () => {
+                tooltip.classList.add('show');
+            });
+            
+            element.addEventListener('blur', () => {
+                tooltip.classList.remove('show');
+            });
+        }
     });
 
     return memberCard;
@@ -587,6 +758,7 @@ function recruitGuildMember() {
     
     savePlayerData();
     logMessage(`Recruited ${newMember.name} (Tier ${recruitTier}, Lvl ${newMember.level}) to your guild! Cost: ${formatNumber(recruitCost)} gold.`, "fore-success", "🏛️");
+    addToGuildLog(`Recruited ${newMember.name} (Tier ${recruitTier}, Lvl ${newMember.level})`, "recruitment", "👥");
     updateHud();
     renderGuildMembers();
 }
@@ -633,6 +805,7 @@ function assignMemberTask(memberId, taskType) {
     
     savePlayerData();
     logMessage(`Assigned ${taskData.name} task to ${member.name}.`, "fore-info", "🏛️");
+    addToGuildLog(`Assigned ${taskData.name} task to ${member.name}`, "assignment", "🏛️");
     renderGuildMembers();
 }
 
@@ -689,6 +862,7 @@ function dismissGuildMember(memberId) {
             delete playerData.guild.members[memberId];
             savePlayerData();
             logMessage(`Dismissed ${member.name} from your guild.`, "fore-warning");
+            addToGuildLog(`Dismissed ${member.name} from the guild`, "dismissal", "❌");
             modal.style.display = 'none';
             modal.remove();
             renderGuildMembers();
@@ -1069,6 +1243,17 @@ function completeMission(missionId) {
         addItemToInventory(finalRewards.item.name, finalRewards.item.amount); // Add to player inventory for now
         // Or, to guild stash: addToGuildStash(finalRewards.item.name, finalRewards.item.amount, true); // true to bypass player inv check
         rewardMessageParts.push(`${finalRewards.item.amount}x ${finalRewards.item.name}`);
+        
+        // Track equipment collection for unlocking crafting/shop
+        if (ARMOR_DATA[finalRewards.item.name]) {
+            trackEquipmentCollection(finalRewards.item.name, 'armor');
+        } else if (HELMET_DATA[finalRewards.item.name]) {
+            trackEquipmentCollection(finalRewards.item.name, 'helmet');
+        } else if (SWORD_DATA[finalRewards.item.name]) {
+            trackEquipmentCollection(finalRewards.item.name, 'weapon');
+        } else if (TOOL_DATA.axe[finalRewards.item.name] || TOOL_DATA.pickaxe[finalRewards.item.name]) {
+            trackEquipmentCollection(finalRewards.item.name, 'tool');
+        }
     }
     
     // Handle extraItems (Ancient Tomes and other bonus rewards)
@@ -1080,6 +1265,18 @@ function completeMission(missionId) {
                     : extraItem.amount;
                 addItemToInventory(extraItem.name, amount);
                 rewardMessageParts.push(`${amount}x ${extraItem.name} (bonus)`);
+                
+                // Track equipment collection for unlocking crafting/shop
+                if (ARMOR_DATA[extraItem.name]) {
+                    trackEquipmentCollection(extraItem.name, 'armor');
+                } else if (HELMET_DATA[extraItem.name]) {
+                    trackEquipmentCollection(extraItem.name, 'helmet');
+                } else if (SWORD_DATA[extraItem.name]) {
+                    trackEquipmentCollection(extraItem.name, 'weapon');
+                } else if (TOOL_DATA.axe[extraItem.name] || TOOL_DATA.pickaxe[extraItem.name]) {
+                    trackEquipmentCollection(extraItem.name, 'tool');
+                }
+                
                 if (extraItem.name === 'ancient_tomes') {
                     logMessage(`📚 Ancient knowledge discovered! Found ${amount} Ancient Tomes!`, "fore-purple", "📚");
                 }
@@ -1108,6 +1305,7 @@ function completeMission(missionId) {
 
     savePlayerData();
     logMessage(rewardMessageParts.join(' '), "fore-success", "🏛️");
+    addToGuildLog(`Mission "${mission.name}" completed successfully`, "mission-complete", "🎉");
     renderGuildMissions();
     renderGuildMembers(); 
 }
@@ -1314,12 +1512,46 @@ function renderGuildStash() {
     for (const [itemName, amount] of Object.entries(playerData.guild.stash)) {
         if (itemName === 'gold' || amount <= 0) continue;
         hasOtherItems = true;
-        let itemDetails = ITEM_DATA[itemName] || ORE_DATA[itemName] || TREE_DATA[itemName] || { name: itemName, emoji: '❓' };
-        let emoji = itemDetails.emoji || '❓';
-        let displayName = itemDetails.name || itemName;
+        let itemDetails = getItemDetails(itemName) || { name: itemName, emoji: '❓' };
+        let displayName = itemDetails.name || titleCase(itemName);
+        
+        // Determine icon: use image for equipment items; fallback to emoji
+        let iconHtml;
+        if (['axe','pickaxe','sword','armor','helmet'].includes(itemDetails.itemType)) {
+            if (itemDetails.itemType === 'sword') {
+                const baseName = itemName.toLowerCase().replace(/\s+/g,'-').replace('-2h-sword','-2hsword');
+                iconHtml = `<img src="assets/${baseName}.png" alt="${displayName}" class="inventory-item-icon">`;
+            } else if (itemDetails.itemType === 'pickaxe') {
+                // Extract material name from the item name (e.g., "Bronze Pickaxe" -> "bronze")
+                const materialName = itemName.toLowerCase().replace(/\s+pickaxe$/, '');
+                const fileName = `${materialName}-pickaxe.png`;
+                iconHtml = `<img src="assets/${fileName}" alt="${displayName}" class="inventory-item-icon">`;
+            } else if (itemDetails.itemType === 'axe') {
+                // Extract material name from the item name (e.g., "Bronze Axe" -> "bronze")
+                const materialName = itemName.toLowerCase().replace(/\s+axe$/, '');
+                const fileName = `${materialName}-axe.png`;
+                iconHtml = `<img src="assets/${fileName}" alt="${displayName}" class="inventory-item-icon">`;
+            } else if (itemDetails.itemType === 'armor') {
+                // Extract material name from the item name (e.g., "bronze chestplate" -> "bronze")
+                const materialName = itemName.toLowerCase().replace(/\s+chestplate$/, '');
+                // Convert material name to proper case for filename (Bronze-ChestPlate.png)
+                const fileName = `${materialName.charAt(0).toUpperCase() + materialName.slice(1)}-ChestPlate.png`;
+                iconHtml = `<img src="assets/${fileName}" alt="${displayName}" class="inventory-item-icon">`;
+            } else if (itemDetails.itemType === 'helmet') {
+                // Handle special case for "Full Dragon Helmet"
+                if (itemName.toLowerCase().includes('dragon helmet')) {
+                    iconHtml = `<img src="assets/Dragon-Full-Helmet.png" alt="${displayName}" class="inventory-item-icon">`;
+                } else {
+                    iconHtml = itemDetails.emoji || '❓'; // Fallback for other helmets
+                }
+            }
+        } else {
+            iconHtml = itemDetails.emoji || '❓';
+        }
+        
         stashGrid.innerHTML += `
             <div class="inventory-item">
-                <div class="item-icon">${emoji}</div>
+                <div class="item-icon">${iconHtml}</div>
                 <div class="item-details">
                     <div class="item-name">${displayName}</div>
                     <div class="item-amount">${formatNumber(amount)}</div>
@@ -1542,6 +1774,17 @@ function takeFromGuildStash(itemId, quantity) {
     playerData.guild.stash[itemId] -= quantity;
     if (playerData.guild.stash[itemId] <= 0) delete playerData.guild.stash[itemId];
 
+    // Track equipment collection for unlocking crafting/shop
+    if (ARMOR_DATA[itemId]) {
+        trackEquipmentCollection(itemId, 'armor');
+    } else if (HELMET_DATA[itemId]) {
+        trackEquipmentCollection(itemId, 'helmet');
+    } else if (SWORD_DATA[itemId]) {
+        trackEquipmentCollection(itemId, 'weapon');
+    } else if (TOOL_DATA.axe[itemId] || TOOL_DATA.pickaxe[itemId]) {
+        trackEquipmentCollection(itemId, 'tool');
+    }
+
     savePlayerData();
     logMessage(`Withdrew ${quantity}x ${itemId} from guild stash.`, "fore-info", "🏛️");
     updateHud(); 
@@ -1655,7 +1898,9 @@ function processGuildMemberTasks() {
             }
         }
         if (lootGainedThisTick) {
-            tickLootLog.push(`${member.name} gained: ${currentTickDiff.join(', ')}`);
+            const gainMessage = `${member.name} ${member.title} gained: ${currentTickDiff.join(', ')}`;
+            tickLootLog.push(gainMessage);
+            addToGuildLog(gainMessage, "tick", "");
         }
 
         if (task.progress >= 1) {
@@ -1665,9 +1910,7 @@ function processGuildMemberTasks() {
         }
     }
 
-    if (tickLootLog.length > 0) {
-        logMessage(`[Tick] ${tickLootLog.join(' | ')}`, 'fore-info');
-    }
+    // Tick loot is now logged individually to guild log, no need for main log entry
 
     if (updatedAnyMember) {
         savePlayerData();
@@ -1768,7 +2011,7 @@ function processTaskRewards(memberId, member, task) {
     playerData.guild.stash.gold = (playerData.guild.stash.gold || 0) + bonusGold;
     rewardMessageParts.push(`Added ${bonusGold} bonus gold to stash.`);
 
-    logMessage(rewardMessageParts.join(' '), "fore-cyan", "🏆");
+    addToGuildLog(rewardMessageParts.join(' '), "task-completion", "🏆");
 }
 
 /**
@@ -2016,6 +2259,7 @@ function startGuildMissionWithMembers(missionId, memberIds) {
     });
     savePlayerData();
     logMessage(`Started guild mission: ${mission.name}`, "fore-success", "🏛️");
+    addToGuildLog(`Started guild mission: ${mission.name}`, "mission", "🏛️");
     renderGuildMissions();
     renderGuildMembers();
 }

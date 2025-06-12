@@ -1,0 +1,38 @@
+/* RuneText CSS - Main Import File */
+/* This file imports all CSS modules in the correct order */
+
+/* Core styles and variables */
+@import url('./base.css');
+@import url('./variables.css');
+@import url('./layout.css');
+@import url('./components.css');
+
+/* HUD and UI */
+@import url('./hud.css');
+@import url('./ui.css');
+@import url('./game-log.css');
+
+/* Main sections */
+@import url('./main-menu.css');
+@import url('./character.css');
+@import url('./inventory.css');
+@import url('./combat.css');
+@import url('./shop.css');
+@import url('./guild.css');
+@import url('./perks.css');
+@import url('./building.css');
+@import url('./achievements.css');
+
+/* Skills */
+@import url('./mining.css');
+@import url('./woodcutting.css');
+@import url('./blacksmithing.css');
+@import url('./cooking.css');
+@import url('./farming.css');
+@import url('./enchanting.css');
+
+/* Advanced features */
+@import url('./dungeoneering.css');
+
+/* Shared animations */
+@import url('./animations.css');

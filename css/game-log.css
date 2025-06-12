@@ -1,0 +1,42 @@
+/* === Game Log === */
+#game-log-container {
+    position: fixed; bottom: 20px; right: 20px; width: 350px; max-height: 300px;
+    background-color: rgba(34, 34, 34, 0.95); border: 1px solid #3f3f46;
+    border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.5); z-index: 1000;
+    transition: height 0.3s, box-shadow 0.5s ease; /* Added box-shadow for flash */
+    display: flex; flex-direction: column;
+}
+.game-log-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 12px; background-color: #333333;
+    border-bottom: 1px solid #3f3f46;
+    border-top-left-radius: 5px; border-top-right-radius: 5px;
+}
+.game-log-title { font-weight: bold; color: #e0e0e0; }
+.game-log-controls { display: flex; gap: 8px; }
+.game-log-toggle, .game-log-clear {
+    background: none; border: none; color: #e0e0e0; font-size: 12px; padding: 0;
+}
+.game-log-toggle:hover, .game-log-clear:hover { color: #fff; opacity: 1; }
+.game-log-content {
+    padding: 10px; overflow-y: auto; flex-grow: 1;
+    font-size: 0.9em; max-height: calc(300px - 38px); /* Max height minus header */
+}
+.game-log-entry {
+    margin-bottom: 6px; padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    line-height: 1.4; white-space: pre-wrap;
+}
+.game-log-entry:last-child { margin-bottom: 0; border-bottom: none; }
+.game-log-timestamp { color: #a0a0a0; font-size: 0.8em; margin-right: 5px; }
+.game-log-emoji { margin-right: 5px; }
+/* Collapsed Game Log */
+.game-log-collapsed { height: 38px !important; overflow: hidden !important; }
+.game-log-collapsed .game-log-content { display: none; }
+/* Game Log Flash on new entry */
+@keyframes gameLogFlash {
+    0% { box-shadow: 0 0 10px rgba(0,0,0,0.5); } /* Existing shadow */
+    50% { box-shadow: 0 0 15px rgba(76, 175, 80, 0.8); } /* Green flash */
+    100% { box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+}
+.game-log-flash { animation: gameLogFlash 0.5s ease; }

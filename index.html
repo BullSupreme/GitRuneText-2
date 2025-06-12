@@ -11,7 +11,31 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="style.css">
+    <!-- Modular CSS Files -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/hud.css">
+    <link rel="stylesheet" href="css/ui.css">
+    <link rel="stylesheet" href="css/game-log.css">
+    <link rel="stylesheet" href="css/main-menu.css">
+    <link rel="stylesheet" href="css/character.css">
+    <link rel="stylesheet" href="css/inventory.css">
+    <link rel="stylesheet" href="css/combat.css">
+    <link rel="stylesheet" href="css/shop.css">
+    <link rel="stylesheet" href="css/guild.css">
+    <link rel="stylesheet" href="css/perks.css">
+    <link rel="stylesheet" href="css/building.css">
+    <link rel="stylesheet" href="css/achievements.css">
+    <link rel="stylesheet" href="css/mining.css">
+    <link rel="stylesheet" href="css/woodcutting.css">
+    <link rel="stylesheet" href="css/blacksmithing.css">
+    <link rel="stylesheet" href="css/cooking.css">
+    <link rel="stylesheet" href="css/farming.css">
+    <link rel="stylesheet" href="css/enchanting.css">
+    <link rel="stylesheet" href="css/dungeoneering.css">
+    <link rel="stylesheet" href="css/animations.css">
     <script type="module" src="js/main.js"></script>
     <script type="module" src="js/utils.js"></script>
     <script type="module" src="js/ui.js"></script>
@@ -119,11 +143,20 @@
                         </div>
                         <div class="auto-status-indicator"></div>
                     </div>
+                    <div id="hud-dg" class="stat-container skill-stat-container locked" data-skill="dungeoneering">
+                        <div class="stat-icon">🏰</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Dungeoneering</span>
+                            <span class="hud-skill-level-text">Lvl 1</span>
+                            <div class="skill-xp-bar-container"><div class="skill-xp-bar dg"></div></div>
+                        </div>
+                        <div class="auto-status-indicator"></div>
+                    </div>
                 </div>
                 
                 <div class="hud-right">
                     <div id="hud-player-hp" class="stat-container hidden">
-                        <!-- Player HP Bar will be rendered here by JS using . style -->hp-bar-container
+                        <!-- Player HP Bar will be rendered here by JS using hp-bar-container style -->
                     </div>
                     <div id="hud-gold-display" class="stat-container">
                         <span class="gold-tooltip-text">Gold</span>
@@ -166,8 +199,8 @@
                     </button>
                 </div>
                 
-                <div class="town-menu-container">
-                    <h2 class="town-menu-title">Town</h2>
+                <div class="town-menu-container" id="town-menu-container">
+                    <h2 class="town-menu-title"><span id="town-building-emojis-left"></span> Town <span id="town-building-emojis-right"></span></h2>
                     <div class="town-button-grid">
                         <div class="town-button" id="shop-menu-button">
                             <div class="town-button-icon">🛒</div><div class="town-button-text">Shop</div>
@@ -203,7 +236,6 @@
                     <!-- Action time info populated by JS -->
                 </div>
                 <div id="available-ores-list" class="resource-list">
-                    <div class="section-title" style="text-align:left; font-size:1.2em; border:none; padding-bottom:5px;">Available Ores</div>
                     <!-- Ore buttons will be populated here by JS -->
                 </div>
             </div>
@@ -225,7 +257,6 @@
                     <!-- Action time info populated by JS -->
                 </div>
                 <div id="available-trees-list" class="resource-list">
-                    <div class="section-title" style="text-align:left; font-size:1.2em; border:none; padding-bottom:5px;">Available Trees</div>
                     <!-- Tree buttons will be populated here by JS -->
                 </div>
             </div>
@@ -375,14 +406,31 @@
             </div>
             
             <!-- Eat Food Modal -->
-            <div id="eat-food-modal" class="modal hidden">
-                <div class="modal-content">
+            <div id="eat-food-modal" class="modal-overlay hidden">
+                <div class="modal-dialog food-modal">
+                    <button id="close-eat-food-modal-btn" class="modal-close-btn" aria-label="Close">×</button>
                     <h3>Select Food to Eat</h3>
-                    <div id="eat-food-list" class="resource-list">
+                    
+                    <!-- HP Bar Section -->
+                    <div class="food-modal-hp-section">
+                        <div class="hp-bar-container">
+                            <div class="hp-bar-label">
+                                <span>Health: </span>
+                                <span id="food-modal-hp-text">0/0</span>
+                            </div>
+                            <div class="hp-bar">
+                                <div id="food-modal-hp-fill" class="hp-bar-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Food Items Grid -->
+                    <div id="eat-food-list" class="food-items-grid">
                         <!-- Food items from inventory will be populated here by JS -->
                     </div>
-                    <div class="modal-buttons">
-                        <button id="close-eat-food-modal-btn">Close</button>
+                    
+                    <div class="food-modal-buttons">
+                        <button id="close-food-modal-btn" class="close-button">Close</button>
                     </div>
                 </div>
             </div>
@@ -426,7 +474,21 @@
                         <button id="smithing-back-btn" class="btn-back">⬅️ Back</button>
                     </div>
                 </div>
+                
+                <!-- Smithing Category Tabs -->
+                <div class="smithing-tabs">
+                    <button id="smithing-weapons-tab-btn" class="tab-btn active-tab">Weapons</button>
+                    <button id="smithing-armor-tab-btn" class="tab-btn">Armor</button>
+                    <button id="smithing-helmets-tab-btn" class="tab-btn">Helmets</button>
+                    <button id="smithing-accessories-tab-btn" class="tab-btn">Accessories</button>
+                </div>
+                
+                <!-- Category Content Areas -->
                 <div id="smithing-weapons-category-list" class="resource-list"></div>
+                <div id="smithing-armor-category-list" class="resource-list hidden"></div>
+                <div id="smithing-helmets-category-list" class="resource-list hidden"></div>
+                <div id="smithing-accessories-category-list" class="resource-list hidden"></div>
+                
                 <div id="smithing-recipes-container" class="resource-list">
                     <!-- Smithing recipes populated by JS -->
                 </div>
@@ -461,6 +523,9 @@
                     </button>
                     <button id="enchanting-menu-button" class="action-button">
                         <span class="button-icon">✨</span><span class="button-label">Enchanting</span>
+                    </button>
+                    <button id="dungeoneering-menu-button" class="action-button hidden">
+                        <span class="button-icon">🏰</span><span class="button-label">Dungeoneering</span>
                     </button>
                     <!-- Farming action button -->
                     <button id="farming-menu-action-button" class="action-button hidden">
@@ -519,84 +584,149 @@
                 </div>
             </div>
 
+            <!-- Dungeoneering Menu Section -->
+            <div id="dungeoneering-menu" class="section hidden">
+                <div class="section-title-header">
+                    <div class="section-title-text">⚔️ Dungeoneering</div>
+                    <div class="compact-nav-buttons">
+                        <button id="dungeoneering-back-button" class="btn-back">⬅️ Back to Actions</button>
+                    </div>
+                </div>
+                
+                <div class="dungeoneering-info">
+                    <div class="skill-display">
+                        <span class="skill-label">Dungeoneering Level:</span>
+                        <span id="dungeoneering-level" class="skill-value">1</span>
+                    </div>
+                    <div class="skill-display">
+                        <span class="skill-label">Experience:</span>
+                        <span id="dungeoneering-exp" class="skill-value">0/83</span>
+                    </div>
+                </div>
+                
+                <div id="dungeon-list" class="dungeon-list">
+                    <!-- Dungeons will be populated by JS -->
+                </div>
+                
+                <div class="section-title" style="margin-top: 20px;">Dungeon Abilities</div>
+                <div id="dungeon-abilities" class="dungeon-abilities">
+                    <!-- Abilities will be populated by JS -->
+                </div>
+                
+                <div class="section-footer-controls">
+                    <button id="dungeoneering-footer-back-btn" class="btn-back">⬅️ Back to Combat</button>
+                </div>
+            </div>
+            
+            <!-- Active Dungeon Section -->
+            <div id="dungeon-active" class="section hidden">
+                <div class="section-title-header">
+                    <div class="section-title-text">🏰 <span id="dungeon-name">Dungeon Name</span></div>
+                    <div class="compact-nav-buttons">
+                        <button id="leave-dungeon-btn" class="btn-danger" onclick="window.dungeoneering.leaveDungeon()">⚠️ Leave Dungeon</button>
+                    </div>
+                </div>
+                
+                <div class="dungeon-status">
+                    <div class="dungeon-wave-info">
+                        <span id="current-wave">Wave 1/9</span>
+                    </div>
+                    <div class="player-health-info">
+                        <span class="health-label">Your HP:</span>
+                        <span id="player-health-dungeon" class="health-value">100/100</span>
+                    </div>
+                </div>
+                
+                <div id="wave-monsters" class="wave-monsters">
+                    <!-- Wave monsters will be populated by JS -->
+                </div>
+                
+                <div class="dungeon-controls">
+                    <div id="dungeon-ability-buttons" class="ability-button-container">
+                        <!-- Ability buttons will be populated by JS -->
+                    </div>
+                    
+                    <!-- Start button removed - dungeons now auto-start after 2 seconds -->
+                </div>
+            </div>
+
             <!-- Enchanting Section -->
             <div id="enchanting-section" class="section hidden">
-                <div class="compact-nav">
+                <div class="compact-nav enchanting-nav">
                     <div class="compact-nav-title">✨ Enchanting</div>
+                    <div class="enchanting-status-info">
+                        <span class="permit-status-label">Level:</span>
+                        <span id="enchanting-level-value" class="permit-status-value">1</span>
+                        <span class="permit-status-label">XP:</span>
+                        <span id="enchanting-xp-value" class="permit-status-value">0</span>
+                    </div>
+                    <button id="gems-conversion-btn" class="action-button">Gems</button>
                     <div class="compact-nav-buttons">
                         <button class="compact-nav-button" id="enchanting-back-button">
                             <span class="button-icon">⬅️</span> Back
                         </button>
                     </div>
                 </div>
-                <div id="enchanting-status-display" class="permit-status">
-                    <!-- Status populated by JS -->
-                </div>
                 
-                <!-- Main Enchanting Content -->
+                <!-- Main Enchanting Content - Redesigned -->
                 <div class="enchanting-main-container">
-                    <!-- Left Panel: Equipment Grid -->
-                    <div class="enchanting-left-panel">
-                        <div class="section-title">Equipment</div>
-                        <div id="enchanting-equipment-grid" class="enchanting-equipment-grid">
-                            <!-- Equipment grid populated by JS (similar to character info) -->
+                    <!-- Equipment Overview State -->
+                    <div id="enchanting-overview-state" class="enchanting-state active">
+                        <div class="enchanting-overview-header">
+                            <div class="section-title">✨ Select Equipment to Enchant</div>
+                        </div>
+                        <div id="enchanting-equipment-grid" class="enchanting-equipment-grid centered">
+                            <!-- Equipment grid populated by JS -->
                         </div>
                     </div>
 
-                    <!-- Right Panel: Enchanting Interface -->
-                    <div class="enchanting-right-panel">
-                        <!-- Selected Item Info -->
-                        <div id="enchanting-selected-info" class="enchanting-panel" style="display:none;">
-                            <div class="section-title">Selected Item</div>
-                            <div id="enchanting-selected-item-details">
-                                <!-- Selected item details -->
-                            </div>
-                        </div>
-
-                        <!-- Current Stats -->
-                        <div id="enchanting-current-stats" class="enchanting-panel" style="display:none;">
-                            <div class="section-title">Current Stats</div>
-                            <div id="enchanting-current-stats-content">
-                                <!-- Current stats display -->
-                            </div>
-                        </div>
-
-                        <!-- Enchantment Options -->
-                        <div id="enchanting-options" class="enchanting-panel" style="display:none;">
-                            <div class="section-title">Available Enchantments</div>
-                            <div id="enchanting-tier-options">
-                                <!-- Enchantment tier options -->
-                            </div>
-                        </div>
-
-                        <!-- New Stats Preview -->
-                        <div id="enchanting-preview" class="enchanting-panel" style="display:none;">
-                            <div class="section-title">Item Stats</div>
-                            <div id="enchanting-preview-content">
-                                <!-- Preview stats -->
-                            </div>
-                            <div class="enchanting-choice-buttons">
-                                <button id="enchanting-cancel-btn" class="btn-secondary">Cancel</button>
-                                <button id="enchanting-perform-btn" class="btn-primary">
-                                    <span class="enchant-button-text">Enchant ✨</span>
-                                    <div class="enchant-cost-display"></div>
+                    <!-- Item Detail State -->
+                    <div id="enchanting-detail-state" class="enchanting-state">
+                        <!-- Left Panel: Selected Item -->
+                        <div class="enchanting-selected-panel">
+                            <div class="selected-item-header">
+                                <button id="enchanting-back-to-overview" class="enchanting-back-btn">
+                                    <span class="button-icon">⬅️</span> Back to Equipment
                                 </button>
+                                <div class="selected-item-title">Selected Item</div>
                             </div>
-                            <div class="enchanting-info-panel">
-                                <div class="enchanting-info-title">📚 Enchanting Guide</div>
-                                <div class="enchanting-info-content">
-                                    <p><strong>Ancient Tome Locking:</strong> Use Ancient Tomes to lock enchantments in place. Locked enchantments stay when re-enchanting an item.</p>
-                                    <p><strong>Enchantment Limit:</strong> Each item can be enchanted a maximum of 12 times. Get new gear to continue enchanting.</p>
-                                    <p><strong>Tip:</strong> Higher tier enchantments require more Ancient Tomes to lock (Common: 1, Rare: 20, Legendary: 100).</p>
+                            
+                            <div id="enchanting-selected-item-display" class="selected-item-display">
+                                <!-- Selected item will be shown here -->
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Enchanting Options -->
+                        <div class="enchanting-options-panel">
+                            <!-- Enchantment Options -->
+                            <div id="enchanting-options" class="enchanting-panel active">
+                                <div class="section-title">Available Enchantments</div>
+                                <div id="enchanting-tier-options">
+                                    <!-- Enchantment tier options -->
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Default Message -->
-                        <div id="enchanting-no-selection" class="enchanting-panel">
-                            <div class="enchanting-prompt">
-                                <div class="enchanting-prompt-icon">✨</div>
-                                <div class="enchanting-prompt-text">Click on equipped gear to start enchanting</div>
+                            <!-- Stats Preview -->
+                            <div id="enchanting-preview" class="enchanting-panel">
+                                <div class="section-title">Item Stats</div>
+                                <div id="enchanting-preview-content">
+                                    <!-- Preview stats -->
+                                </div>
+                                <div class="enchanting-choice-buttons">
+                                    <button id="enchanting-cancel-btn" class="btn-secondary">Cancel</button>
+                                    <button id="enchanting-perform-btn" class="btn-primary">
+                                        <span class="enchant-button-text">Enchant ✨</span>
+                                        <div class="enchant-cost-display"></div>
+                                    </button>
+                                </div>
+                                <div class="enchanting-info-panel">
+                                    <div class="enchanting-info-title">📚 Enchanting Guide</div>
+                                    <div class="enchanting-info-content">
+                                        <p><strong>Ancient Tome Locking:</strong> Use Ancient Tomes to lock enchantments in place. Locked enchantments stay when re-enchanting an item.</p>
+                                        <p><strong>Enchantment Limit:</strong> Each item can be enchanted a maximum of 12 times. Get new gear to continue enchanting.</p>
+                                        <p><strong>Tip:</strong> Higher tier enchantments require more Ancient Tomes to lock (Common: 1, Rare: 20, Legendary: 100).</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -731,9 +861,11 @@
     <div id="equip-modal-overlay" class="modal-overlay hidden">
       <div id="item-selection-for-equip-target" class="modal-dialog">
         <button id="close-equip-modal-btn" class="modal-close-btn" aria-label="Close">×</button>
-        <h4 id="equip-item-type-title-target" style="margin-bottom:10px;">Equip Item</h4>
-        <div id="equip-item-list-target" class="inventory-grid"></div>
-        <button id="cancel-equip-btn" style="margin-top:10px; background-color:#555; color:white; border:none; padding:8px 15px; border-radius:4px;">Cancel</button>
+        <h4 id="equip-item-type-title-target">Equip Item</h4>
+        <div id="equip-item-list-target"></div>
+        <div class="equip-modal-buttons">
+          <button id="cancel-equip-btn">Cancel</button>
+        </div>
       </div>
     </div>
 </body>

@@ -6,17 +6,50 @@
 'use strict';
 
 // Import necessary functions and data
-import { playerData, savePlayerData, getLevelFromXp, logMessage, playSound, sounds, titleCase, checkAndResetLowHealthWarning, handleLevelUp } from './utils.js';
+import { playerData, savePlayerData, getLevelFromXp, getMaxHp, capCurrentHp, logMessage, playSound, sounds, titleCase, checkAndResetLowHealthWarning, handleLevelUp, getEnchantmentBonus } from './utils.js';
 import { showSection, updateHud, setActiveSkill, clearActiveSkill, showFloatingCombatText } from './ui.js';
 import { stopAllAutoActions } from './actions.js';
 import { FOOD_DATA, COOKABLE_ITEMS, TIERS, getItemDetails } from './data.js';
 import { getSummedPyramidPerkEffects } from './perks.js';
+import { getStructurePerkEffect } from './builds.js';
 import { getGuildDoubleCraftingChance } from './guild.js';
 
 // Cooking state variables
 let isAutoCooking = false;
 let autoCookingInterval = null;
 let currentCookingTarget = null;
+
+/**
+ * Calculates the current cooking action time
+ */
+export function calculateCookingActionTime() {
+    const baseTime = 3000;
+    let interval = baseTime;
+    
+    // Apply crafting speed bonus from ring enchantments (reduce time in milliseconds)
+    const craftingSpeedBonus = getEnchantmentBonus('crafting_speed');
+    if (craftingSpeedBonus > 0) {
+        interval -= (craftingSpeedBonus * 1000); // Convert seconds to milliseconds
+    }
+    
+    // Apply cooking speed bonus from pyramid perks and structures
+    const perkEffects = getSummedPyramidPerkEffects();
+    let totalSpeedBoost = perkEffects.cooking_speed || 0;
+    
+    // Add global skill speed boost from perks and structures
+    totalSpeedBoost += perkEffects.global_skill_speed_boost || 0;
+    const structureSpeedBoost = getStructurePerkEffect('stronghold', 'global_skill_speed_boost') || 0;
+    totalSpeedBoost += structureSpeedBoost;
+    
+    if (totalSpeedBoost > 0) {
+        interval *= (1 - totalSpeedBoost);
+    }
+    
+    // Minimum interval should be 500ms
+    interval = Math.max(500, interval);
+    
+    return interval;
+}
 
 // Helper to show static gain text inside a resource container
 function showStaticGainText(container, text, right = false, small = false) {
@@ -216,38 +249,42 @@ export function populateEatFoodModal() {
     const foodListContainer = document.getElementById('eat-food-list');
     if (!foodListContainer) return;
     foodListContainer.innerHTML = ''; // Clear previous items
-    const foodItems = Object.entries(playerData.inventory).filter(([item]) => {
+    
+    const foodItems = Object.entries(playerData.inventory).filter(([item, quantity]) => {
         const details = getItemDetails(item);
-        return details && (details.category === 'food' || details.category === 'potion' || details.category === 'elixir') && details.heal_amount;
+        return details && (details.category === 'food' || details.category === 'potion' || details.category === 'elixir') && details.heal_amount && quantity > 0;
     });
+    
     if (foodItems.length === 0) {
-        const emptyMsg = document.createElement('p');
+        const emptyMsg = document.createElement('div');
+        emptyMsg.className = 'empty-food-message';
         emptyMsg.textContent = 'No consumable items in inventory.';
         foodListContainer.appendChild(emptyMsg);
     } else {
         foodItems.forEach(([item, quantity]) => {
             const details = getItemDetails(item);
             const itemDiv = document.createElement('div');
-            // Reusing inventory-item styling for consistency, adjust as needed in CSS
-            itemDiv.className = 'inventory-item item-card-tier';
+            itemDiv.className = 'food-item-card';
             const tierClass = details.tier || TIERS.COMMON;
             itemDiv.classList.add(tierClass);
+            
             itemDiv.innerHTML = `
-                <div class="item-icon">${details.emoji || '❓'}</div>
-                <div class="item-info">
-                    <div class="item-name">${titleCase(item)}</div>
-                    <div class="item-quantity">x${quantity}</div>
-                    <div class="item-details">
-                       <span class="food-heal-text">+${details.heal_amount} HP</span>
-                    </div>
+                <div class="food-item-icon">${details.emoji || '❓'}</div>
+                <div class="food-item-info">
+                    <div class="food-item-name">${titleCase(item)}</div>
+                    <div class="food-item-quantity">x${quantity}</div>
+                    <div class="food-item-heal">+${details.heal_amount} HP</div>
                 </div>
                 <button class="food-eat-btn" data-item="${item}">Eat</button>
             `;
+            
+            // Add click event for eat button - keep modal open and update HP
             itemDiv.querySelector('.food-eat-btn').addEventListener('click', (e) => {
                 eatFood(e.target.dataset.item);
-                // Optionally hide the modal after eating, or keep open for multiple eats
-                hideEatFoodModal();
+                populateEatFoodModal(); // Re-populate to update quantities
+                updateFoodModalHPBar(); // Update HP bar after eating
             });
+            
             foodListContainer.appendChild(itemDiv);
         });
     }
@@ -257,6 +294,7 @@ function showEatFoodModal() {
     const modal = document.getElementById('eat-food-modal');
     if (modal) {
         populateEatFoodModal(); // Populate before showing
+        updateFoodModalHPBar(); // Update HP bar
         modal.classList.remove('hidden');
         modal.style.display = 'flex'; // Ensure it's displayed
     }
@@ -267,6 +305,37 @@ function hideEatFoodModal() {
     if (modal) {
         modal.classList.add('hidden');
         modal.style.display = 'none';
+    }
+}
+
+function updateFoodModalHPBar() {
+    const hpText = document.getElementById('food-modal-hp-text');
+    const hpFill = document.getElementById('food-modal-hp-fill');
+    
+    if (hpText && hpFill) {
+        // Cap current HP at max HP before displaying
+        capCurrentHp();
+        
+        const currentHP = Math.floor(playerData.hp || 0);
+        const attackLevel = getLevelFromXp(playerData.skills.attack.xp || 0);
+        const maxHP = Math.floor(getMaxHp(attackLevel));
+        const hpPercentage = (currentHP / maxHP) * 100;
+        
+        hpText.textContent = `${currentHP}/${maxHP}`;
+        
+        // Update color based on HP percentage
+        if (hpPercentage <= 25) {
+            hpFill.style.backgroundColor = '#f44336'; // Red
+        } else if (hpPercentage <= 50) {
+            hpFill.style.backgroundColor = '#ff9800'; // Orange
+        } else if (hpPercentage <= 75) {
+            hpFill.style.backgroundColor = '#ffeb3b'; // Yellow
+        } else {
+            hpFill.style.backgroundColor = '#4caf50'; // Green
+        }
+        
+        // Set the width
+        hpFill.style.width = `${hpPercentage}%`;
     }
 }
 
@@ -290,8 +359,12 @@ export function eatFood(foodName) {
         return;
     }
     
+    // Calculate actual max HP
+    const attackLevel = getLevelFromXp(playerData.skills.attack.xp || 0);
+    const maxHP = getMaxHp(attackLevel);
+    
     // Check if player already has max HP
-    if (playerData.hp >= playerData.max_hp) {
+    if (playerData.hp >= maxHP) {
         logMessage(`You already have full health!`, 'fore-yellow');
         return;
     }
@@ -302,7 +375,7 @@ export function eatFood(foodName) {
     // Calculate healing amount
     const healAmount = itemDetails.heal_amount;
     const oldHP = playerData.hp;
-    playerData.hp = Math.min(playerData.max_hp, playerData.hp + healAmount);
+    playerData.hp = Math.min(maxHP, playerData.hp + healAmount);
     const actualHeal = playerData.hp - oldHP;
     
     // Reset low health warning if HP gets back above 50%
@@ -391,19 +464,8 @@ function startAutoCooking(recipeKey) {
     currentCookingTarget = recipeKey;
     isAutoCooking = true;
     
-    // Calculate action interval
-    const baseTime = 3000; // Base time in ms
-    let interval = baseTime;
-    
-    // Apply cooking speed bonus from pyramid perks
-    const perkEffects = getSummedPyramidPerkEffects();
-    const cookingSpeedBonus = perkEffects.cooking_speed || 0;
-    if (cookingSpeedBonus > 0) {
-        interval *= (1 - cookingSpeedBonus);
-    }
-    
-    // Minimum interval should be 500ms
-    interval = Math.max(500, interval);
+    // Use centralized cooking action time calculation
+    const interval = calculateCookingActionTime();
     
     // Start the auto-cooking interval
     logMessage(`Started cooking ${recipe.cooked_item}.`, 'fore-orange', '✨');
@@ -709,6 +771,21 @@ function setupEatFoodModalEvents() {
     const closeModalBtn = document.getElementById('close-eat-food-modal-btn');
     if (closeModalBtn) {
         closeModalBtn.addEventListener('click', hideEatFoodModal);
+    }
+    
+    const closeFoodBtn = document.getElementById('close-food-modal-btn');
+    if (closeFoodBtn) {
+        closeFoodBtn.addEventListener('click', hideEatFoodModal);
+    }
+    
+    // Close modal when clicking outside
+    const modal = document.getElementById('eat-food-modal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                hideEatFoodModal();
+            }
+        });
     }
 }
 

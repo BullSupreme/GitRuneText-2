@@ -1,0 +1,722 @@
+/* === Inventory Section === */
+#inventory-section { /* Uses .section base */ }
+.inventory-header {
+    display: flex; justify-content: space-between; /* Align back button to right */
+    align-items: center; margin-bottom: 15px; padding-bottom: 10px;
+    border-bottom: 1px solid #444; flex-wrap: wrap; gap: 15px;
+}
+.inventory-stats { display: flex; gap: 20px; flex-wrap: wrap; }
+.inventory-space, .inventory-value { font-weight: bold; color: #e0e0e0; }
+.inventory-controls {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-left: auto; /* Pushes controls left of back button */
+}
+#inventory-sort-controls-target { display:flex; gap:5px; flex-wrap:wrap; }
+/* Buttons/Filters in inventory controls */
+.inventory-button, .inventory-filter {
+    background-color: #333; color: #fff; border: 1px solid #555;
+    border-radius: 4px; padding: 8px 14px; font-size: 1em;
+}
+.inventory-button:hover, .inventory-filter:hover { background-color: #444; opacity: 1; }
+#inventory-back-btn { /* Specific back button in header */
+    /* Uses .btn-back base styles, already covered by .section-footer-controls button */
+    /* If it needs to be different from footer buttons, add styles here */
+}
+
+/* Inventory Grid */
+#inventory-grid-target,
+.inventory-grid { /* Shared by equip item list */
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px; margin-bottom: 20px; max-height: 500px; overflow-y: auto;
+    padding-right: 5px; /* For scrollbar */ position: relative; z-index: 1;
+}
+.inventory-item {
+    background-color: #333;
+    /* border: 1px solid #444; Default border, tier borders will override if present */
+    border-radius: 5px; padding: 10px; display: flex; flex-direction: column;
+    align-items: center; transition: transform 0.1s, box-shadow 0.1s, background-color 0.1s;
+    position: relative; z-index: 1; min-height: 96px;
+}
+.inventory-item:hover {
+    background-color: #3a3a3a; transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); cursor: pointer; z-index: 100; opacity: 1;
+}
+
+/* Item rarity borders applied to .inventory-item directly if they don't use .item-card-tier */
+.inventory-item.common { border-color: #777 !important; } /* Ensure these override default or transparent */
+.inventory-item.uncommon { border-color: #4caf50 !important; }
+.inventory-item.rare { border-color: #2196f3 !important; }
+.inventory-item.epic { border-color: #9c27b0 !important; }
+.inventory-item.legendary { border-color: #ff9800 !important; box-shadow: 0 0 5px rgba(255, 152, 0, 0.5) !important; }
+.inventory-item.legendary:hover { box-shadow: 0 0 5px rgba(255, 152, 0, 0.5), 0 2px 5px rgba(0,0,0,0.3) !important; }
+
+/* If .item-card-tier is used within .inventory-item, ensure its borders are visible */
+.inventory-item .item-card-tier.tier-common { border-color: grey !important; }
+.inventory-item .item-card-tier.tier-uncommon { border-color: #4caf50 !important; }
+.inventory-item .item-card-tier.tier-rare { border-color: rgb(26, 129, 199) !important; }
+.inventory-item .item-card-tier.tier-epic { border-color: purple !important; }
+.inventory-item .item-card-tier.tier-legendary { border-color: red !important; }
+
+/* Item Tier Border Colors */
+.item-card-tier { /* Base style for items that will have a tier border */
+    border: 2px solid transparent;
+}
+.tier-common { border-color: grey !important; }
+.tier-uncommon { border-color: #4caf50 !important; }
+.tier-rare { border-color: rgb(26, 129, 199) !important; }
+.tier-epic { border-color: purple !important; }
+.tier-legendary { border-color: red !important; }
+
+/* Enchanted item styles */
+.inventory-item.enchanted-item {
+    background: linear-gradient(135deg, #2a2a3e 0%, #3a2a4e 100%);
+    border: 2px solid #9370DB;
+    box-shadow: 0 0 10px rgba(147, 112, 219, 0.3);
+}
+
+.inventory-item.enchanted-item:hover {
+    box-shadow: 0 0 15px rgba(147, 112, 219, 0.5), 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.item-enchantments {
+    margin-top: 5px;
+    font-size: 0.85em;
+    line-height: 1.4;
+}
+
+.item-enchantments > div {
+    margin: 2px 0;
+}
+
+.enchantment-count {
+    color: #b19cd9;
+    font-weight: bold;
+    margin-top: 3px;
+}
+
+.inventory-item .item-icon { font-size: 34px; margin-bottom: 6px; }
+.inventory-item .item-info { width: 100%; text-align: center; }
+.inventory-item .item-name {
+    font-size: 1em; margin-bottom: 4px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+}
+.inventory-item .item-quantity {
+    font-size: 0.95em; color: #aaa; background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 10px; padding: 2px 6px; display: inline-block;
+}
+
+/* Farm storage withdrawal button styles */
+.inventory-item .item-actions {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+.inventory-item .item-actions button {
+    padding: 4px 8px;
+    font-size: 0.8em;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    min-height: 24px;
+}
+
+.inventory-item .withdraw-btn {
+    background-color: #4caf50;
+    color: white;
+}
+
+.inventory-item .withdraw-btn:hover {
+    background-color: #45a049;
+}
+
+.inventory-item .withdraw-all-btn {
+    background-color: #2196f3;
+    color: white;
+}
+
+.inventory-item .withdraw-all-btn:hover {
+    background-color: #1976d2;
+}
+
+/* Chest click indicator */
+.chest-click-indicator {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    background-color: #ff9800;
+    color: #fff;
+    font-weight: bold;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    animation: pulsate 2s ease-in-out infinite;
+}
+
+@keyframes pulsate {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Inventory Item Tooltip */
+.inventory-item .item-tooltip, /* Merged selector */
+.shop-item .item-tooltip { /* New for shop */
+    visibility: hidden;
+    opacity: 0;
+    width: 200px;
+    background-color: #2d2d2d; /* Original color: #222 */
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    z-index: 9999; /* Ensure it's above other elements */
+    bottom: 100%; /* Adjusted from 115% */
+    left: 50%;
+    margin-left: -100px; /* Half of width to center */
+    transition: opacity 0.3s ease; /* Standardized transition */
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); /* Standardized shadow */
+    border: 1px solid #444;
+}
+.inventory-item .tooltip-box-inner { padding: 10px; } /* Keep if still used internally for inv */
+
+.inventory-item .item-tooltip::after, /* Merged selector */
+.shop-item .item-tooltip::after { /* New for shop */
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #2d2d2d transparent transparent transparent; /* Match tooltip background */
+}
+.inventory-item:hover .item-tooltip, /* Merged selector */
+.shop-item:hover .item-tooltip { /* New for shop */
+    visibility: visible;
+    opacity: 1;
+}
+.tooltip-box-title { font-weight: bold; margin-bottom: 5px; color: #fff; border-bottom: 1px solid #555; padding-bottom: 5px; font-size: 1em; }
+.tooltip-box-desc { font-size: 0.9em; margin-bottom: 5px; color: #ccc; }
+.tooltip-box-stats, .tooltip-box-reqs, .tooltip-box-crafting { font-size: 0.85em; margin-bottom:5px; padding-bottom:5px; border-bottom: 1px solid #444; }
+.tooltip-box-stats span, .tooltip-box-reqs span, .tooltip-box-crafting span { display:block; margin-bottom:2px; }
+.tooltip-box-crafting ul { list-style: disc inside; padding-left:10px; margin-top:5px; }
+.tooltip-box-crafting li { margin-bottom:2px; }
+.tooltip-box-value { font-size: 0.85em; color: #ffcc00; margin-top: 5px; font-weight:bold; }
+.tooltip-box-stats:last-child, .tooltip-box-reqs:last-child, .tooltip-box-crafting:last-child { border-bottom:none; padding-bottom:0; margin-bottom:0;}
+
+/* Smart tooltip positioning classes */
+/* Default: tooltip above, centered */
+.inventory-item .item-tooltip,
+.shop-item .item-tooltip {
+    bottom: 100%;
+    left: 50%;
+    margin-left: -100px;
+}
+
+.inventory-item .item-tooltip::after,
+.shop-item .item-tooltip::after {
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-color: #2d2d2d transparent transparent transparent;
+}
+
+/* Tooltip below (for top row items) */
+.inventory-item.tooltip-below .item-tooltip,
+.shop-item.tooltip-below .item-tooltip {
+    bottom: auto;
+    top: 100%;
+    left: 50%;
+    margin-left: -100px;
+}
+
+.inventory-item.tooltip-below .item-tooltip::after,
+.shop-item.tooltip-below .item-tooltip::after {
+    top: auto;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-color: transparent transparent #2d2d2d transparent;
+}
+
+/* Tooltip to the right (for left edge items) */
+.inventory-item.tooltip-right .item-tooltip,
+.shop-item.tooltip-right .item-tooltip {
+    bottom: auto;
+    top: 50%;
+    left: 100%;
+    margin-left: 10px;
+    margin-top: -50px;
+}
+
+.inventory-item.tooltip-right .item-tooltip::after,
+.shop-item.tooltip-right .item-tooltip::after {
+    top: 50%;
+    left: auto;
+    right: 100%;
+    margin-top: -5px;
+    margin-left: 0;
+    border-color: transparent #2d2d2d transparent transparent;
+}
+
+/* Tooltip to the left (for right edge items) */
+.inventory-item.tooltip-left .item-tooltip,
+.shop-item.tooltip-left .item-tooltip {
+    bottom: auto;
+    top: 50%;
+    right: 100%;
+    margin-right: 10px;
+    margin-top: -50px;
+    left: auto;
+    margin-left: 0;
+}
+
+.inventory-item.tooltip-left .item-tooltip::after,
+.shop-item.tooltip-left .item-tooltip::after {
+    top: 50%;
+    right: auto;
+    left: 100%;
+    margin-top: -5px;
+    margin-left: 0;
+    border-color: transparent transparent transparent #2d2d2d;
+}
+
+/* Equipment Slots Styles */
+.equipment-grid { /* Grid for equipment slots */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+.equipment-slot {
+    background-color: #333; border-radius: 5px; padding: 10px;
+    display: flex; flex-direction: column; min-height: 120px;
+    overflow: visible; /* Allow content to be visible */
+    max-width: 100%; /* Prevent horizontal expansion */
+    word-break: break-word; /* Force text wrapping */
+    height: auto; /* Allow natural height expansion */
+    justify-content: flex-start; /* Align content to top */
+}
+.slot-name {
+    color: #aaa; font-size: 0.9em; margin-bottom: 8px; text-align: center;
+}
+.slot-item { /* Container for the item icon and details within a slot */
+    display: flex; flex-direction: column; align-items: center;
+    background-color: #2a2a2a; border-radius: 4px; padding: 8px; flex-grow: 1;
+    min-height: auto; /* Allow natural height */
+    height: auto; /* Allow expansion */
+}
+.item-icon { /* Emoji for equipped item */
+    font-size: 24px; margin-bottom: 5px;
+}
+.item-icon img,
+.item-card-icon img,
+.shop-item-icon img,
+.sell-item .item-icon img,
+.inventory-item .item-icon img.inventory-item-icon, /* Global rule from earlier */
+.mining-resource .resource-icon img.inventory-item-icon { /* Global rule from earlier */
+    width: 48px !important;
+    height: 48px !important;
+    object-fit: contain; /* Ensure aspect ratio is maintained */
+}
+
+.item-details { flex: 1; width: 100%; text-align: center; }
+.item-name { /* Name of equipped item */
+    font-weight: bold; margin-bottom: 8px; text-align: center; width: 100%;
+    word-break: break-word;
+}
+.item-stats { /* Stats of equipped item */
+    font-size: 0.85em; color: #4caf50; text-align: center; word-break: break-word;
+    overflow: visible; /* Allow stats to be visible */
+    max-width: 100%; /* Prevent horizontal expansion */
+    line-height: 1.4; /* Better line spacing */
+}
+/* Enchantment stats within item-stats */
+.item-stats span {
+    display: block;
+    font-size: 0.9em;
+    line-height: 1.3;
+}
+/* Enchantment info in equipment slots */
+.item-enchant-info, .item-enchant-count {
+    font-size: 0.85em;
+    margin-top: 3px;
+    text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%; /* Prevent horizontal expansion */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Add ellipsis for very long text */
+}
+
+/* Item Selection for Equipping */
+#item-selection-for-equip-target { margin-top:10px; /* Initially hidden */ }
+#equip-item-type-title-target { margin-bottom:10px; }
+#equip-item-list-target { /* Uses .inventory-grid styling */ /* max-height:200px; */ }
+#cancel-equip-btn {
+    margin-top:10px; background-color:#555; color:white;
+    border:none; padding:8px 15px; border-radius:4px;
+}
+#cancel-equip-btn:hover { background-color: #666; opacity: 1; }
+
+/* Enchantment Stat Tier Colors */
+.tier-common-stat { color: #9e9e9e !important; }
+.tier-uncommon-stat { color: #4caf50 !important; }
+.tier-rare-stat { color: #1a81c7 !important; }
+.tier-epic-stat { color: #a855f7 !important; }
+.tier-legendary-stat { color: #ef4444 !important; }
+.tier-wizard-stat { color: #ff69b4 !important; } /* Pink for Wizard Tower enchantments */
+
+/* Equipment Slot Styles (Consolidated) */
+.equipment-slot {
+    background-color: #333;
+    border-radius: 5px;
+    padding: 10px;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 120px !important;
+    height: max-content !important;
+    overflow: visible !important;
+    position: relative !important;
+    contain: layout style;
+    justify-content: flex-start;
+}
+
+/* Equipment slot tier variant */
+.equipment-slot.item-card-tier {
+    min-height: fit-content !important;
+    height: auto !important;
+}
+
+/* === Improved Chest Opening Modal === */
+.chest-modal {
+    background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+    border: 2px solid #444;
+    border-radius: 12px;
+    padding: 15px;
+    min-width: 350px;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+.chest-modal .modal-close-btn {
+    display: none;
+}
+
+.chest-animation-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.chest-icon {
+    font-size: 4em;
+    margin-bottom: 10px;
+    animation: chestBounce 0.6s ease-out;
+}
+
+@keyframes chestBounce {
+    0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+    50% { transform: scale(1.1) rotate(5deg); opacity: 0.8; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.chest-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.chest-particles::before,
+.chest-particles::after {
+    content: '✨';
+    position: absolute;
+    font-size: 1.5em;
+    animation: sparkle 2s infinite ease-in-out;
+}
+
+.chest-particles::before {
+    left: 20%;
+    top: 30%;
+    animation-delay: 0.3s;
+}
+
+.chest-particles::after {
+    right: 20%;
+    top: 30%;
+    animation-delay: 0.8s;
+}
+
+@keyframes sparkle {
+    0%, 100% { opacity: 0; transform: translateY(0) scale(0.5); }
+    50% { opacity: 1; transform: translateY(-20px) scale(1); }
+}
+
+#chest-title {
+    color: #e0e0e0;
+    margin: 10px 0 15px 0;
+    font-size: 1.5em;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+#chest-loot-list {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 15px 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.chest-loot-item {
+    padding: 8px 12px;
+    margin: 5px 0;
+    background: rgba(255,255,255,0.05);
+    border-radius: 6px;
+    border-left: 3px solid transparent;
+    font-size: 1.1em;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.chest-loot-item:nth-child(odd) {
+    background: rgba(255,255,255,0.08);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.chest-modal-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #444;
+}
+
+.chest-modal-buttons .close-button {
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 100px;
+    position: static;
+    top: auto;
+    right: auto;
+}
+
+.chest-modal-buttons .close-button:hover {
+    background: linear-gradient(135deg, #45a049 0%, #4caf50 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+/* The slot-item should expand to fit content */
+.equipment-slot .slot-item {
+    background-color: #2a2a2a;
+    border-radius: 4px;
+    padding: 10px 8px;
+    flex: 1 0 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: fit-content !important;
+    height: max-content !important;
+    overflow: visible !important;
+    margin-bottom: 10px !important;
+    gap: 2px !important;
+}
+
+/* Empty slot centering */
+.equipment-slot .slot-item[style*="justify-content: center"] {
+    min-height: 100px !important;
+}
+
+/* Item name in equipment slots */
+.equipment-slot .slot-item .item-name,
+.equipment-slot .item-name {
+    order: 1;
+    margin-bottom: 4px !important;
+}
+
+/* Item icon in equipment slots */
+.equipment-slot .item-icon {
+    order: 2;
+    margin: 5px 0;
+}
+
+/* Item stats in equipment slots */
+.equipment-slot .slot-item .item-stats,
+.equipment-slot .item-stats {
+    order: 3;
+    margin: 5px 0 !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: fit-content !important;
+    max-height: none !important;
+    display: block !important;
+    white-space: pre-line !important;
+    line-height: 1.1 !important;
+    padding: 0 !important;
+    word-break: break-word !important;
+}
+
+/* Better spacing for stat lines */
+.equipment-slot .item-stats br {
+    line-height: 1 !important;
+}
+
+/* Ensure stats spans display properly */
+.equipment-slot .item-stats span {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.1 !important;
+}
+
+/* Enchantment tier spans */
+.equipment-slot .item-stats span[class*="tier-"] {
+    display: block !important;
+    margin: 0 !important;
+    line-height: 1.1 !important;
+}
+
+/* Item enchant info in equipment slots */
+.equipment-slot .item-enchant-info {
+    order: 4;
+    margin-top: 4px !important;
+    margin-bottom: 0 !important;
+    padding: 0 !important;
+    line-height: 1.1 !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 0.85em;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    min-height: fit-content !important;
+    height: auto !important;
+}
+
+/* Enchantment info spans */
+.equipment-slot .item-enchant-info span {
+    display: block;
+    margin: 2px 0;
+    font-size: 0.9em;
+}
+
+/* Equip button in equipment slots */
+.equipment-slot .equip-btn,
+.equipment-slot button[id^="equip-"] {
+    margin-top: auto !important;
+    align-self: stretch !important;
+    width: 100% !important;
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+}
+
+/* Equipment grid layouts */
+.equipment-section-grid {
+    display: grid !important;
+    /* Removed grid-template-columns to allow character.css to control columns */
+    grid-template-rows: auto auto !important;
+    gap: 4px !important;
+    align-items: start !important;
+    justify-items: stretch !important;
+    grid-auto-flow: row;
+    align-content: start;
+    grid-auto-rows: minmax(120px, max-content) !important;
+}
+
+/* Make the second row span only 2 columns centered */
+.equipment-section-grid > .equipment-slot:nth-child(4) {
+    grid-column: 1 / 2;
+}
+
+.equipment-section-grid > .equipment-slot:nth-child(5) {
+    grid-column: 2 / 3;
+}
+
+/* Leave third column empty in second row */
+.equipment-section-grid > .equipment-slot:nth-child(6) {
+    display: none;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    body:not(.desktop-mode-active) .inventory-header { flex-direction: column; align-items: flex-start; gap: 10px;}
+    body:not(.desktop-mode-active) .inventory-controls { width: 100%; justify-content: flex-start; }
+    body:not(.desktop-mode-active) #inventory-back-btn { margin-left: 0; margin-top: 10px; }
+}
+
+@media (max-width: 600px) {
+    .equipment-section-grid {
+        /* Removed grid-template-columns to allow character.css to control columns */
+        gap: 8px !important;
+    }
+    
+    .equipment-slot {
+        min-height: 110px !important;
+        height: auto !important;
+        max-height: none !important;
+        padding: 8px !important;
+    }
+    
+    .equipment-slot .slot-item {
+        min-height: fit-content !important;
+        height: auto !important;
+        max-height: none !important;
+        padding: 8px 6px;
+    }
+    
+    .equipment-slot .item-enchant-info {
+        font-size: 0.75em;
+        -webkit-line-clamp: 2;
+    }
+    
+    .equipment-slot .item-stats {
+        font-size: 0.8em !important;
+    }
+    
+    .equipment-slot .item-enchant-info {
+        font-size: 0.7em;
+    }
+    
+    .equipment-slot .item-enchant-info span {
+        margin: 1px 0;
+    }
+}
+
+/* Hide empty or display:none equipment slots */
+.equipment-slot[style*="display: none"],
+.equipment-slot[style*="display:none"],
+.equipment-slot:empty {
+    display: none !important;
+}
+
+/* Reset box-sizing to ensure padding is included in height calculations */
+.equipment-slot,
+.equipment-slot * {
+    box-sizing: border-box !important;
+}

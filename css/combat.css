@@ -1,0 +1,709 @@
+/* === Combat Section === */
+#combat-section { /* Uses .section, .section-title-header (or .compact-nav) */ }
+#combat-permit-status-display { /* Uses .permit-status */ }
+#available-monsters-list { /* Uses .resource-list for monster selection */ }
+#available-monsters-list .skill-resource {
+    user-select: none; /* Prevent text selection during fast clicks */
+    -webkit-tap-highlight-color: transparent; /* Remove mobile tap highlight */
+    cursor: pointer;
+    pointer-events: auto; /* Ensure clicks are always detected */
+}
+
+/* Visual indicator for active attacking monster */
+#available-monsters-list .skill-resource.attacking-monster-list-item {
+    position: relative;
+}
+#available-monsters-list .skill-resource.attacking-monster-list-item::after {
+    content: " (Click to stop)";
+    font-size: 0.8em;
+    opacity: 0.7;
+    font-style: italic;
+}
+#available-monsters-list .section-title { /* Title for monster list */
+    text-align:left; font-size:1.2em; border:none; padding-bottom:5px; margin-bottom: 10px;
+}
+
+/* Combat Arena */
+#combat-arena-display {
+    /* Initially hidden, shown by JS */
+    position: relative; display: flex; flex-direction: column;
+    align-items: center; gap: 15px; margin-top: 20px;
+}
+
+/* Monster Display in Combat */
+#monster-display-combat { /* Container for all monster HP cards */
+    display: flex; flex-direction: column; gap: 10px;
+    width: 100%; max-width: 550px;
+}
+.hp-card { /* Individual monster HP card */
+    padding: 10px; border-radius: 5px; text-align: center;
+    transition: background-color 0.3s ease-in-out, opacity 0.3s, border 0.3s, box-shadow 0.3s;
+    border: 1px solid #444; background-color: #383838; /* Default background */
+    cursor: pointer; /* To allow targeting */
+    user-select: none; /* Prevent text selection during fast clicks */
+    -webkit-tap-highlight-color: transparent; /* Remove mobile tap highlight */
+}
+.hp-card .monster-name { /* Div holding name and emoji */
+    font-weight: bold; font-size: 1em; line-height: 1.3;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.7); color: #fff; /* Default text color */
+}
+.hp-card .monster-name .emoji { font-size: 1.2em; margin-right: 5px; }
+.hp-card.player-current-target {
+    box-shadow: 0 0 8px rgba(77, 182, 240, 0.9); /* Light blue glow for target */
+    border: 2px solid #4db6ac; /* Teal border for target */
+}
+.hp-card.defeated-monster {
+    opacity: 0.6; background-color: #222 !important; /* Darken defeated monsters */
+    border-color: #333; cursor: default;
+}
+.hidden-combat-opponent { display: none !important; } /* To hide specific monsters if needed */
+
+/* Player HP Display in Combat */
+#player-combat-info-container {
+    margin-top: 10px; text-align: center; padding: 10px;
+    border: 1px solid #383838; border-radius: 5px; background-color: #2c2c2c;
+    font-size: 14px; line-height: 1.2; position: relative; /* For floating text */
+}
+#player-hp-combat-display {
+    font-weight: bold; color: #5cb85c; font-size: 14px; margin-left: 4px;
+}
+
+/* --- Monster HP Bar Styles (Combat) --- */
+.monster-hp-bar-container {
+  position: relative;
+  background: #23234a;
+  border-radius: 8px;
+  height: 24px; /* Increased from 22px by ~10% */
+  margin: 6px 0 8px 0;
+  box-shadow: 0 1px 4px #0003;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.monster-hp-bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #ff4d4d 60%, #ffd700 100%);
+  border-radius: 8px 0 0 8px;
+  transition: width 0.3s cubic-bezier(.4,2,.6,1);
+  z-index: 1;
+  width: 100%; /* JS will override this inline */
+}
+
+.monster-hp-bar-center-text {
+  position: absolute;
+  left: 0; top: 0; width: 100%; height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.7em;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.monster-name, /* Applied to span inside .monster-hp-bar-center-text */
+.monster-hp-bar-text { /* Applied to span inside .monster-hp-bar-center-text */
+  font-size: 1.08em;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 1px 2px #000a;
+  letter-spacing: 1px;
+}
+
+/* Floating Combat Text */
+@keyframes fadeOutUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    70% { opacity: 0.9; transform: translateY(-15px) scale(1.05); }
+    100% { opacity: 0; transform: translateY(-30px) scale(0.8); }
+}
+.combat-text-float {
+    position: absolute; pointer-events: none; font-weight: bold; font-size: 1.1em;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.7); animation: fadeOutUp 1.3s ease-out forwards;
+    z-index: 150; padding: 2px 5px; border-radius: 3px;
+    /* Positioning handled by JS based on target (player/monster) */
+}
+.combat-text-monster-dmg { color: #fff; /* White for damage to monster */ }
+.combat-text-player-dmg { color: #ff4d4d; /* Bright red for damage to player */ }
+
+.floating-text {
+  position: fixed;
+  pointer-events: none;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 1px 2px #000a;
+  z-index: 9999;
+  animation: fadeOutUp 1.3s ease-out forwards;
+}
+
+/* Health Bar Styles */
+.health-label {
+    color: #ccc;
+}
+
+.health-value {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.health-bar {
+    position: relative;
+    background-color: #444;
+    border-radius: 8px;
+    height: 24px;
+    overflow: hidden;
+    margin-bottom: 5px;
+    border: 1px solid #666;
+}
+
+.boss-health {
+    height: 32px;
+    border: 2px solid #d4af37;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.health-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #45a049);
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+.boss-health-fill {
+    background: linear-gradient(90deg, #d4af37, #b8941f);
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.low-health-bar .health-fill {
+    background: linear-gradient(90deg, #ff4444, #cc0000);
+    animation: pulse-health 1s infinite;
+}
+
+.health-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255,255,255,0.1) 50%, 
+        transparent 100%);
+    animation: health-shine 2s infinite;
+}
+
+.health-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    font-size: 0.9em;
+}
+
+.boss-health .health-text {
+    font-size: 1.1em;
+}
+
+/* Wave Monsters Grid */
+.wave-monsters {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+    min-height: 300px;
+}
+
+/* Responsive grid layouts */
+@media (max-width: 1200px) {
+    .wave-monsters {
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .wave-monsters {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .wave-monsters {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(10, 1fr);
+        min-height: 400px;
+    }
+}
+
+/* Monster slot styles */
+.monster-slot {
+    padding: 8px;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 120px;
+    position: relative;
+}
+
+.monster-slot.boss-slot {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+    background: linear-gradient(135deg, #3a2a1a, #2a1a0a);
+    border: 2px solid #d4af37;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+    padding: 15px;
+    min-height: 200px;
+}
+
+.monster-slot.empty-slot {
+    background-color: #1a1a1a;
+    border: 1px dashed #333;
+    opacity: 0.3;
+}
+
+.empty-slot-content {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 0.8em;
+}
+
+.monster-slot.defeated {
+    opacity: 0.4;
+    background-color: #1a1a1a;
+    border-color: #333;
+    cursor: default;
+}
+
+.monster-slot.low-health {
+    border-color: #ff4444;
+    box-shadow: 0 0 10px rgba(255, 68, 68, 0.3);
+    animation: pulse-border 1s infinite;
+}
+
+/* Boss-specific styles */
+.boss-header {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.boss-name {
+    color: #d4af37;
+    font-size: 1.8em;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.boss-stats {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+/* Regular monster styles */
+.monster-level {
+    font-size: 0.8em;
+    color: #aaa;
+    text-align: center;
+    margin: 2px 0;
+}
+
+.monster-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7em;
+    margin-top: 4px;
+}
+
+.monster-health-container {
+    margin-top: auto;
+}
+
+.monster-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.monster-name {
+    margin: 0;
+    color: #fff;
+    font-size: 0.99em;
+    font-weight: bold;
+}
+
+.monster-stats {
+    display: flex;
+    gap: 8px;
+    font-size: 0.9em;
+    margin-bottom: 4px;
+}
+
+.monster-icon {
+    font-size: 1.1em;
+}
+
+.attack-stat {
+    color: #fff;
+    font-weight: bold;
+}
+
+.defense-stat {
+    color: #fff;
+    font-weight: bold;
+}
+
+.danger-indicator {
+    text-align: center;
+    color: #ff4444;
+    font-weight: bold;
+    font-size: 0.8em;
+    animation: pulse-danger 0.8s infinite;
+}
+
+.dungeon-monster.low-health {
+    border-color: #ff4444;
+    box-shadow: 0 0 10px rgba(255, 68, 68, 0.3);
+}
+
+.dungeon-monster.boss.low-health {
+    border-color: #ff4444;
+    box-shadow: 0 0 15px rgba(255, 68, 68, 0.5);
+}
+
+.monster-combat-instance.defeated-monster {
+    opacity: 0.4;
+    background-color: #1a1a1a !important;
+    border-color: #333 !important;
+    cursor: default;
+}
+
+/* Floating Combat Text Styles */
+.floating-text.damage {
+    color: #ffeb3b;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.floating-text.damage-crit {
+    color: #ff5722;
+    font-weight: bold;
+    font-size: 1.4em !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    animation: crit-pulse 0.6s ease-out;
+}
+
+.floating-text.player-damage {
+    color: #f44336;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.floating-text.ability-damage {
+    color: #2196f3;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.floating-text.ability-damage-crit {
+    color: #1565c0;
+    font-weight: bold;
+    font-size: 1.4em !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    animation: crit-pulse 0.6s ease-out;
+}
+
+.floating-text.defeat {
+    color: #4caf50;
+    font-weight: bold;
+    font-size: 1.2em !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.floating-text.boss-defeat {
+    color: #d4af37;
+    font-weight: bold;
+    font-size: 1.8em !important;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.9);
+    animation: boss-defeat-effect 1.5s ease-out;
+}
+
+/* Dungeon Combat Styles */
+.dungeon-monster {
+    padding: 10px;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.dungeon-monster.boss {
+    border-color: #d4af37;
+    background-color: #3a2a1a;
+}
+
+.dungeon-monster.defeated {
+    opacity: 0.5;
+}
+
+.dungeon-monster h4 {
+    margin: 0 0 8px 0;
+    color: #fff;
+    font-size: 0.9em;
+}
+
+.dungeon-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Guild Wars 1 Style Ability Grid */
+.ability-button-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 8px;
+    justify-content: center;
+    max-width: 280px;
+    margin: 0 auto;
+    padding: 15px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%);
+    border: 2px solid #444;
+    border-radius: 12px;
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.5),
+        inset 0 2px 4px rgba(255, 255, 255, 0.05);
+}
+
+.ability-button {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    padding: 0;
+    background: linear-gradient(135deg, #4a4a4a, #333);
+    color: white;
+    border: 3px solid #666;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9em;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 
+        0 3px 8px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.1);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Ability-specific colors */
+.ability-button[data-ability="whirlwind"] {
+    background: linear-gradient(135deg, #ff6b6b, #cc5555);
+    border-color: #ff8888;
+}
+
+.ability-button[data-ability="healingAura"] {
+    background: linear-gradient(135deg, #4ecdc4, #3ba59c);
+    border-color: #6ee5dc;
+}
+
+.ability-button[data-ability="berserkerRage"] {
+    background: linear-gradient(135deg, #ff9500, #cc7700);
+    border-color: #ffaa33;
+}
+
+.ability-button[data-ability="shadowStrike"] {
+    background: linear-gradient(135deg, #6c5ce7, #553bb8);
+    border-color: #8777ee;
+}
+
+.ability-button[data-ability="divineShield"] {
+    background: linear-gradient(135deg, #fdcb6e, #e6b552);
+    border-color: #ffd95c;
+}
+
+.ability-button[data-ability="apocalypse"] {
+    background: linear-gradient(135deg, #e17055, #c55a3f);
+    border-color: #e88866;
+}
+
+.ability-button:hover:not(:disabled) {
+    transform: scale(1.08);
+    box-shadow: 
+        0 6px 16px rgba(0, 0, 0, 0.6),
+        inset 0 2px 6px rgba(255, 255, 255, 0.15);
+    border-color: #999;
+}
+
+.ability-button:active:not(:disabled) {
+    transform: scale(0.95);
+    box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.ability-button:disabled {
+    background: linear-gradient(135deg, #444, #333);
+    border-color: #555;
+    cursor: not-allowed;
+    color: #888;
+    transform: none;
+}
+
+/* Square Cooldown Timer Overlay */
+.ability-button .cooldown-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    background: conic-gradient(
+        from 270deg,
+        rgba(0, 0, 0, 0.8) 0deg,
+        rgba(0, 0, 0, 0.8) var(--cooldown-angle, 0deg),
+        transparent var(--cooldown-angle, 0deg),
+        transparent 360deg
+    );
+    pointer-events: none;
+    will-change: auto;
+}
+
+/* Removed pulse animation to prevent blinking */
+
+/* Cooldown sweep animation for when ability becomes available */
+@keyframes cooldown-complete {
+    0% {
+        background: conic-gradient(
+            from 270deg,
+            rgba(0, 255, 0, 0.6) 0deg,
+            rgba(0, 255, 0, 0.6) 360deg
+        );
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        background: conic-gradient(
+            from 270deg,
+            transparent 0deg,
+            transparent 360deg
+        );
+        transform: scale(1);
+    }
+}
+
+.ability-button .cooldown-text {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.7em;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 10;
+    border: 1px solid #666;
+}
+
+/* Ability button text styling */
+.ability-button .ability-name {
+    font-size: 0.75em;
+    line-height: 1.1;
+    text-align: center;
+    max-width: 90%;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+/* Combat Animations */
+@keyframes pulse-border {
+    0%, 100% { 
+        border-color: #ff4444;
+        box-shadow: 0 0 10px rgba(255, 68, 68, 0.3);
+    }
+    50% { 
+        border-color: #ff0000;
+        box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+    }
+}
+
+@keyframes pulse-health {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes pulse-danger {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes health-shine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+@keyframes crit-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+@keyframes boss-defeat-effect {
+    0% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.3) rotate(5deg); }
+    50% { transform: scale(1.1) rotate(-3deg); }
+    75% { transform: scale(1.2) rotate(2deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes monster-death {
+    0% { 
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+        filter: brightness(1) hue-rotate(0deg);
+    }
+    25% {
+        transform: scale(1.2) rotate(-10deg);
+        opacity: 0.9;
+        filter: brightness(1.5) hue-rotate(30deg);
+    }
+    50% { 
+        transform: scale(0.9) rotate(15deg);
+        opacity: 0.7;
+        filter: brightness(0.8) hue-rotate(-30deg);
+    }
+    75% {
+        transform: scale(1.1) rotate(-20deg);
+        opacity: 0.5;
+        filter: brightness(0.5) hue-rotate(60deg);
+    }
+    100% {
+        transform: scale(0) rotate(180deg);
+        opacity: 0;
+        filter: brightness(0) hue-rotate(180deg);
+    }
+}

@@ -113,6 +113,15 @@ function initActionsModule() {
         farmingButton.addEventListener('click', showFarmingMenu);
     }
     
+    const dungeoneeringButton = document.getElementById('dungeoneering-menu-button');
+    if (dungeoneeringButton) {
+        dungeoneeringButton.addEventListener('click', () => {
+            import('./dungeoneering.js').then(module => {
+                module.showDungeoneeringMenu();
+            });
+        });
+    }
+    
     // Back buttons from various sections
     const actionsSectionBackButtons = document.querySelectorAll('.actions-back-button');
     actionsSectionBackButtons.forEach(btn => {

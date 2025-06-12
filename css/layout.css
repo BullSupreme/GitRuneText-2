@@ -1,0 +1,418 @@
+/* === Layout & Structure === */
+
+/* Game Wrapper for layout control */
+#game-wrapper {
+    display: flex;
+    flex-direction: column; /* Default mobile: centers .container */
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Prevent wrapper from scrolling, panels will scroll */
+}
+
+body:not(.desktop-mode-active) #game-wrapper {
+    padding: 20px; /* Original body padding for mobile mode */
+    overflow-y: auto; /* Allow scrolling in mobile mode */
+}
+
+/* === Main Container === */
+.container {
+    background-color: #252526;
+    border: 1px solid #333;
+    padding: 20px;
+    padding-top: 50px; /* Space for top controls */
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    position: relative;
+    transition: all 0.3s ease; /* For hover effect */
+    margin-top: 24px; /* Original margin for mobile */
+    width: 100%; /* Ensure it takes width within #game-wrapper in mobile */
+    max-width: 900px; /* Original max-width for mobile */
+    display: flex; /* To allow sections to stack and center */
+    flex-direction: column;
+    align-items: center; /* Center .section children */
+}
+
+/* === Fire Effect === */
+@keyframes subtleFire {
+    0%, 100% { box-shadow: 0 0 5px 0 rgba(229, 5, 5, 0.3), 0 0 10px rgba(0,0,0,0.5); border-color: rgb(255, 69, 0); }
+    25%, 75% { box-shadow: 0 0 7px 2px rgba(255, 140, 0, 0.4), 0 0 10px rgba(0,0,0,0.5); border-color: rgb(255, 140, 0); }
+    50% { box-shadow: 0 0 10px 5px rgba(255, 69, 0, 0.5), 0 0 10px rgba(0,0,0,0.5); border-color: rgb(255, 69, 0); }
+}
+.container:hover {
+    border-color: rgb(55, 163, 159); /* Original on hover */
+    border-radius: 10px; /* Added for hover */
+    /* Fire effect border animation on hover */
+    animation: subtleFire 8s infinite;
+}
+
+/* === Generic Section Styles === */
+.section {
+    background-color: #222;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 5px; /* Space between sections if multiple were visible */
+    width: 100%; /* Make sections take full width of their parent */
+}
+
+/* Simple Section Title */
+.section-title {
+    color: #e0e0e0;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.5em;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+}
+
+/* Section Header with Back Button etc. */
+.section-title-header {
+    display: flex; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #555; padding-bottom: 8px;
+}
+.section-title-text {
+    font-weight: bold; flex-grow: 1; font-size: 1.2em; color: #e0e0e0;
+}
+.section-back-button, /* For Perk Tree, BS, Build Structures */
+.btn-back-header { /* For old style if used */
+    background-color: transparent; border: none; color: #e0e0e0; font-size: 1.6em;
+    padding: 0 12px 0 0; margin: 0; cursor: pointer; font-weight: normal;
+    line-height: 1; transition: color 0.2s ease, transform 0.2s ease, text-shadow 0.2s ease;
+}
+.section-back-button:hover,
+.btn-back-header:hover {
+    background-color: transparent; color: #fff; transform: scale(1.2);
+    text-shadow: 0 0 8px #fff; opacity: 1;
+}
+
+/* Section Footer Controls (often for a single Back button) */
+.section-footer-controls {
+    display: flex; align-items: center; border-top: 1px solid #555; padding-top: 15px; margin-top: 20px;
+}
+.section-footer-controls button,
+.btn-back { /* Generic back button style, often used in footers */
+    margin: 0; padding: 10px 18px; background-color: #333;
+    color: #fff; border: none; border-radius: 5px;
+}
+.section-footer-controls button:hover,
+.btn-back:hover {
+    background-color: #444; opacity: 1;
+}
+
+/* === Desktop Mode Specific Styles === */
+body.desktop-mode-active #game-wrapper {
+    flex-direction: row;
+    align-items: stretch;
+    padding: 0;
+}
+
+body.desktop-mode-active .left-panel {
+    width: 260px;
+    background-color: #1e1e1e;
+    border-right: 1px solid #3c3c3c;
+    padding: 0;
+    overflow-y: auto;
+    display: flex; /* Will be made flex by JS */
+    flex-direction: column;
+    gap: 2px;
+    color: #c5c5c5;
+    z-index: 100;
+    flex-shrink: 0;
+}
+
+body.desktop-mode-active .container {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 0;
+    margin: 0;
+    max-width: none;
+    background-color: #252526;
+    border: none;
+    box-shadow: none;
+    display: block; /* Changed from flex */
+    align-items: initial; /* Revert from center */
+}
+
+body.desktop-mode-active .top-controls,
+body.desktop-mode-active .top-right-controls {
+    position: fixed;
+    background: rgba(30,30,30,0.8);
+    padding: 5px;
+    border-radius: 0 0 5px 0;
+}
+body.desktop-mode-active .top-right-controls {
+    border-radius: 0 0 0 5px;
+}
+
+body.desktop-mode-active .container > .section {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+    width: 100%;
+    padding: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+body.desktop-mode-active .container > #main-menu-section {
+     margin-top: 20px;
+}
+
+body.desktop-mode-active #hud,
+body.desktop-mode-active .hp-bar-container {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: #252526; /* Match parent background */
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    border-bottom: 1px solid #333;
+}
+
+/* Desktop mode HUD layout restructure */
+body.desktop-mode-active #hud {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 20px;
+    border-radius: 0;
+    box-shadow: none;
+    margin-bottom: 0;
+}
+
+body.desktop-mode-active .hud-left {
+    display: none; /* Hide skill HUD in desktop mode */
+}
+
+body.desktop-mode-active .hud-right {
+    order: 1; /* Resource panel (Gold & Perk Points) goes first */
+    width: 100%;
+    justify-content: flex-start;
+    margin-bottom: 0;
+}
+
+body.desktop-mode-active .hp-bar-container {
+    margin-top: 0;
+    margin-bottom: 0;
+    border-radius: 0;
+    padding: 5px 20px;
+    box-sizing: content-box;
+    max-width: none;
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* === Left Panel Navigation === */
+.left-panel-nav-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    position: relative;
+    flex-direction: column;
+    padding: 8px 12px;
+    color: #c5c5c5;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.2s, color 0.2s;
+    cursor: pointer;
+    font-size: 0.95em;
+    border: 1px solid transparent;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Container for icon and label */
+.left-panel-nav-item-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+/* Level display for skill items */
+.nav-item-level {
+    font-size: 0.85em;
+    color: #888;
+    margin-left: auto;
+}
+
+/* Progress bar container for skill items */
+.nav-item-progress-bar {
+    width: 100%;
+    height: 3px;
+    background-color: #333;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+/* Progress bar fill */
+.nav-item-progress-fill {
+    height: 100%;
+    background-color: #4caf50;
+    transition: width 0.3s ease;
+    border-radius: 2px;
+}
+
+/* Skill-specific progress bar colors */
+.nav-item-progress-fill.attack { background-color: #f44336; }
+.nav-item-progress-fill.woodcutting { background-color: #4caf50; }
+.nav-item-progress-fill.mining { background-color: #9e9e9e; }
+.nav-item-progress-fill.blacksmithing { background-color: #ff9800; }
+.nav-item-progress-fill.cooking { background-color: #ffeb3b; }
+.nav-item-progress-fill.enchanting { background-color: #9c27b0; }
+.nav-item-progress-fill.farming { background-color: #8bc34a; }
+.nav-item-progress-fill.dungeoneering { background-color: #8b4513; }
+
+.left-panel-nav-item:hover {
+    background-color: #333337;
+    color: #fff;
+    border-color: #444;
+}
+
+/* Skill-specific hover effects for left panel nav items */
+.left-panel-nav-item[data-target-section="combat-section"]:hover {
+    background-color: rgba(244, 67, 54, 0.15);
+    border-color: #f44336;
+}
+.left-panel-nav-item[data-target-section="woodcutting-section"]:hover {
+    background-color: rgba(76, 175, 80, 0.15);
+    border-color: #4caf50;
+}
+.left-panel-nav-item[data-target-section="mining-section"]:hover {
+    background-color: rgba(158, 158, 158, 0.15);
+    border-color: #9e9e9e;
+}
+.left-panel-nav-item[data-target-section="blacksmithing-menu-section"]:hover {
+    background-color: rgba(255, 152, 0, 0.15);
+    border-color: #ff9800;
+}
+.left-panel-nav-item[data-target-section="cooking-section"]:hover {
+    background-color: rgba(255, 235, 59, 0.15);
+    border-color: #ffeb3b;
+}
+.left-panel-nav-item[data-target-section="enchanting-section"]:hover {
+    background-color: rgba(156, 39, 176, 0.15);
+    border-color: #9c27b0;
+}
+.left-panel-nav-item[data-target-section="farming-section"]:hover {
+    background-color: rgba(139, 195, 74, 0.15);
+    border-color: #8bc34a;
+}
+.left-panel-nav-item[data-target-section="dungeoneering-menu"]:hover {
+    background-color: rgba(139, 69, 19, 0.15);
+    border-color: #8b4513;
+}
+.left-panel-nav-item.active-nav {
+    background-color: #0e639c;
+    color: white;
+    font-weight: 600;
+    border-color: #1177bb;
+}
+
+.nav-item-icon {
+    font-size: 1.1em;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+}
+.nav-item-label {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.left-panel.hidden {
+    display: none !important;
+}
+
+/* === Responsive Adjustments === */
+/* Mobile-first adjustments (default state is mobile) */
+@media (max-width: 900px) {
+    /* Apply these only when NOT in desktop mode OR if they are general adjustments fine for both */
+    body:not(.desktop-mode-active) #hud {
+        flex-direction: column; align-items: stretch;
+    }
+    body:not(.desktop-mode-active) .hud-left,
+    body:not(.desktop-mode-active) .hud-right {
+        width: 100%; gap: 10px;
+    }
+    body:not(.desktop-mode-active) .hud-right {
+        justify-content: space-around; margin-top: 10px;
+    }
+    body:not(.desktop-mode-active) .skill-stat-container {
+        flex-grow: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    body:not(.desktop-mode-active) #shop-items-container.shop-grid { 
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+    }
+    body:not(.desktop-mode-active) .inventory-header { 
+        flex-direction: column; align-items: flex-start; gap: 10px;
+    }
+    body:not(.desktop-mode-active) .inventory-controls { 
+        width: 100%; justify-content: flex-start; 
+    }
+    body:not(.desktop-mode-active) #inventory-back-btn { 
+        margin-left: 0; margin-top: 10px; 
+    }
+
+    .resource-loot-notification { display: none; } /* Generally good for smaller screens */
+
+    /* Guild member card adjustments */
+    .guild-member-card .member-main-content { 
+        flex-direction: column; align-items: center; gap: 0.5rem; 
+    }
+    .guild-member-card .member-controls-wrapper { width: 100%; }
+    .guild-member-card .member-task-buttons { width: 100%; }
+    .mission-card { padding: 1rem 0.8rem; }
+}
+
+@media (max-width: 480px) {
+    body:not(.desktop-mode-active) { padding: 10px; font-size: 14px; }
+    body:not(.desktop-mode-active) .container { padding: 10px; padding-top: 50px; }
+    body:not(.desktop-mode-active) #hud { padding: 10px; }
+    body:not(.desktop-mode-active) .hud-left,
+    body:not(.desktop-mode-active) .hud-right { 
+        flex-direction: column; align-items: stretch; 
+    }
+
+    .stat-container { padding: 5px 8px; }
+    .skill-stat-container { min-width: auto; margin-bottom: 5px; }
+    .skill-xp-bar-container { width: 100%; }
+    .menu-buttons, .town-button-grid, .actions-menu-buttons { 
+        grid-template-columns: 1fr; 
+    }
+    .compact-nav { flex-direction: column; align-items: flex-start; }
+    .compact-nav-buttons { 
+        margin-top: 10px; width: 100%; display: flex; flex-direction: column; 
+    }
+    .compact-nav-button { width: 100%; text-align: center; }
+    .skill-resource, .action-list-item {
+        padding: 10px; flex-direction: column; align-items: flex-start; gap: 5px;
+    }
+    .resource-inventory-count, .action-item-level {
+        position: static; margin-top: 5px; margin-left: 0; align-self: flex-start;
+    }
+    #game-log-container {
+        width: calc(100% - 20px); left: 10px; right: 10px; bottom: 10px; max-height: 150px;
+    }
+    .shop-controls, .tabs { flex-direction: column; width: 100%; }
+    .shop-tab-button, .tab, .smithing-tab { 
+        width: 100%; text-align: center; margin-bottom: 5px; border-radius: 4px; 
+    }
+    .shop-tab-button.active-tab, .tab.active, .smithing-tab.active { 
+        border-bottom: 1px solid #3f3f46; 
+    }
+    body:not(.desktop-mode-active) #shop-items-container.shop-grid { 
+        grid-template-columns: 1fr; 
+    }
+    .modal-content { width: 95%; padding: 15px; }
+    .perk-list { grid-template-columns: 1fr; }
+    .mission-title { font-size: 1.15rem; }
+    .member-name { font-size: 1.1rem; }
+    .member-tooltip { font-size: 0.95rem; min-width: 120px; padding: 7px 8px; }
+}

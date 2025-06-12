@@ -1,0 +1,721 @@
+/* === Blacksmithing Section CSS === */
+
+/* Blacksmithing Section Layout */
+#blacksmithing-section,
+#blacksmithing-menu-section {
+    /* Uses .section, .compact-nav or .section-title-header base styles */
+}
+
+/* Blacksmithing XP Bar Colors */
+.skill-xp-bar.bs { 
+    background-color: #ff9800; /* Blacksmithing Orange */
+}
+
+/* Blacksmithing Skill Hover Effects */
+@keyframes blacksmithingGlow {
+    0%, 100% { 
+        box-shadow: 0 0 10px 2px rgba(255, 152, 0, 0.8), 0 0 15px 5px rgba(255, 255, 255, 0.5); 
+    }
+    50% { 
+        box-shadow: 0 0 20px 5px rgba(255, 152, 0, 1), 0 0 25px 10px rgba(255, 255, 255, 0.7); 
+    }
+}
+
+.skill-stat-container[data-skill="blacksmithing"]:hover { 
+    border: 1px solid #ff9800; 
+    animation: blacksmithingGlow 2s infinite alternate; 
+    background-color: rgba(255, 152, 0, 0.2); 
+}
+
+.skill-stat-container[data-skill="blacksmithing"]:hover .stat-label { 
+    color: #ff9800; 
+}
+
+/* Blacksmithing Button Themes */
+.btn-blacksmithing { 
+    background-color: #d66f2e !important; 
+} 
+
+.btn-blacksmithing:hover { 
+    background-color: #e8823f !important; 
+}
+
+.btn-smelt-bars { 
+    background-color: #e07a5f !important; 
+} 
+
+.btn-smelt-bars:hover { 
+    background-color: #f28c70 !important; 
+}
+
+.btn-smith-weapons { 
+    background-color: #8d6e63 !important; 
+} 
+
+.btn-smith-weapons:hover { 
+    background-color: #a18278 !important; 
+}
+
+/* Main Blacksmithing Menu Buttons */
+.blacksmithing-menu-buttons {
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 20px; 
+    flex-wrap: wrap;
+}
+
+.blacksmithing-button {
+    flex: 1 1 150px; 
+    padding: 10px 12px; 
+    text-align: center;
+    background-color: #333; 
+    color: #fff; 
+    border: none; 
+    border-radius: 5px;
+}
+
+.blacksmithing-button:hover { 
+    background-color: #444; 
+    opacity: 1; 
+}
+
+/* Smelting Section */
+#smelting-section {
+    /* Uses .section, .compact-nav, .resource-list base styles */
+}
+
+#smelting-recipes-container {
+    /* Uses .resource-list base styles */
+}
+
+/* Smithing Section */
+#smithing-section {
+    /* Uses .section, .compact-nav base styles */
+}
+
+/* === Smithing Tab Styling === */
+.smithing-tabs {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 20px;
+    padding: 4px;
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.smithing-tabs .tab-btn {
+    flex: 1;
+    padding: 12px 16px;
+    background: linear-gradient(145deg, #2a2a2a 0%, #1e1e1e 100%);
+    color: #ccc;
+    border: 1px solid #444;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+}
+
+.smithing-tabs .tab-btn::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 152, 0, 0.1), transparent);
+    transition: left 0.5s ease;
+    pointer-events: none;
+}
+
+.smithing-tabs .tab-btn:hover {
+    background: linear-gradient(145deg, #3a3a3a 0%, #2e2e2e 100%);
+    border-color: #ff9800;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
+}
+
+.smithing-tabs .tab-btn:hover::after {
+    left: 100%;
+}
+
+.smithing-tabs .tab-btn.active-tab {
+    background: linear-gradient(145deg, #ff9800 0%, #e68900 100%);
+    border-color: #ffb347;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.smithing-tabs .tab-btn.active-tab::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    animation: activeTabShine 2s ease-in-out infinite;
+}
+
+@keyframes activeTabShine {
+    0% { left: -100%; }
+    50% { left: 100%; }
+    100% { left: 100%; }
+}
+
+/* Add icons to tab buttons */
+.smithing-tabs .tab-btn#smithing-weapons-tab-btn::before {
+    content: "⚔️ ";
+}
+
+.smithing-tabs .tab-btn#smithing-armor-tab-btn::before {
+    content: "🛡️ ";
+}
+
+.smithing-tabs .tab-btn#smithing-helmets-tab-btn::before {
+    content: "⛑️ ";
+}
+
+.smithing-tabs .tab-btn#smithing-accessories-tab-btn::before {
+    content: "💍 ";
+}
+
+/* Tab content areas */
+.smithing-category-tabs {
+    display: flex; 
+    margin-bottom: 15px;
+    border-bottom: 1px solid #555;
+}
+
+/* .smithing-tab uses .tab base style */
+#smithing-recipes-container {
+    /* Uses .resource-list base styles */
+}
+
+/* === Blacksmithing Modern Menu Styles === */
+.blacksmithing-menu-modern {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+}
+
+.blacksmithing-menu-card {
+    background: linear-gradient(135deg, #232526 0%, #414345 100%);
+    box-shadow: 0 6px 32px 0 rgba(0,0,0,0.35), 0 1.5px 4px 0 rgba(255, 196, 81, 0.08);
+    border-radius: 18px;
+    max-width: 420px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 36px 32px 64px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1.5px solid rgba(255, 183, 77, 0.2);
+    position: relative;
+}
+
+.blacksmithing-menu-icon {
+    font-size: 3.2em;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 12px rgba(255, 183, 77, 0.53));
+    animation: blacksmithingGlow 3s infinite alternate;
+}
+
+.blacksmithing-menu-title {
+    font-size: 2.1em;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.67);
+}
+
+.blacksmithing-menu-subtitle {
+    color: rgba(212, 212, 212, 0.8);
+    font-size: 1.1em;
+    margin-bottom: 28px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.blacksmithing-menu-buttons-modern {
+    display: flex;
+    gap: 22px;
+    justify-content: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.blacksmithing-button-modern {
+    display: flex;
+    align-items: center;
+    font-size: 1.25em;
+    font-weight: 700;
+    padding: 18px 36px;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px 0 rgba(0,0,0,0.18);
+    cursor: pointer;
+    transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
+    margin: 0;
+    outline: none;
+    color: #fff;
+    letter-spacing: 0.5px;
+    background: linear-gradient(90deg, #ff9800 0%, #ff5722 100%);
+}
+
+.blacksmithing-button-modern .blacksmithing-btn-icon {
+    font-size: 1.5em;
+    margin-right: 12px;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.2));
+}
+
+.blacksmithing-button-modern:active {
+    transform: scale(0.97);
+}
+
+.blacksmithing-button-modern:hover {
+    filter: brightness(1.08);
+    box-shadow: 0 4px 18px 0 rgba(255, 152, 0, 0.18);
+    opacity: 0.97;
+}
+
+/* Smelting Button with Fire Effect */
+.smelt-btn {
+    background: linear-gradient(90deg, #ff7043 0%, #ffb74d 100%);
+    box-shadow: 0 2px 12px 0 rgba(255, 112, 67, 0.18);
+    position: relative;
+    overflow: visible;
+}
+
+/* CSS Fire Effect for Smelting Button */
+.smelt-btn .blacksmithing-btn-icon {
+    display: inline-block;
+    position: relative;
+    width: 50px;
+    height: 50px;
+    margin-right: 8px;
+}
+
+/* Base flame layers */
+.smelt-btn .blacksmithing-btn-icon::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    border-bottom-right-radius: 50%;
+    border-bottom-left-radius: 50%;
+    border-top-left-radius: 50%;
+    transform: rotate(-45deg) scale(1.5, 1.5);
+    animation: flicker 2s ease-in-out infinite;
+}
+
+.smelt-btn .blacksmithing-btn-icon::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    border-bottom-right-radius: 50%;
+    border-bottom-left-radius: 50%;
+    border-top-left-radius: 50%;
+    transform: rotate(-45deg) scale(1.5, 1.5);
+}
+
+/* Red outer flame */
+.smelt-btn .blacksmithing-btn-icon::before {
+    left: 5px;
+    width: 30px;
+    height: 30px;
+    background: orangered;
+    box-shadow: 0px 0px 5px 4px orangered;
+    z-index: 1;
+}
+
+/* Orange middle flame */
+.smelt-btn .blacksmithing-btn-icon::after {
+    left: 8px;
+    width: 24px;
+    height: 24px;
+    background-color: orange;
+    box-shadow: 0px 0px 9px 4px orange;
+    z-index: 2;
+    animation-delay: 0.2s;
+}
+
+/* Yellow inner flame - using span */
+.smelt-btn .blacksmithing-btn-icon {
+    transform-origin: center bottom;
+}
+
+.smelt-btn .blacksmithing-btn-icon span {
+    position: absolute;
+    bottom: 0;
+    left: 11px;
+    width: 18px;
+    height: 18px;
+    background: gold;
+    box-shadow: 0px 0px 9px 4px gold;
+    border-bottom-right-radius: 50%;
+    border-bottom-left-radius: 50%;
+    border-top-left-radius: 50%;
+    transform: rotate(-45deg) scale(1.5, 1.5);
+    z-index: 3;
+    animation: flicker 2s ease-in-out infinite;
+    animation-delay: 0.4s;
+}
+
+/* White core */
+.smelt-btn .blacksmithing-btn-icon span::before {
+    content: '';
+    position: absolute;
+    left: 3px;
+    bottom: -2px;
+    width: 12px;
+    height: 12px;
+    background: white;
+    box-shadow: 0px 0px 9px 4px white;
+    border-bottom-right-radius: 50%;
+    border-bottom-left-radius: 50%;
+    border-top-left-radius: 50%;
+    transform: rotate(0deg) scale(0.8, 0.8);
+    z-index: 4;
+}
+
+@keyframes flicker {
+    0% { transform: rotate(-45deg) scale(1.5, 1.5); }
+    20% { transform: rotate(-43deg) scale(1.5, 1.5); }
+    40% { transform: rotate(-45deg) scale(1.5, 1.5); }
+    60% { transform: rotate(-43deg) scaleY(1.54) scaleX(1.5); }
+    80% { transform: rotate(-48deg) scaleY(1.42) scaleX(1.5); }
+    100% { transform: rotate(-45deg) scale(1.5, 1.5); }
+}
+
+/* Hover effect for fire animation */
+.smelt-btn:hover .blacksmithing-btn-icon::before,
+.smelt-btn:hover .blacksmithing-btn-icon::after,
+.smelt-btn:hover .blacksmithing-btn-icon span {
+    animation-duration: 1.5s;
+    filter: brightness(1.1);
+}
+
+/* Smithing Button */
+.smith-btn {
+    background: linear-gradient(90deg, #ffd54f 0%, #b8860b 100%);
+    color: #3e2723;
+    box-shadow: 0 2px 12px 0 rgba(255, 213, 79, 0.18);
+}
+
+/* Footer Controls */
+.blacksmithing-menu-footer-controls {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    margin-top: 18px;
+    width: 100%;
+}
+
+.blacksmithing-back-btn {
+    background: linear-gradient(90deg, #232526 0%, #414345 100%);
+    color: #ffd54f;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
+    padding: 10px 22px;
+    box-shadow: 0 1px 6px 0 rgba(0,0,0,0.18);
+    transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+}
+
+.blacksmithing-back-btn:hover {
+    background: linear-gradient(90deg, #414345 0%, #232526 100%);
+    color: #fffde4;
+    box-shadow: 0 2px 10px 0 rgba(255, 213, 79, 0.12);
+}
+
+/* Header Row Positioning */
+.blacksmithing-menu-header-row {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    min-height: 36px;
+}
+
+.blacksmithing-back-btn-topright {
+    position: absolute;
+    top: 18px;
+    right: 22px;
+    z-index: 2;
+}
+
+.blacksmithing-back-btn-bottomleft {
+    position: absolute;
+    bottom: 18px;
+    left: 22px;
+    z-index: 2;
+}
+
+/* Smelting and Smithing Recipe Cards - Also applies to skill-resource items in blacksmithing sections */
+.blacksmithing-recipe,
+#smelting-section .skill-resource,
+#smithing-section .skill-resource,
+#blacksmithing-section .action-list-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 18px;
+    margin: 8px 0;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #2a1a0a 60%, #3a2414 100%);
+    border: 1.5px solid #8d6e63;
+    min-height: 48px;
+    font-size: 1.08em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: background 0.22s, box-shadow 0.22s, border-color 0.22s, transform 0.18s;
+    cursor: pointer;
+}
+
+.blacksmithing-recipe:hover,
+#smelting-section .skill-resource:hover,
+#smithing-section .skill-resource:hover,
+#blacksmithing-section .action-list-item:hover {
+    background: linear-gradient(90deg, #3a2414 60%, #4a2e18 100%);
+    border-color: #ff9800;
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+    transform: translateY(-1px);
+}
+
+.blacksmithing-recipe.selected,
+.blacksmithing-recipe.active-resource,
+.blacksmithing-recipe.active-action-item,
+#smelting-section .skill-resource.selected,
+#smelting-section .skill-resource.active-resource,
+#smelting-section .skill-resource.active-action-item,
+#smithing-section .skill-resource.selected,
+#smithing-section .skill-resource.active-resource,
+#smithing-section .skill-resource.active-action-item,
+#blacksmithing-section .action-list-item.selected,
+#blacksmithing-section .action-list-item.active-resource,
+#blacksmithing-section .action-list-item.active-action-item {
+    background: rgba(76, 175, 80, 0.25) !important;
+    border-color: #4caf50 !important;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.5) !important;
+    transform: none !important;
+}
+
+.blacksmithing-recipe:active:not(.selected):not(.active-resource):not(.active-action-item),
+#smelting-section .skill-resource:active:not(.selected):not(.active-resource):not(.active-action-item),
+#smithing-section .skill-resource:active:not(.selected):not(.active-resource):not(.active-action-item),
+#blacksmithing-section .action-list-item:active:not(.selected):not(.active-resource):not(.active-action-item) {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(255, 152, 0, 0.2);
+    background: linear-gradient(90deg, #4a2e18 60%, #5a3e22 100%);
+}
+
+/* Recipe Components */
+.recipe-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.recipe-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: rgba(255, 152, 0, 0.1);
+    border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+.recipe-icon img {
+    width: 32px !important;
+    height: 32px !important;
+    object-fit: contain;
+}
+
+.recipe-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.recipe-name {
+    font-weight: bold;
+    color: #fff;
+    font-size: 1em;
+}
+
+.recipe-level-req {
+    font-size: 0.85em;
+    color: #ff9800;
+}
+
+.recipe-ingredients {
+    font-size: 0.8em;
+    color: #ffb74d;
+}
+
+.recipe-xp {
+    font-size: 0.8em;
+    color: #4caf50;
+}
+
+/* Crafting Actions */
+.blacksmithing-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Forge Animation */
+.blacksmithing-recipe.forging-active {
+    animation: forgePulse 2s infinite;
+    border-color: #ff6f00;
+}
+
+@keyframes forgePulse {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(255, 111, 0, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(255, 111, 0, 0.8), 0 0 30px rgba(255, 87, 34, 0.6);
+    }
+}
+
+/* Sparks Effect */
+.sparks-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.spark {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background-color: #ffab00;
+    border-radius: 50%;
+    animation: sparkFly 1s ease-out forwards;
+}
+
+@keyframes sparkFly {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.5) translateY(-20px) translateX(var(--spark-x, 0));
+    }
+}
+
+/* Responsive Design for Blacksmithing */
+@media (max-width: 600px) {
+    .blacksmithing-menu-card {
+        padding: 18px 6vw 16px 6vw;
+        max-width: 98vw;
+    }
+    
+    .blacksmithing-menu-buttons-modern {
+        flex-direction: column;
+        gap: 14px;
+    }
+    
+    .blacksmithing-button-modern {
+        width: 100%;
+        justify-content: center;
+        font-size: 1.1em;
+        padding: 14px 0;
+    }
+    
+    .blacksmithing-recipe {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 12px;
+    }
+    
+    .blacksmithing-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 480px) {
+    .blacksmithing-recipe {
+        padding: 10px;
+    }
+    
+    .recipe-info {
+        gap: 8px;
+    }
+    
+    .recipe-icon {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .recipe-icon img {
+        width: 24px !important;
+        height: 24px !important;
+    }
+}
+
+/* Blacksmithing Resource Icon Styling (for smelting/smithing bars) */
+#smelting-section .resource-icon,
+#smithing-section .resource-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    width: 50px;
+    height: 50px;
+    font-size: 2em;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+/* Resource Name Styling */
+#smelting-section .resource-name,
+#smithing-section .resource-name {
+    font-weight: bold;
+    color: #fff;
+    font-size: 1.1em;
+    margin-right: 12px;
+    min-width: 120px;
+    flex-shrink: 0;
+}
+
+/* Resource Details Layout */
+#smelting-section .resource-details,
+#smithing-section .resource-details {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Resource Inventory Count */
+#smelting-section .resource-inventory-count,
+#smithing-section .resource-inventory-count {
+    background-color: rgba(255, 152, 0, 0.2);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    font-weight: bold;
+    border: 1px solid rgba(255, 152, 0, 0.3);
+    min-width: 60px;
+    text-align: center;
+    flex-shrink: 0;
+}

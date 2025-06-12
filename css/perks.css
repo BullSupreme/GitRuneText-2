@@ -1,0 +1,331 @@
+/* === Perk System Styles === */
+
+/* Perk System Container */
+.perk-system-container {
+  /* ... existing layout properties ... */
+  background: linear-gradient(135deg, #23272f 0%, #2e3542 100%);
+  border-radius: 8px;
+  padding: 20px;
+  /* Inner glow and outer shadow */
+  box-shadow:
+    inset 0 0 12px rgba(30,196,105,0.4), /* inner teal glow */
+    0 4px 16px rgba(0,0,0,0.3);
+  /* Gradient border around container */
+  border: 2px solid transparent;
+  border-image: linear-gradient(135deg, #1ec469 0%, #00bfff 100%) 1;
+}
+
+.perk-points-display {
+  background-color: #2c2c2c;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  border-left: 4px solid #1ec469;
+}
+
+.perk-points-value {
+  color: #1ec469;
+}
+
+#perk-tree-section .section-title-text {
+  color: #1ec469 !important;
+}
+
+.perk-cost-display:hover {
+  border-color: #1ec469;
+}
+
+.perk-status-action button {
+  background-color: #1ec469;
+}
+
+.perk-status-action button:hover {
+  background-color: #23d977;
+}
+
+.perk-points-label { font-size: 1.1em; margin-right: 10px; }
+
+.perk-points-help { margin-left: auto; position: relative; display: inline-block; }
+
+.help-icon {
+    cursor: pointer; display: inline-block; width: 20px; height: 20px;
+    text-align: center; line-height: 20px; border-radius: 50%; background-color: #555;
+}
+
+.perk-points-help .tooltip-content { /* Tooltip for help icon */
+    display: none; position: absolute; bottom: 25px; right: 0; width: 250px;
+    background-color: #333; padding: 10px; border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); z-index: 100;
+}
+
+.help-icon:hover + .tooltip-content { display: block; } /* Show tooltip on hover */
+
+#perk-list-target, .perk-list { /* Container for perk cards */
+    display: grid; gap: 15px;
+}
+
+.perk-item-card {
+    background-color: #1e1e1e; border: 1px solid #444; border-radius: 4px; padding: 15px;
+    transition: all 0.3s ease;
+}
+
+.perk-item-card:hover:not(.disabled-perk-card):not(.activated-perk-card) {
+    transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); opacity: 1;
+}
+
+.perk-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+
+.perk-name { font-weight: bold; font-size: 1.1em; }
+
+.perk-cost-display {
+    background-color: #2c2c2c; color: #fff; border: 1.5px solid #3f3f46;
+    border-radius: 4px; font-size: 0.95em; padding: 2px 10px;
+    transition: background 0.2s, border-color 0.2s, color 0.2s; display: inline-block;
+}
+
+.perk-cost-display:hover {
+    background-color: #1976d2; border-color: #1565c0; color: #e3f2fd; opacity: 1;
+}
+
+.perk-cost-have { font-weight: bold; margin-left: 4px; }
+
+.perk-cost-have.have-enough { color: #4caf50; }
+
+.perk-cost-have.have-not-enough { color: #f44336; }
+
+.perk-description { color: #ccc; margin-bottom: 15px; font-size: 0.9em; line-height: 1.4; padding-left: 10px; }
+
+.perk-description ul { padding-left: 20px; margin-left: 0; }
+
+.perk-status-action { text-align: right; }
+
+.perk-status-action button { /* Perk activate button */
+    background-color: #9c27b0; color: white; border: none;
+    /* Inherits button base styles, then specific color */
+    padding: 8px 15px; border-radius: 4px;
+}
+
+.perk-status-action button:hover { background-color: #b030c0; opacity: 1; }
+
+.activated-perk-card { border-color: #2e7d32; background-color: rgba(46, 125, 50, 0.1); cursor: default; }
+
+.disabled-perk-card { opacity: 0.7; cursor: not-allowed; }
+
+.status-text { margin: 0; } /* For "Activated", "Locked" text */
+
+.perk-item-card.activated-perk-card:not(.cannot-deactivate) { cursor: pointer; }
+
+/* === Perk Tree Pyramid Layout === */
+
+/* Perk Tree Node Mockup Styles */
+.perk-node-mockup {
+  z-index: 2;
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85em;
+  color: #fff;
+  background: #232526;
+  box-shadow: 0 2px 8px #0008;
+  transition: box-shadow 0.18s, border 0.18s, background 0.18s;
+  border: 3.5px solid #44485a;
+  cursor: pointer;
+}
+
+.perk-title {
+  font-size: 0.85em;
+  margin-top: 2px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.perk-tooltip {
+  position: absolute;
+  min-width: 120px;
+  max-width: 220px;
+  background: #23272f;
+  color: #fff;
+  font-size: 0.85em;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #000a;
+  padding: 8px 12px;
+  pointer-events: none;
+  z-index: 10;
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.perk-tooltip.active {
+  opacity: 0.97;
+  visibility: visible;
+}
+
+/* Extra SVG lines for diversity */
+.perk-tree-svg line {
+  transition: stroke 0.18s;
+}
+
+/* Center the perk tree horizontally in the window */
+.perk-list {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+}
+
+/* Perk Tree Pyramid Node States */
+.perk-node-mockup.locked {
+  opacity: 0.45;
+  filter: grayscale(1);
+  cursor: not-allowed !important;
+  background: #232526;
+  border-color: #44485a;
+}
+
+.perk-node-mockup.unlocked {
+  opacity: 1;
+  filter: none;
+  cursor: pointer;
+  background: #232526;
+  border-color: #44485a;
+  transition: box-shadow 0.18s, border 0.18s, background 0.18s;
+}
+
+.perk-node-mockup.unlocked:hover {
+  box-shadow: 0 0 12px #1ec46988, 0 2px 8px #0008;
+  border-color: #1ec469;
+  background: #232f26;
+}
+
+.perk-node-mockup.activated {
+  opacity: 1;
+  filter: none;
+  cursor: default !important;
+  border-color: #2e7d32;
+  background: #2e7d32;
+  box-shadow: 0 0 10px 2px #2e7d32aa;
+}
+
+.perk-node-mockup.circle {
+  border-radius: 50%;
+}
+
+/* === Perk Tree Background Animation === */
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* === Perk Ripple Effect === */
+.perk-tree-mockup { overflow: hidden; }
+
+.perk-ripple {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: rgba(30,196,105,0.5);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    animation: rippleAnim 1.2s ease-out;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes rippleAnim {
+    to { transform: translate(-50%, -50%) scale(10); opacity: 0; }
+}
+
+/* Perk Tree Connections */
+.perk-tree-connections {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.perk-connection-line {
+    stroke: #44485a;
+    stroke-width: 3px;
+    transition: stroke 0.3s ease;
+}
+
+.perk-connection-line.unlocked {
+    stroke: #1ec469;
+}
+
+.perk-connection-line.activated {
+    stroke: #2e7d32;
+    stroke-width: 4px;
+}
+
+/* Perk Points Display in HUD - Removed to avoid conflict with hud.css */
+/* The perk points tooltip is now defined in hud.css */
+
+/* Subtle perk glow animation */
+@keyframes subtlePerkGlow { /* Perk Green/Blue */
+    0%, 100% { 
+        box-shadow: 0 0 3px rgba(30, 196, 105, 0.4), 0 0 6px rgba(30, 196, 105, 0.2); 
+        border-color: rgba(30, 196, 105, 0.6); 
+    }
+    50% { 
+        box-shadow: 0 0 8px rgba(30, 196, 105, 0.6), 0 0 12px rgba(30, 196, 105, 0.3); 
+        border-color: rgba(30, 196, 105, 0.8); 
+    }
+}
+
+/* Apply subtle glow to unlocked perk nodes */
+.perk-node-mockup.unlocked {
+    animation: subtlePerkGlow 3s ease-in-out infinite;
+}
+
+/* Perk tree layout positioning */
+.perk-tree-container {
+    position: relative;
+    width: 100%;
+    height: 600px;
+    background: radial-gradient(circle at center, rgba(30, 196, 105, 0.05) 0%, transparent 60%);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+/* Responsive perk tree adjustments */
+@media (max-width: 768px) {
+    .perk-node-mockup {
+        width: 60px;
+        height: 60px;
+        font-size: 0.7em;
+    }
+    
+    .perk-tree-container {
+        height: 450px;
+    }
+    
+    .perk-tooltip {
+        max-width: 180px;
+        font-size: 0.8em;
+    }
+}
+
+@media (max-width: 480px) {
+    .perk-node-mockup {
+        width: 50px;
+        height: 50px;
+        font-size: 0.6em;
+    }
+    
+    .perk-tree-container {
+        height: 350px;
+    }
+}
