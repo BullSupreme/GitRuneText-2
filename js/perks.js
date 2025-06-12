@@ -533,11 +533,44 @@ export function updatePerkPoints() {
     
     let new_points_earned = 0;
     const totalSkillXP = calculateTotalSkillXP();
+    
+    // Check defined thresholds first
     for (const threshold of PERK_POINT_XP_THRESHOLDS) {
         if (totalSkillXP >= threshold) {
             new_points_earned++;
         } else {
             break;
+        }
+    }
+    
+    // For points beyond the defined array, use formulas
+    if (new_points_earned === PERK_POINT_XP_THRESHOLDS.length) {
+        const level92XP = 127566915; // Total XP for all skills at level 92
+        
+        // Points 31-161: Use original formula
+        for (let i = PERK_POINT_XP_THRESHOLDS.length; i < 161; i++) {
+            const threshold = Math.floor(level92XP * Math.pow((i + 1) / 161, 2.2));
+            if (totalSkillXP >= threshold) {
+                new_points_earned++;
+            } else {
+                return; // Exit early if threshold not met
+            }
+        }
+        
+        // Points 162-999: Extended scaling for super end-game
+        if (new_points_earned === 161) {
+            for (let i = 161; i < 999; i++) {
+                // Steeper exponential curve after 161
+                const progress = (i - 161) / (999 - 161);
+                const multiplier = 1 + Math.pow(progress, 2.5) * 10; // Up to 11x at point 999
+                const threshold = Math.floor(level92XP * multiplier);
+                
+                if (totalSkillXP >= threshold) {
+                    new_points_earned++;
+                } else {
+                    break;
+                }
+            }
         }
     }
     
@@ -1074,6 +1107,37 @@ export function calculateAvailablePerkPoints() {
             earnedPP++;
         } else {
             break;
+        }
+    }
+    
+    // For points beyond the defined array, use formulas
+    if (earnedPP === thresholds.length) {
+        const level92XP = 127566915; // Total XP for all skills at level 92
+        
+        // Points 31-161: Use original formula
+        for (let i = thresholds.length; i < 161; i++) {
+            const threshold = Math.floor(level92XP * Math.pow((i + 1) / 161, 2.2));
+            if (totalSkillXP >= threshold) {
+                earnedPP++;
+            } else {
+                return Math.max(0, earnedPP - calculateSpentPerkPoints()); // Exit early
+            }
+        }
+        
+        // Points 162-999: Extended scaling for super end-game
+        if (earnedPP === 161) {
+            for (let i = 161; i < 999; i++) {
+                // Steeper exponential curve after 161
+                const progress = (i - 161) / (999 - 161);
+                const multiplier = 1 + Math.pow(progress, 2.5) * 10; // Up to 11x at point 999
+                const threshold = Math.floor(level92XP * multiplier);
+                
+                if (totalSkillXP >= threshold) {
+                    earnedPP++;
+                } else {
+                    break;
+                }
+            }
         }
     }
     

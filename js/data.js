@@ -61,38 +61,44 @@ export const TIERS = {
     LEGENDARY: 'tier-legendary'
 };
 // Perk Point Progression
-export const MAX_PERK_POINTS = 20; // Example: Maximum 20 perk points earnable
+export const MAX_PERK_POINTS = 999; // Extended to 999 for super end-game/new game+
 export const PERK_POINT_XP_THRESHOLDS = [
-    800,      // 1st point (was 1000)
-    2400,     // 2nd point (was 3000)
-    4800,     // 3rd point (was 6000)
-    8000,     // 4th point (was 10000)
-    12000,    // 5th point (was 15000)
-    17600,    // 6th point (was 22000)
-    24000,    // 7th point (was 30000)
-    32000,    // 8th point (was 40000)
-    41600,    // 9th point (was 52000)
-    52800,    // 10th point (was 66000)
-    65600,    // 11th point (was 82000)
-    80000,    // 12th point (was 100000)
-    100000,   // 13th point (was 125000)
-    124000,   // 14th point (was 155000)
-    152000,   // 15th point (was 190000)
-    184000,   // 16th point (was 230000)
-    220000,   // 17th point (was 275000)
-    260000,   // 18th point (was 325000)
-    304000,   // 19th point (was 380000)
-    352000,   // 20th point (was 440000)
-    408000,   // 21st point (was 510000)
-    472000,   // 22nd point (was 590000)
-    544000,   // 23rd point (was 680000)
-    624000,   // 24th point (was 780000)
-    712000,   // 25th point (was 890000)
-    808000,   // 26th point (was 1010000)
-    912000,   // 27th point (was 1140000)
-    1024000,  // 28th point (was 1280000)
-    1144000,  // 29th point (was 1430000)
-    1272000   // 30th point (was 1590000)
+    1781,      // 1st point
+    8184,      // 2nd point
+    19970,      // 3rd point
+    37605,      // 4th point
+    61440,      // 5th point
+    91760,      // 6th point
+    128806,      // 7th point
+    172790,      // 8th point
+    223900,      // 9th point
+    282306,      // 10th point
+    348164,      // 11th point
+    421618,      // 12th point
+    502801,      // 13th point
+    591837,      // 14th point
+    688845,      // 15th point
+    793935,      // 16th point
+    907211,      // 17th point
+    1028775,      // 18th point
+    1158721,      // 19th point
+    1297140,      // 20th point
+    1444120,      // 21st point
+    1599745,      // 22nd point
+    1764096,      // 23rd point
+    1937250,      // 24th point
+    2119283,      // 25th point
+    2310268,      // 26th point
+    2510275,      // 27th point
+    2719373,      // 28th point
+    2937627,      // 29th point
+    3165103      // 30th point
+    // Points 31-161: Use formula Math.floor(127566915 * Math.pow((i+1)/161, 2.2))
+    // Points 162-999: Extended scaling with Math.floor(127566915 * (1 + Math.pow((i-161)/838, 2.5) * 10))
+    // Key milestones:
+    // - 161 points: 127,566,915 XP (all skills level 92)
+    // - 500 points: ~260,345,260 XP
+    // - 999 points: ~1,403,236,065 XP (super end-game)
 ];
 // Tool data (axes, pickaxes)
 export const TOOL_DATA = {
