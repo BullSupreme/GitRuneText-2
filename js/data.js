@@ -88,53 +88,83 @@ export const PERK_POINT_XP_THRESHOLDS = [
 export const TOOL_DATA = {
     "axe": {
         "fists":   {"emoji": "👊",    "price":0,     "level_req":1,  "min_dmg":1,  "max_dmg":1,  "skill_type":"attack",      "color":"fore-white", "attack_speed": 1.5,
-            "yield_config": { "base": 0, "bonuses_by_tree": {"normal":[], "oak":[], "willow":[]} }
+            "yield_config": { "base": 0, "bonuses_by_tree": {"normal":[], "oak":[], "willow":[], "maple":[], "yew":[], "magic":[], "divine":[]} }
         },
         "bronze":  {"emoji": "🪓",    "price":15,    "level_req":1,  "min_dmg":1,  "max_dmg":2,  "skill_type":"woodcutting", "color":"fore-yellow", "tier": TIERS.COMMON, "attack_speed": 3.00,
             "yield_config": { "base": 1, "bonuses_by_tree": {
                 "normal": [{ "chance": 0.20, "amount": 1 }],
-                "oak":    [{ "chance": 0.05, "amount": 1 }]
+                "oak":    [{ "chance": 0.05, "amount": 1 }],
+                "willow": [],
+                "maple":  [],
+                "yew":    [],
+                "magic":  [],
+                "divine": []
             }}
         },
         "iron":    {"emoji": "🪓",    "price":100,    "level_req":15, "min_dmg":2,  "max_dmg":3,  "skill_type":"woodcutting", "color":"fore-lightblack_ex", "tier": TIERS.COMMON, "attack_speed": 3.00,
             "yield_config": { "base": 1, "bonuses_by_tree": {
                 "normal": [{ "chance": 0.70, "amount": 1 }],
-                "oak":    [{ "chance": 0.25, "amount": 1 }]
+                "oak":    [{ "chance": 0.25, "amount": 1 }],
+                "willow": [],
+                "maple":  [],
+                "yew":    [],
+                "magic":  [],
+                "divine": []
             }}
         },
         "steel":   {"emoji": "🪓",    "price":360,   "level_req":30, "min_dmg":3,  "max_dmg":5,  "skill_type":"woodcutting", "color":"fore-cyan", "tier": TIERS.UNCOMMON, "attack_speed": 3.00,
             "yield_config": { "base": 1, "bonuses_by_tree": {
                 "normal": [{ "chance": 0.85, "amount": 1 }, { "chance": 0.35, "amount": 1 }],
                 "oak":    [{ "chance": 0.80, "amount": 1 }, { "chance": 0.30, "amount": 1 }],
-                "willow": [{ "chance": 0.75, "amount": 1 }, { "chance": 0.25, "amount": 1 }]
+                "willow": [{ "chance": 0.75, "amount": 1 }, { "chance": 0.25, "amount": 1 }],
+                "maple":  [],
+                "yew":    [],
+                "magic":  [],
+                "divine": []
             }}
         },
         "mithril": {"emoji": "🪓",    "price":3000,   "level_req":45, "min_dmg":5,  "max_dmg":8,  "skill_type":"woodcutting", "color":"fore-blue", "tier": TIERS.RARE, "attack_speed": 3.00,
             "yield_config": { "base": 2, "bonuses_by_tree": {
                 "normal": [{ "chance": 0.80, "amount": 1 }],
                 "oak":    [{ "chance": 0.70, "amount": 1 }],
-                "willow": [{ "chance": 0.60, "amount": 1 }]
+                "willow": [{ "chance": 0.60, "amount": 1 }],
+                "maple":  [{ "chance": 0.50, "amount": 1 }],
+                "yew":    [],
+                "magic":  [],
+                "divine": []
             }}, "aoe_chance": 0.05, "aoe_targets": 1, "aoe_damage_percentage": 0.20
         },
         "adamant": {"emoji": "🪓",    "price":9750,   "level_req":60, "min_dmg":8,  "max_dmg":12, "skill_type":"woodcutting", "color":"fore-green", "tier": TIERS.RARE, "attack_speed": 3.00,
             "yield_config": { "base": 2, "bonuses_by_tree": {
                 "normal": [{ "chance": 0.90, "amount": 1 }, { "chance": 0.50, "amount": 1 }],
                 "oak":    [{ "chance": 0.85, "amount": 1 }, { "chance": 0.45, "amount": 1 }],
-                "willow": [{ "chance": 0.80, "amount": 1 }, { "chance": 0.40, "amount": 1 }]
+                "willow": [{ "chance": 0.80, "amount": 1 }, { "chance": 0.40, "amount": 1 }],
+                "maple":  [{ "chance": 0.75, "amount": 1 }, { "chance": 0.35, "amount": 1 }],
+                "yew":    [{ "chance": 0.70, "amount": 1 }, { "chance": 0.30, "amount": 1 }],
+                "magic":  [],
+                "divine": []
             }}, "aoe_chance": 0.10, "aoe_targets": 1, "aoe_damage_percentage": 0.25
         },
         "rune":    {"emoji": "🪓",    "price":40000,  "level_req":75, "min_dmg":12, "max_dmg":18, "skill_type":"woodcutting", "color":"fore-magenta", "tier": TIERS.EPIC, "attack_speed": 3.00,
             "yield_config": { "base": 2, "bonuses_by_tree": {
                 "normal": [{ "chance": 0.95, "amount": 1 }, { "chance": 0.75, "amount": 1 }],
                 "oak":    [{ "chance": 0.90, "amount": 1 }, { "chance": 0.70, "amount": 1 }],
-                "willow": [{ "chance": 0.85, "amount": 1 }, { "chance": 0.65, "amount": 1 }]
+                "willow": [{ "chance": 0.85, "amount": 1 }, { "chance": 0.65, "amount": 1 }],
+                "maple":  [{ "chance": 0.80, "amount": 1 }, { "chance": 0.60, "amount": 1 }],
+                "yew":    [{ "chance": 0.75, "amount": 1 }, { "chance": 0.55, "amount": 1 }],
+                "magic":  [{ "chance": 0.70, "amount": 1 }, { "chance": 0.50, "amount": 1 }],
+                "divine": []
             }}, "aoe_chance": 0.15, "aoe_targets": 2, "aoe_damage_percentage": 0.30
         },
         "dragon":  {"emoji": "🪓🔥",  "price":300000, "level_req":85, "min_dmg":18, "max_dmg":25, "skill_type":"woodcutting", "color":"fore-red", "tier": TIERS.LEGENDARY, "attack_speed": 3.00,
             "yield_config": { "base": 3, "bonuses_by_tree": {
                 "normal": [{ "chance": 0.90, "amount": 1 }, { "chance": 0.60, "amount": 1 }],
                 "oak":    [{ "chance": 0.85, "amount": 1 }, { "chance": 0.55, "amount": 1 }],
-                "willow": [{ "chance": 0.80, "amount": 1 }, { "chance": 0.50, "amount": 1 }]
+                "willow": [{ "chance": 0.80, "amount": 1 }, { "chance": 0.50, "amount": 1 }],
+                "maple":  [{ "chance": 0.85, "amount": 1 }, { "chance": 0.65, "amount": 1 }],
+                "yew":    [{ "chance": 0.80, "amount": 1 }, { "chance": 0.60, "amount": 1 }],
+                "magic":  [{ "chance": 0.75, "amount": 1 }, { "chance": 0.55, "amount": 1 }],
+                "divine": [{ "chance": 0.70, "amount": 1 }, { "chance": 0.50, "amount": 1 }]
             }}, "aoe_chance": 0.20, "aoe_targets": 2, "aoe_damage_percentage": 0.35
         }
     },
