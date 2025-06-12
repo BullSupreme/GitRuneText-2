@@ -62,6 +62,36 @@
 
 .help-icon:hover + .tooltip-content { display: block; } /* Show tooltip on hover */
 
+.reset-perks-button {
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.reset-perks-button:hover {
+    background-color: #c62828;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.reset-perks-button:disabled {
+    background-color: #666;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.reset-perks-button:disabled:hover {
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 #perk-list-target, .perk-list { /* Container for perk cards */
     display: grid; gap: 15px;
 }

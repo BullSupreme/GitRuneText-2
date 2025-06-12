@@ -53,6 +53,21 @@ export function showPerkTreeSection() {
         });
     }
     
+    // Add reset button functionality
+    const resetButton = document.getElementById('reset-perks-button');
+    if (resetButton) {
+        // Remove any existing event listeners first to avoid duplicates
+        const newResetButton = resetButton.cloneNode(true);
+        resetButton.parentNode.replaceChild(newResetButton, resetButton);
+        
+        newResetButton.addEventListener('click', () => {
+            resetPerks();
+        });
+        
+        // Update reset button state
+        updateResetButtonState();
+    }
+    
     // Render the new perk tree mockup
     renderPyramidTree(pyramidRows);
 }
@@ -70,6 +85,9 @@ function renderPyramidTree(rows) {
     // Update available perk points display
     const availablePerkPoints = calculateAvailablePerkPoints();
     availablePerkPointsDisplay.textContent = availablePerkPoints;
+    
+    // Update reset button state
+    updateResetButtonState();
     
     perkListTarget.innerHTML = '';
 
@@ -1204,4 +1222,78 @@ function getActivePyramidNodes() {
         savePlayerData();
     }
     return playerData.pyramidNodes.filter(node => node.active).map(node => node.id);
+}
+
+/**
+ * Resets all perks for a cost of 10000 gold
+ */
+export function resetPerks() {
+    const RESET_COST = 10000;
+    
+    // Check if player has enough gold
+    if (!playerData.gold || playerData.gold < RESET_COST) {
+        logMessage(`Not enough gold! Need ${formatNumber(RESET_COST)} gold to reset perks.`, "fore-danger");
+        return;
+    }
+    
+    // Check if player has any perks to reset
+    const hasActivePerks = playerData.pyramidNodes && playerData.pyramidNodes.some(node => node.active);
+    if (!hasActivePerks) {
+        logMessage("No perks to reset!", "fore-warning");
+        return;
+    }
+    
+    // Show confirmation dialog
+    const confirmReset = confirm(`Are you sure you want to reset all perks for ${formatNumber(RESET_COST)} gold? This will refund all spent Perk Points.`);
+    if (!confirmReset) {
+        return;
+    }
+    
+    // Deduct gold
+    playerData.gold -= RESET_COST;
+    
+    // Reset all pyramid nodes
+    if (playerData.pyramidNodes) {
+        playerData.pyramidNodes.forEach(node => {
+            node.active = false;
+        });
+    }
+    
+    // Reset pyramid node states
+    pyramidNodeStates = {};
+    
+    // Save the data
+    savePlayerData();
+    
+    // Log the reset
+    logMessage(`All perks have been reset! Spent ${formatNumber(RESET_COST)} gold.`, "fore-success", "🔄");
+    
+    // Update UI
+    updateHud();
+    renderPyramidTree(pyramidRows);
+    updateResetButtonState();
+}
+
+/**
+ * Updates the reset button state based on gold and active perks
+ */
+export function updateResetButtonState() {
+    const resetButton = document.getElementById('reset-perks-button');
+    if (!resetButton) return;
+    
+    const RESET_COST = 10000;
+    const hasEnoughGold = playerData.gold && playerData.gold >= RESET_COST;
+    const hasActivePerks = playerData.pyramidNodes && playerData.pyramidNodes.some(node => node.active);
+    
+    if (!hasEnoughGold || !hasActivePerks) {
+        resetButton.disabled = true;
+        if (!hasEnoughGold) {
+            resetButton.textContent = `Reset Perks (Need ${formatNumber(RESET_COST)}g)`;
+        } else if (!hasActivePerks) {
+            resetButton.textContent = `Reset Perks (No active perks)`;
+        }
+    } else {
+        resetButton.disabled = false;
+        resetButton.textContent = `Reset Perks (${formatNumber(RESET_COST)}g)`;
+    }
 } 

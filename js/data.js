@@ -63,36 +63,36 @@ export const TIERS = {
 // Perk Point Progression
 export const MAX_PERK_POINTS = 20; // Example: Maximum 20 perk points earnable
 export const PERK_POINT_XP_THRESHOLDS = [
-    1000,     // 1st point
-    3000,     // 2nd point
-    6000,     // 3rd point
-    10000,    // 4th point
-    15000,    // 5th point
-    22000,    // 6th point
-    30000,    // 7th point
-    40000,    // 8th point
-    52000,    // 9th point
-    66000,    // 10th point
-    82000,    // 11th point
-    100000,   // 12th point
-    125000,   // 13th point
-    155000,   // 14th point
-    190000,   // 15th point
-    230000,   // 16th point
-    275000,   // 17th point
-    325000,   // 18th point
-    380000,   // 19th point
-    440000,   // 20th point
-    510000,   // 21st point
-    590000,   // 22nd point
-    680000,   // 23rd point
-    780000,   // 24th point
-    890000,   // 25th point
-    1010000,  // 26th point
-    1140000,  // 27th point
-    1280000,  // 28th point
-    1430000,  // 29th point
-    1590000   // 30th point
+    800,      // 1st point (was 1000)
+    2400,     // 2nd point (was 3000)
+    4800,     // 3rd point (was 6000)
+    8000,     // 4th point (was 10000)
+    12000,    // 5th point (was 15000)
+    17600,    // 6th point (was 22000)
+    24000,    // 7th point (was 30000)
+    32000,    // 8th point (was 40000)
+    41600,    // 9th point (was 52000)
+    52800,    // 10th point (was 66000)
+    65600,    // 11th point (was 82000)
+    80000,    // 12th point (was 100000)
+    100000,   // 13th point (was 125000)
+    124000,   // 14th point (was 155000)
+    152000,   // 15th point (was 190000)
+    184000,   // 16th point (was 230000)
+    220000,   // 17th point (was 275000)
+    260000,   // 18th point (was 325000)
+    304000,   // 19th point (was 380000)
+    352000,   // 20th point (was 440000)
+    408000,   // 21st point (was 510000)
+    472000,   // 22nd point (was 590000)
+    544000,   // 23rd point (was 680000)
+    624000,   // 24th point (was 780000)
+    712000,   // 25th point (was 890000)
+    808000,   // 26th point (was 1010000)
+    912000,   // 27th point (was 1140000)
+    1024000,  // 28th point (was 1280000)
+    1144000,  // 29th point (was 1430000)
+    1272000   // 30th point (was 1590000)
 ];
 // Tool data (axes, pickaxes)
 export const TOOL_DATA = {
