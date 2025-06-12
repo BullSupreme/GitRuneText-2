@@ -5,7 +5,7 @@
 
 'use strict';
 
-import { playerData, getLevelFromXp, savePlayerData, logMessage, playSound, sounds, getEnchantmentBonus } from './utils.js';
+import { playerData, getLevelFromXp, savePlayerData, logMessage, playSound, sounds, getEnchantmentBonus, handleLevelUp } from './utils.js';
 import { showSection, updateHud, setActiveSkill, clearActiveSkill } from './ui.js';
 import { SWORD_DATA, ARMOR_DATA, HELMET_DATA, RING_DATA, BAR_DATA, getItemDetails } from './data.js';
 import { getSummedPyramidPerkEffects } from './perks.js';
@@ -343,6 +343,7 @@ export function singleSmeltAction() {
     // Track item discovery for achievements
     trackItemObtained(currentSmeltingTarget);
     // Grant XP (with xp_boost perks)
+    const oldLevel = getLevelFromXp(playerData.skills.blacksmithing.xp);
     const smeltEffects = getSummedPyramidPerkEffects();
     const xpBoost = smeltEffects.xp_boost_percentage_blacksmithing || 0;
     const xpGain = Math.floor((recipe.xp_gain || recipe.xp) * (1 + xpBoost));
@@ -367,6 +368,11 @@ export function singleSmeltAction() {
             barDiv.classList.add('active-resource');
             gainTextShown = true;
         }
+    }
+    // Check for level up
+    const newLevel = getLevelFromXp(playerData.skills.blacksmithing.xp);
+    if (newLevel > oldLevel) {
+        handleLevelUp('blacksmithing', oldLevel, newLevel);
     }
     // Recalculate max smeltable
     maxSmeltableForCurrentTarget = calculateMaxCraftableForBar(currentSmeltingTarget);
@@ -594,7 +600,12 @@ export function craftSword(swordName) {
     trackEquipmentCollection(swordName, 'weapon');
     trackItemObtained(swordName);
     // Grant XP
+    const oldLevel = getLevelFromXp(playerData.skills.blacksmithing.xp);
     playerData.skills.blacksmithing.xp += swordData.xp_gain;
+    const newLevel = getLevelFromXp(playerData.skills.blacksmithing.xp);
+    if (newLevel > oldLevel) {
+        handleLevelUp('blacksmithing', oldLevel, newLevel);
+    }
     // Play smithing sound
     if (sounds && sounds.smithing) {
         const smithingSound = typeof sounds.smithing === 'function' ? sounds.smithing() : sounds.smithing;
@@ -933,7 +944,12 @@ export function craftRing(ringName) {
     trackItemObtained(ringName);
     
     // Grant XP
+    const oldLevel = getLevelFromXp(playerData.skills.blacksmithing.xp);
     playerData.skills.blacksmithing.xp += ringData.xp_gain;
+    const newLevel = getLevelFromXp(playerData.skills.blacksmithing.xp);
+    if (newLevel > oldLevel) {
+        handleLevelUp('blacksmithing', oldLevel, newLevel);
+    }
     
     // Play smithing sound
     if (sounds && sounds.smithing) {
@@ -991,7 +1007,12 @@ export function craftArmor(armorName) {
     trackEquipmentCollection(armorName, 'armor');
     trackItemObtained(armorName);
     // Grant XP
+    const oldLevel = getLevelFromXp(playerData.skills.blacksmithing.xp);
     playerData.skills.blacksmithing.xp += armorData.xp_gain;
+    const newLevel = getLevelFromXp(playerData.skills.blacksmithing.xp);
+    if (newLevel > oldLevel) {
+        handleLevelUp('blacksmithing', oldLevel, newLevel);
+    }
     
     // Play smithing sound
     if (sounds && sounds.smithing) {
@@ -1050,7 +1071,12 @@ export function craftHelmet(helmetName) {
     trackEquipmentCollection(helmetName, 'helmet');
     trackItemObtained(helmetName);
     // Grant XP
+    const oldLevel = getLevelFromXp(playerData.skills.blacksmithing.xp);
     playerData.skills.blacksmithing.xp += helmetData.xp_gain;
+    const newLevel = getLevelFromXp(playerData.skills.blacksmithing.xp);
+    if (newLevel > oldLevel) {
+        handleLevelUp('blacksmithing', oldLevel, newLevel);
+    }
     
     // Play smithing sound
     if (sounds && sounds.smithing) {
