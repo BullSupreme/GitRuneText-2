@@ -152,14 +152,22 @@ function updateSmeltingDisplay() {
     // Create elements for each bar (show all, grey out if locked)
     for (const [barName, barData] of Object.entries(BAR_DATA)) {
         const meetsLevel = bsLevel >= (barData.level_req || barData.level);
-        const maxCraftable = meetsLevel ? calculateMaxCraftableForBar(barName) : 0;
-        const canCraft = meetsLevel && maxCraftable > 0;
+        const maxCraftable = calculateMaxCraftableForBar(barName);
+        const hasMaterials = maxCraftable > 0;
+        const canCraft = meetsLevel && hasMaterials;
+        
         const barDiv = document.createElement('div');
-        barDiv.className = 'skill-resource mining-resource' + (meetsLevel ? '' : ' greyed-out');
+        barDiv.className = 'skill-resource mining-resource';
+        
+        if (!meetsLevel) {
+            barDiv.classList.add('greyed-out');
+        }
+        
         // Add active class if currently auto-smelting this bar
         if (isAutoSmelting && currentSmeltingTarget === barName) {
             barDiv.classList.add('active-resource');
         }
+        
         barDiv.style.cursor = canCraft ? 'pointer' : 'not-allowed';
         // Add data-bar-name attribute for reliable selection
         barDiv.setAttribute('data-bar-name', barName);
@@ -187,6 +195,7 @@ function updateSmeltingDisplay() {
                 <div class="resource-recipe">Recipe: ${recipeHtml}</div>
                 <div>Max: ${maxCraftable}</div>
                 ${!meetsLevel ? `<div class='locked-label'>Locked (Level ${(barData.level_req || barData.level)})</div>` : ''}
+                ${meetsLevel && !hasMaterials ? `<div class='locked-label'>Insufficient Materials</div>` : ''}
             </div>
             <div class="resource-inventory-count">${playerData.inventory[barName] || 0}</div>
         `;
@@ -445,11 +454,18 @@ export function populateSwordSmeltingGrid() {
             maxCraftable = Math.min(maxCraftable, canCraft);
         });
         if (!isFinite(maxCraftable)) maxCraftable = 0;
-        const hasRequiredBars = meetsLevel && maxCraftable > 0;
+        const hasMaterials = maxCraftable > 0;
+        const canCraft = meetsLevel && hasMaterials;
         const inventoryCount = playerData.inventory[swordName] || 0;
+        
         const div = document.createElement('div');
-        div.className = 'skill-resource mining-resource' + (!meetsLevel || !hasRequiredBars ? ' greyed-out' : '');
-        div.style.cursor = hasRequiredBars ? 'pointer' : 'not-allowed';
+        div.className = 'skill-resource mining-resource';
+        
+        if (!meetsLevel) {
+            div.classList.add('greyed-out');
+        }
+        
+        div.style.cursor = canCraft ? 'pointer' : 'not-allowed';
         
         // Add data attribute for 2-handed swords to enable smaller container styling
         if (swordName.includes('2h sword')) {
@@ -479,7 +495,7 @@ export function populateSwordSmeltingGrid() {
                 <div class="resource-recipe">Recipe: ${recipeHtml}</div>
                 <div>Max: ${maxCraftable}</div>
                 ${!meetsLevel ? `<div class='locked-label'>Locked (Level ${swordData.smith_level_req})</div>` : ''}
-                ${meetsLevel && !hasRequiredBars ? `<div class='locked-label'>Insufficient Materials</div>` : ''}
+                ${meetsLevel && !hasMaterials ? `<div class='locked-label'>Insufficient Materials</div>` : ''}
             </div>
             <div class="resource-inventory-count">${inventoryCount}</div>
         `;
@@ -488,7 +504,7 @@ export function populateSwordSmeltingGrid() {
             div.classList.add('active-resource');
         }
         // Add click event to the whole container if craftable
-        if (hasRequiredBars) {
+        if (canCraft) {
             div.addEventListener('click', () => selectWeaponForAutoSmithing(swordName));
         }
         container.appendChild(div);
@@ -678,7 +694,12 @@ export function populateSmithingArmor() {
         const inventoryCount = playerData.inventory[armorName] || 0;
         
         const div = document.createElement('div');
-        div.className = 'skill-resource mining-resource' + (!meetsLevel || maxCraftable === 0 ? ' greyed-out' : '');
+        div.className = 'skill-resource mining-resource';
+        
+        if (!meetsLevel) {
+            div.classList.add('greyed-out');
+        }
+        
         div.style.cursor = hasRequiredBars ? 'pointer' : 'not-allowed';
 
         // Use image for armor icon
@@ -772,7 +793,12 @@ export function populateSmithingHelmets() {
         const inventoryCount = playerData.inventory[helmetName] || 0;
         
         const div = document.createElement('div');
-        div.className = 'skill-resource mining-resource' + (!meetsLevel || maxCraftable === 0 ? ' greyed-out' : '');
+        div.className = 'skill-resource mining-resource';
+        
+        if (!meetsLevel) {
+            div.classList.add('greyed-out');
+        }
+        
         div.style.cursor = hasRequiredBars ? 'pointer' : 'not-allowed';
 
         // Use image for helmet icon
@@ -856,7 +882,12 @@ export function populateSmithingAccessories() {
         const inventoryCount = playerData.inventory[ringName] || 0;
         
         const div = document.createElement('div');
-        div.className = 'skill-resource mining-resource' + (!meetsLevel || !hasRequiredBars ? ' greyed-out' : '');
+        div.className = 'skill-resource mining-resource';
+        
+        if (!meetsLevel) {
+            div.classList.add('greyed-out');
+        }
+        
         div.style.cursor = hasRequiredBars ? 'pointer' : 'not-allowed';
         
         // Combine Level and XP

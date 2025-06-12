@@ -146,14 +146,20 @@ export function updateWoodcuttingDisplay() {
             treeDiv.setAttribute('data-tree-type', treeName);
             
             // Check if the player can chop this tree
-            const canChop = wcLvl >= tree.level && currentAxeTierName !== "none" &&
-                           (!tree.min_tier ||
-                            isTierSufficient(currentAxeTierName, tree.min_tier));
+            const meetsLevel = wcLvl >= tree.level;
+            const hasAxe = currentAxeTierName !== "none";
+            const meetsAxeReq = !tree.min_tier || isTierSufficient(currentAxeTierName, tree.min_tier);
+            const canChop = meetsLevel && hasAxe && meetsAxeReq;
             
-            if (!canChop) {
+            if (!meetsLevel) {
+                treeDiv.classList.add('greyed-out');
+                treeDiv.title = `Requires Woodcutting Lvl ${tree.level}`;
+            } else if (!canChop) {
                 treeDiv.classList.add('action-list-item-disabled');
-                treeDiv.title = wcLvl < tree.level ? `Requires Woodcutting Lvl ${tree.level}` : `Requires a better axe.`;
+                treeDiv.title = !hasAxe ? 'Requires an axe' : `Requires a better axe.`;
             }
+            
+            treeDiv.style.cursor = canChop ? 'pointer' : 'not-allowed';
             
             // Create item content with proper structure
             let treeDisplayText = `${tree.emoji} ${tree.name} (Lvl: ${tree.level}, XP: ${tree.xp})`;

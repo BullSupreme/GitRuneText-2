@@ -134,13 +134,20 @@ export function updateMiningDisplay() {
             oreDiv.setAttribute('data-ore-type', oreName);
             
             // Check if the player can mine this ore
-            const canMine = mnLvl >= oreData.level_req && currentPickaxeTierName !== "none" &&
-                (!oreData.required_pickaxe_tier || isTierSufficient(currentPickaxeTierName, oreData.required_pickaxe_tier));
+            const meetsLevel = mnLvl >= oreData.level_req;
+            const hasPickaxe = currentPickaxeTierName !== "none";
+            const meetsPickaxeReq = !oreData.required_pickaxe_tier || isTierSufficient(currentPickaxeTierName, oreData.required_pickaxe_tier);
+            const canMine = meetsLevel && hasPickaxe && meetsPickaxeReq;
             
-            if (!canMine) {
+            if (!meetsLevel) {
+                oreDiv.classList.add('greyed-out');
+                oreDiv.title = `Requires Mining Lvl ${oreData.level_req}`;
+            } else if (!canMine) {
                 oreDiv.classList.add('action-list-item-disabled');
-                oreDiv.title = mnLvl < oreData.level_req ? `Requires Mining Lvl ${oreData.level_req}` : `Requires a better pickaxe.`;
+                oreDiv.title = !hasPickaxe ? 'Requires a pickaxe' : `Requires a better pickaxe.`;
             }
+            
+            oreDiv.style.cursor = canMine ? 'pointer' : 'not-allowed';
             
             // Properly capitalize ore names
             let itemDisplayName = oreData.item_name

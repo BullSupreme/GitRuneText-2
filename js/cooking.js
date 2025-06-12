@@ -182,17 +182,21 @@ function updateCookingDisplay() {
             }
         }
         
-        canCook = canCook && materialsAvailable;
+        const meetsLevel = ckLevel >= recipe.level_req;
+        canCook = meetsLevel && materialsAvailable;
         
         const foodDiv = document.createElement('div');
         foodDiv.className = 'action-list-item';
         
-        if (!canCook) {
+        if (!meetsLevel) {
+            foodDiv.classList.add('greyed-out');
+            foodDiv.title = `Requires Cooking Lvl ${recipe.level_req}`;
+        } else if (!materialsAvailable) {
             foodDiv.classList.add('action-list-item-disabled');
-            foodDiv.title = ckLevel < recipe.level_req 
-                ? `Requires Cooking Lvl ${recipe.level_req}` 
-                : `Missing ingredients`;
+            foodDiv.title = `Missing ingredients`;
         }
+        
+        foodDiv.style.cursor = canCook ? 'pointer' : 'not-allowed';
         
         // Determine icon to display
         const displayEmoji = recipe.emoji || "🍳";

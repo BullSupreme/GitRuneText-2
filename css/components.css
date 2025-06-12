@@ -45,6 +45,28 @@ button:focus, a:focus, [tabindex]:focus {
     font-weight: bold;
 }
 
+/* === Greyed Out / Disabled State === */
+.greyed-out {
+    opacity: 0.4;
+    filter: grayscale(0.7);
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+.action-list-item.greyed-out,
+.skill-resource.greyed-out,
+.mining-resource.greyed-out {
+    background: rgba(26, 26, 26, 0.5);
+    border-color: #333;
+}
+
+.action-list-item.greyed-out:hover,
+.skill-resource.greyed-out:hover,
+.mining-resource.greyed-out:hover {
+    transform: none;
+    background: rgba(26, 26, 26, 0.5);
+}
+
 /* === Action List Item Base Styles === */
 .action-list-item {
     position: relative;
