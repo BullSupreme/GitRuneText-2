@@ -138,6 +138,20 @@ export function showSmithingMenu() {
  * Update the smelting display
  */
 function updateSmeltingDisplay() {
+    // Check for permit status display
+    const smithyPermitStatusDiv = document.getElementById('smithy-permit-status-display');
+    if (smithyPermitStatusDiv) {
+        const hasSmithyPermit = playerData.permits && playerData.permits.smithy;
+        
+        if (hasSmithyPermit) {
+            smithyPermitStatusDiv.textContent = "📜 Smithy Permit Active: Continuous smelting through level ups!";
+            smithyPermitStatusDiv.className = "permit-status";
+        } else {
+            smithyPermitStatusDiv.textContent = "📜 Smithy Permit Needed: Required to continue smelting after level-ups!";
+            smithyPermitStatusDiv.className = "permit-status inactive";
+        }
+    }
+    
     // Use BAR_DATA for bar definitions
     // Get container element
     const smeltingContainer = document.getElementById('available-bars-to-smelt-list');
@@ -382,6 +396,12 @@ export function singleSmeltAction() {
     const newLevel = getLevelFromXp(playerData.skills.blacksmithing.xp);
     if (newLevel > oldLevel) {
         handleLevelUp('blacksmithing', oldLevel, newLevel);
+        
+        // Check for smithy permit
+        if (!playerData.permits || !playerData.permits.smithy) {
+            logMessage("Purchase a Smithy Permit to continue smelting through level ups!", "fore-warning", "📜");
+            stopAutoSmelting();
+        }
     }
     // Recalculate max smeltable
     maxSmeltableForCurrentTarget = calculateMaxCraftableForBar(currentSmeltingTarget);
@@ -621,6 +641,12 @@ export function craftSword(swordName) {
     const newLevel = getLevelFromXp(playerData.skills.blacksmithing.xp);
     if (newLevel > oldLevel) {
         handleLevelUp('blacksmithing', oldLevel, newLevel);
+        
+        // Check for smithy permit when smithing
+        if (isAutoSmithing && (!playerData.permits || !playerData.permits.smithy)) {
+            logMessage("Purchase a Smithy Permit to continue smithing through level ups!", "fore-warning", "📜");
+            stopAutoSmithing();
+        }
     }
     // Play smithing sound
     if (sounds && sounds.smithing) {
@@ -980,6 +1006,12 @@ export function craftRing(ringName) {
     const newLevel = getLevelFromXp(playerData.skills.blacksmithing.xp);
     if (newLevel > oldLevel) {
         handleLevelUp('blacksmithing', oldLevel, newLevel);
+        
+        // Check for smithy permit when smithing
+        if (isAutoSmithing && (!playerData.permits || !playerData.permits.smithy)) {
+            logMessage("Purchase a Smithy Permit to continue smithing through level ups!", "fore-warning", "📜");
+            stopAutoSmithing();
+        }
     }
     
     // Play smithing sound
@@ -1043,6 +1075,12 @@ export function craftArmor(armorName) {
     const newLevel = getLevelFromXp(playerData.skills.blacksmithing.xp);
     if (newLevel > oldLevel) {
         handleLevelUp('blacksmithing', oldLevel, newLevel);
+        
+        // Check for smithy permit when smithing
+        if (isAutoSmithing && (!playerData.permits || !playerData.permits.smithy)) {
+            logMessage("Purchase a Smithy Permit to continue smithing through level ups!", "fore-warning", "📜");
+            stopAutoSmithing();
+        }
     }
     
     // Play smithing sound
@@ -1107,6 +1145,12 @@ export function craftHelmet(helmetName) {
     const newLevel = getLevelFromXp(playerData.skills.blacksmithing.xp);
     if (newLevel > oldLevel) {
         handleLevelUp('blacksmithing', oldLevel, newLevel);
+        
+        // Check for smithy permit when smithing
+        if (isAutoSmithing && (!playerData.permits || !playerData.permits.smithy)) {
+            logMessage("Purchase a Smithy Permit to continue smithing through level ups!", "fore-warning", "📜");
+            stopAutoSmithing();
+        }
     }
     
     // Play smithing sound

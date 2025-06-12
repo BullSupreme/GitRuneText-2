@@ -257,6 +257,27 @@ export function trackItemObtained(itemName) {
     }
     
     try {
+        // Ensure collection statistics exist
+        if (!playerData.statistics.collection) {
+            playerData.statistics.collection = {
+                weaponsFound: {},
+                armorFound: {},
+                helmetsFound: {},
+                toolsFound: {},
+                itemsObtained: {},
+                allWeapons: 0,
+                allArmor: 0,
+                allHelmets: 0,
+                allTools: 0,
+                allEquipment: 0
+            };
+        }
+        
+        // Ensure itemsObtained exists
+        if (!playerData.statistics.collection.itemsObtained) {
+            playerData.statistics.collection.itemsObtained = {};
+        }
+        
         const stats = playerData.statistics.collection;
         
         // Only track the first time an item is obtained
