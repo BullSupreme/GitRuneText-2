@@ -26,6 +26,16 @@ import { trackEquipmentEquipped } from './achievements.js';
 // After imports, before any functions
 let liveActivityUpdateInterval = null;
 
+export function calculateTotalSkillXP() {
+    if (!playerData || !playerData.skills) return 0;
+    
+    let total = 0;
+    for (const skill in playerData.skills) {
+        total += playerData.skills[skill].xp || 0;
+    }
+    return total;
+}
+
 function getSkillSpeedOverviewHTML() {
     const effects = getSummedPyramidPerkEffects();
     let html = '';
@@ -605,7 +615,7 @@ export function showCharacterSection() {
         // Skill Levels Section
         const skillsCard = document.createElement('div');
         skillsCard.className = 'character-section-card';
-        skillsCard.innerHTML = `<div class="character-section-title"><span class="character-section-icon">📈</span> Skill Levels <span class="character-section-total-xp">Total XP: <span class="fore-magenta">${(playerData.total_skill_xp || 0).toLocaleString()}</span></span></div><div class="character-section-grid skill-levels-section-grid"></div>`;
+        skillsCard.innerHTML = `<div class="character-section-title"><span class="character-section-icon">📈</span> Skill Levels <span class="character-section-total-xp">Total XP: <span class="fore-magenta">${calculateTotalSkillXP().toLocaleString()}</span></span></div><div class="character-section-grid skill-levels-section-grid"></div>`;
         leftCol.appendChild(skillsCard);
         // Populate skill levels
         const statsGrid = skillsCard.querySelector('.skill-levels-section-grid');
@@ -1944,7 +1954,7 @@ function updateCharacterInfo() {
                 </div>
                 <div class="stat-row">
                     <span class="stat-label">Total Skill XP:</span>
-                    <span class="stat-value">${formatNumber(playerData.total_skill_xp)}</span>
+                    <span class="stat-value">${formatNumber(calculateTotalSkillXP())}</span>
                 </div>
                 <div class="stat-row">
                     <span class="stat-label">Perk Points:</span>

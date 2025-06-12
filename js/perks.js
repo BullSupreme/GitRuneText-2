@@ -9,6 +9,7 @@
 import { PERK_DATA, MAX_PERK_POINTS, PERK_POINT_XP_THRESHOLDS, TIERS } from './data.js';
 import { playerData, savePlayerData, formatNumber, logMessage } from './utils.js';
 import { updateHud, showSection } from './ui.js';
+import { calculateTotalSkillXP } from './characterinfo.js';
 
 // Store activation state for pyramid nodes (not persistent)
 let pyramidNodeStates = {};
@@ -513,8 +514,9 @@ export function updatePerkPoints() {
     if (!playerData) return;
     
     let new_points_earned = 0;
+    const totalSkillXP = calculateTotalSkillXP();
     for (const threshold of PERK_POINT_XP_THRESHOLDS) {
-        if (playerData.total_skill_xp >= threshold) {
+        if (totalSkillXP >= threshold) {
             new_points_earned++;
         } else {
             break;
@@ -523,7 +525,7 @@ export function updatePerkPoints() {
     
     if (new_points_earned > playerData.perk_points_earned) {
         const gained = new_points_earned - playerData.perk_points_earned;
-        logMessage(`You earned ${gained} new Perk Point(s)! (${formatNumber(playerData.total_skill_xp)} total XP)`, "fore-magenta", "✨");
+        logMessage(`You earned ${gained} new Perk Point(s)! (${formatNumber(totalSkillXP)} total XP)`, "fore-magenta", "✨");
         playerData.perk_points_earned = new_points_earned;
         
         // Update UI
