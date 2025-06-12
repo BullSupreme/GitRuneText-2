@@ -907,7 +907,9 @@ function formatEnchantingCost(cost) {
         const hasEnough = playerAmount >= amount;
         const colorClass = hasEnough ? 'fore-green' : 'fore-red';
         
-        return `${emoji} <span class="${colorClass}">${amount}</span> ${resourceName}`;
+        // Use proper display name for gems
+        const displayName = resourceName === 'gems' ? 'Assorted Gems' : resourceName;
+        return `${emoji} <span class="${colorClass}">${amount}</span> ${displayName}`;
     }
     
     let costParts = [];
@@ -1797,7 +1799,7 @@ function displayRingGemOptions(slotKey) {
                 ${statPreview}
             </div>
             <div class="tier-option-status">
-                ${hasGem ? 'Click to Select' : `Need ${gemData.name}`}
+                ${hasGem ? 'Click to Select' : 'Need Assorted Gems'}
             </div>
         `;
         
@@ -2011,7 +2013,7 @@ function performRingEnchantment() {
     // Check if player has the gem
     const playerGems = playerData.inventory[gemId] || 0;
     if (playerGems < 1) {
-        logMessage(`You need 1 ${gemData.name}!`, 'fore-red');
+        logMessage('You need Assorted Gems!', 'fore-red');
         return;
     }
 
