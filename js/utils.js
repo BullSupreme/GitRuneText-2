@@ -777,6 +777,47 @@ export function migratePlayerData(data) {
     if (!migratedData.combat.enemiesKilled) {
         migratedData.combat.enemiesKilled = {};
     }
+    
+    // One-time migration: Fix excessive perk points with new balanced thresholds
+    if (!migratedData.perkPointsRebalanced) {
+        console.log('Applying perk point rebalancing...');
+        
+        // Calculate total skill XP
+        let totalSkillXP = 0;
+        if (migratedData.skills) {
+            for (const skill in migratedData.skills) {
+                totalSkillXP += migratedData.skills[skill].xp || 0;
+            }
+        }
+        
+        // Calculate correct perk points based on new thresholds
+        const newThresholds = [1000, 3000, 6000, 10000, 15000, 22000, 30000, 40000, 52000, 66000, 82000, 100000, 125000, 155000, 190000, 230000, 275000, 325000, 380000, 440000, 510000, 590000, 680000, 780000, 890000, 1010000, 1140000, 1280000, 1430000, 1590000];
+        let correctPerkPoints = 0;
+        for (const threshold of newThresholds) {
+            if (totalSkillXP >= threshold) {
+                correctPerkPoints++;
+            } else {
+                break;
+            }
+        }
+        
+        // Only reduce if current is higher than correct (don't increase)
+        if ((migratedData.perk_points_earned || 0) > correctPerkPoints) {
+            const oldPoints = migratedData.perk_points_earned || 0;
+            migratedData.perk_points_earned = correctPerkPoints;
+            
+            // Also adjust spent points to ensure available points aren't negative
+            const spentPoints = migratedData.perk_points_spent || 0;
+            if (spentPoints > correctPerkPoints) {
+                migratedData.perk_points_spent = correctPerkPoints;
+                console.log(`Reduced perk points: ${oldPoints} → ${correctPerkPoints} (spent reset to ${correctPerkPoints})`);
+            } else {
+                console.log(`Reduced perk points: ${oldPoints} → ${correctPerkPoints} (spent: ${spentPoints})`);
+            }
+        }
+        
+        migratedData.perkPointsRebalanced = true;
+    }
 
 
     // Specific Migrations
@@ -897,7 +938,16 @@ export function handleLevelUp(skillType, oldLevel, newLevel) {
     }
     logMessage(`🎉 ${skillName} level up! ${oldLevel} → ${newLevel}`, 'level-up', '🌟'); // Added emoji to log
     
-    // updatePerkPoints(); // Assuming this function exists and handles PP logic
+    // Check for skill milestone achievements after level up
+    // Note: Import is handled dynamically to avoid circular dependency
+    if (typeof window !== 'undefined' && window.checkRetroactiveSkillAchievements) {
+        window.checkRetroactiveSkillAchievements();
+    }
+    
+    // Update perk points based on total skill XP
+    if (typeof window !== 'undefined' && window.updatePerkPoints) {
+        window.updatePerkPoints();
+    }
 
     if (skillType === 'attack') {
         playerData.max_hp = getMaxHp(newLevel);
@@ -907,6 +957,13 @@ export function handleLevelUp(skillType, oldLevel, newLevel) {
             checkAndResetLowHealthWarning();
         }
     }
+    
+    // Check for skill milestone achievements after level up
+    // Note: Import is handled dynamically to avoid circular dependency
+    if (typeof window !== 'undefined' && window.checkRetroactiveSkillAchievements) {
+        window.checkRetroactiveSkillAchievements();
+    }
+    
     // savePlayerData(); // Usually called by the function that triggers level up
 }
 

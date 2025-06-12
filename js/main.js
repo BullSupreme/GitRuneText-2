@@ -29,7 +29,7 @@ import { showPerkTreeSection } from './perks.js';
 import { showShopSection } from './shop.js';
 import { showBuildStructuresMenu, initRentCollection, initWaterCollection } from './builds.js';
 import { showGuildMenu, initGuildIntervals, isGuildHallUnlocked } from './guild.js';
-import { initializeAchievements, showAchievementsMenu } from './achievements.js';
+import { initializeAchievements, showAchievementsMenu, checkRetroactiveSkillAchievements } from './achievements.js';
 import { showBlacksmithingMenu, showSmeltingMenu, showSmithingMenu } from './blacksmithing.js';
 import { showWoodcutting } from './woodcutting.js';
 import { showMining } from './mining.js';
@@ -79,6 +79,9 @@ function initGame() {
     
     // Initialize achievements system
     initializeAchievements();
+    
+    // Check for retroactive skill achievements for existing players
+    checkRetroactiveSkillAchievements();
     
     // Add this line to wire up blacksmithing buttons
     if (typeof setupBlacksmithingEvents === 'function') {

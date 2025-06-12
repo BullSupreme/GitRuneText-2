@@ -533,6 +533,11 @@ export function updatePerkPoints() {
     }
 }
 
+// Expose function globally for use in other modules to avoid circular imports
+if (typeof window !== 'undefined') {
+    window.updatePerkPoints = updatePerkPoints;
+}
+
 /**
  * Returns a perk effect value if the perk is active
  * @param {string} perkId - The ID of the perk to check

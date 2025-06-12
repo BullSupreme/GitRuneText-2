@@ -1243,6 +1243,785 @@ export const ACHIEVEMENTS = {
         tier: 'epic'
     },
     
+    // === LEVEL MILESTONE ACHIEVEMENTS ===
+    
+    // === ATTACK LEVEL MILESTONES ===
+    attackLevel10: {
+        id: 'attackLevel10',
+        name: 'Warrior Novice',
+        description: 'Reach level 10 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 10 },
+        reward: { gold: 1000, xp: { attack: 500 } },
+        icon: '⚔️',
+        tier: 'common'
+    },
+    
+    attackLevel20: {
+        id: 'attackLevel20',
+        name: 'Warrior Apprentice',
+        description: 'Reach level 20 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 20 },
+        reward: { gold: 2500, xp: { attack: 1000 } },
+        icon: '⚔️',
+        tier: 'common'
+    },
+    
+    attackLevel30: {
+        id: 'attackLevel30',
+        name: 'Warrior Journeyman',
+        description: 'Reach level 30 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 30 },
+        reward: { gold: 5000, xp: { attack: 2000 } },
+        icon: '⚔️',
+        tier: 'uncommon'
+    },
+    
+    attackLevel40: {
+        id: 'attackLevel40',
+        name: 'Warrior Adept',
+        description: 'Reach level 40 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 40 },
+        reward: { gold: 10000, xp: { attack: 4000 } },
+        icon: '⚔️',
+        tier: 'uncommon'
+    },
+    
+    attackLevel50: {
+        id: 'attackLevel50',
+        name: 'Warrior Expert',
+        description: 'Reach level 50 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 50 },
+        reward: { gold: 20000, xp: { attack: 8000 } },
+        icon: '⚔️',
+        tier: 'rare'
+    },
+    
+    attackLevel60: {
+        id: 'attackLevel60',
+        name: 'Warrior Elite',
+        description: 'Reach level 60 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 60 },
+        reward: { gold: 35000, xp: { attack: 15000 } },
+        icon: '⚔️',
+        tier: 'rare'
+    },
+    
+    attackLevel70: {
+        id: 'attackLevel70',
+        name: 'Warrior Master',
+        description: 'Reach level 70 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 70 },
+        reward: { gold: 60000, xp: { attack: 25000 } },
+        icon: '⚔️',
+        tier: 'epic'
+    },
+    
+    attackLevel80: {
+        id: 'attackLevel80',
+        name: 'Warrior Grandmaster',
+        description: 'Reach level 80 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 80 },
+        reward: { gold: 100000, xp: { attack: 40000 } },
+        icon: '⚔️',
+        tier: 'epic'
+    },
+    
+    attackLevel90: {
+        id: 'attackLevel90',
+        name: 'Legendary Warrior',
+        description: 'Reach level 90 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 90 },
+        reward: { gold: 175000, xp: { attack: 70000 } },
+        icon: '⚔️',
+        tier: 'legendary'
+    },
+    
+    attackLevel99: {
+        id: 'attackLevel99',
+        name: 'Combat Perfection',
+        description: 'Reach level 99 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 99 },
+        reward: { gold: 300000, xp: { attack: 100000 } },
+        icon: '👑',
+        tier: 'legendary'
+    },
+    
+    // === MINING LEVEL MILESTONES ===
+    miningLevel10: {
+        id: 'miningLevel10',
+        name: 'Miner Novice',
+        description: 'Reach level 10 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 10 },
+        reward: { gold: 1000, xp: { mining: 500 } },
+        icon: '⛏️',
+        tier: 'common'
+    },
+    
+    miningLevel20: {
+        id: 'miningLevel20',
+        name: 'Miner Apprentice',
+        description: 'Reach level 20 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 20 },
+        reward: { gold: 2500, xp: { mining: 1000 } },
+        icon: '⛏️',
+        tier: 'common'
+    },
+    
+    miningLevel30: {
+        id: 'miningLevel30',
+        name: 'Miner Journeyman',
+        description: 'Reach level 30 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 30 },
+        reward: { gold: 5000, xp: { mining: 2000 } },
+        icon: '⛏️',
+        tier: 'uncommon'
+    },
+    
+    miningLevel40: {
+        id: 'miningLevel40',
+        name: 'Miner Adept',
+        description: 'Reach level 40 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 40 },
+        reward: { gold: 10000, xp: { mining: 4000 } },
+        icon: '⛏️',
+        tier: 'uncommon'
+    },
+    
+    miningLevel50: {
+        id: 'miningLevel50',
+        name: 'Miner Expert',
+        description: 'Reach level 50 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 50 },
+        reward: { gold: 20000, xp: { mining: 8000 } },
+        icon: '⛏️',
+        tier: 'rare'
+    },
+    
+    miningLevel60: {
+        id: 'miningLevel60',
+        name: 'Miner Elite',
+        description: 'Reach level 60 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 60 },
+        reward: { gold: 35000, xp: { mining: 15000 } },
+        icon: '⛏️',
+        tier: 'rare'
+    },
+    
+    miningLevel70: {
+        id: 'miningLevel70',
+        name: 'Miner Master',
+        description: 'Reach level 70 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 70 },
+        reward: { gold: 60000, xp: { mining: 25000 } },
+        icon: '⛏️',
+        tier: 'epic'
+    },
+    
+    miningLevel80: {
+        id: 'miningLevel80',
+        name: 'Miner Grandmaster',
+        description: 'Reach level 80 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 80 },
+        reward: { gold: 100000, xp: { mining: 40000 } },
+        icon: '⛏️',
+        tier: 'epic'
+    },
+    
+    miningLevel90: {
+        id: 'miningLevel90',
+        name: 'Legendary Miner',
+        description: 'Reach level 90 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 90 },
+        reward: { gold: 175000, xp: { mining: 70000 } },
+        icon: '⛏️',
+        tier: 'legendary'
+    },
+    
+    miningLevel99: {
+        id: 'miningLevel99',
+        name: 'Mining Perfection',
+        description: 'Reach level 99 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 99 },
+        reward: { gold: 300000, xp: { mining: 100000 } },
+        icon: '👑',
+        tier: 'legendary'
+    },
+    
+    // === WOODCUTTING LEVEL MILESTONES ===
+    woodcuttingLevel10: {
+        id: 'woodcuttingLevel10',
+        name: 'Lumberjack Novice',
+        description: 'Reach level 10 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 10 },
+        reward: { gold: 1000, xp: { woodcutting: 500 } },
+        icon: '🪓',
+        tier: 'common'
+    },
+    
+    woodcuttingLevel20: {
+        id: 'woodcuttingLevel20',
+        name: 'Lumberjack Apprentice',
+        description: 'Reach level 20 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 20 },
+        reward: { gold: 2500, xp: { woodcutting: 1000 } },
+        icon: '🪓',
+        tier: 'common'
+    },
+    
+    woodcuttingLevel30: {
+        id: 'woodcuttingLevel30',
+        name: 'Lumberjack Journeyman',
+        description: 'Reach level 30 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 30 },
+        reward: { gold: 5000, xp: { woodcutting: 2000 } },
+        icon: '🪓',
+        tier: 'uncommon'
+    },
+    
+    woodcuttingLevel40: {
+        id: 'woodcuttingLevel40',
+        name: 'Lumberjack Adept',
+        description: 'Reach level 40 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 40 },
+        reward: { gold: 10000, xp: { woodcutting: 4000 } },
+        icon: '🪓',
+        tier: 'uncommon'
+    },
+    
+    woodcuttingLevel50: {
+        id: 'woodcuttingLevel50',
+        name: 'Lumberjack Expert',
+        description: 'Reach level 50 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 50 },
+        reward: { gold: 20000, xp: { woodcutting: 8000 } },
+        icon: '🪓',
+        tier: 'rare'
+    },
+    
+    woodcuttingLevel60: {
+        id: 'woodcuttingLevel60',
+        name: 'Lumberjack Elite',
+        description: 'Reach level 60 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 60 },
+        reward: { gold: 35000, xp: { woodcutting: 15000 } },
+        icon: '🪓',
+        tier: 'rare'
+    },
+    
+    woodcuttingLevel70: {
+        id: 'woodcuttingLevel70',
+        name: 'Lumberjack Master',
+        description: 'Reach level 70 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 70 },
+        reward: { gold: 60000, xp: { woodcutting: 25000 } },
+        icon: '🪓',
+        tier: 'epic'
+    },
+    
+    woodcuttingLevel80: {
+        id: 'woodcuttingLevel80',
+        name: 'Lumberjack Grandmaster',
+        description: 'Reach level 80 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 80 },
+        reward: { gold: 100000, xp: { woodcutting: 40000 } },
+        icon: '🪓',
+        tier: 'epic'
+    },
+    
+    woodcuttingLevel90: {
+        id: 'woodcuttingLevel90',
+        name: 'Legendary Lumberjack',
+        description: 'Reach level 90 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 90 },
+        reward: { gold: 175000, xp: { woodcutting: 70000 } },
+        icon: '🪓',
+        tier: 'legendary'
+    },
+    
+    woodcuttingLevel99: {
+        id: 'woodcuttingLevel99',
+        name: 'Woodcutting Perfection',
+        description: 'Reach level 99 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 99 },
+        reward: { gold: 300000, xp: { woodcutting: 100000 } },
+        icon: '👑',
+        tier: 'legendary'
+    },
+    
+    // === BLACKSMITHING LEVEL MILESTONES ===
+    blacksmithingLevel10: {
+        id: 'blacksmithingLevel10',
+        name: 'Smith Novice',
+        description: 'Reach level 10 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 10 },
+        reward: { gold: 1000, xp: { blacksmithing: 500 } },
+        icon: '🔨',
+        tier: 'common'
+    },
+    
+    blacksmithingLevel20: {
+        id: 'blacksmithingLevel20',
+        name: 'Smith Apprentice',
+        description: 'Reach level 20 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 20 },
+        reward: { gold: 2500, xp: { blacksmithing: 1000 } },
+        icon: '🔨',
+        tier: 'common'
+    },
+    
+    blacksmithingLevel30: {
+        id: 'blacksmithingLevel30',
+        name: 'Smith Journeyman',
+        description: 'Reach level 30 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 30 },
+        reward: { gold: 5000, xp: { blacksmithing: 2000 } },
+        icon: '🔨',
+        tier: 'uncommon'
+    },
+    
+    blacksmithingLevel40: {
+        id: 'blacksmithingLevel40',
+        name: 'Smith Adept',
+        description: 'Reach level 40 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 40 },
+        reward: { gold: 10000, xp: { blacksmithing: 4000 } },
+        icon: '🔨',
+        tier: 'uncommon'
+    },
+    
+    blacksmithingLevel50: {
+        id: 'blacksmithingLevel50',
+        name: 'Smith Expert',
+        description: 'Reach level 50 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 50 },
+        reward: { gold: 20000, xp: { blacksmithing: 8000 } },
+        icon: '🔨',
+        tier: 'rare'
+    },
+    
+    blacksmithingLevel60: {
+        id: 'blacksmithingLevel60',
+        name: 'Smith Elite',
+        description: 'Reach level 60 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 60 },
+        reward: { gold: 35000, xp: { blacksmithing: 15000 } },
+        icon: '🔨',
+        tier: 'rare'
+    },
+    
+    blacksmithingLevel70: {
+        id: 'blacksmithingLevel70',
+        name: 'Smith Master',
+        description: 'Reach level 70 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 70 },
+        reward: { gold: 60000, xp: { blacksmithing: 25000 } },
+        icon: '🔨',
+        tier: 'epic'
+    },
+    
+    blacksmithingLevel80: {
+        id: 'blacksmithingLevel80',
+        name: 'Smith Grandmaster',
+        description: 'Reach level 80 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 80 },
+        reward: { gold: 100000, xp: { blacksmithing: 40000 } },
+        icon: '🔨',
+        tier: 'epic'
+    },
+    
+    blacksmithingLevel90: {
+        id: 'blacksmithingLevel90',
+        name: 'Legendary Smith',
+        description: 'Reach level 90 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 90 },
+        reward: { gold: 175000, xp: { blacksmithing: 70000 } },
+        icon: '🔨',
+        tier: 'legendary'
+    },
+    
+    blacksmithingLevel99: {
+        id: 'blacksmithingLevel99',
+        name: 'Blacksmithing Perfection',
+        description: 'Reach level 99 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 99 },
+        reward: { gold: 300000, xp: { blacksmithing: 100000 } },
+        icon: '👑',
+        tier: 'legendary'
+    },
+    
+    // === COOKING LEVEL MILESTONES ===
+    cookingLevel10: {
+        id: 'cookingLevel10',
+        name: 'Cook Novice',
+        description: 'Reach level 10 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 10 },
+        reward: { gold: 1000, xp: { cooking: 500 } },
+        icon: '🍳',
+        tier: 'common'
+    },
+    
+    cookingLevel20: {
+        id: 'cookingLevel20',
+        name: 'Cook Apprentice',
+        description: 'Reach level 20 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 20 },
+        reward: { gold: 2500, xp: { cooking: 1000 } },
+        icon: '🍳',
+        tier: 'common'
+    },
+    
+    cookingLevel30: {
+        id: 'cookingLevel30',
+        name: 'Cook Journeyman',
+        description: 'Reach level 30 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 30 },
+        reward: { gold: 5000, xp: { cooking: 2000 } },
+        icon: '🍳',
+        tier: 'uncommon'
+    },
+    
+    cookingLevel40: {
+        id: 'cookingLevel40',
+        name: 'Cook Adept',
+        description: 'Reach level 40 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 40 },
+        reward: { gold: 10000, xp: { cooking: 4000 } },
+        icon: '🍳',
+        tier: 'uncommon'
+    },
+    
+    cookingLevel50: {
+        id: 'cookingLevel50',
+        name: 'Cook Expert',
+        description: 'Reach level 50 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 50 },
+        reward: { gold: 20000, xp: { cooking: 8000 } },
+        icon: '🍳',
+        tier: 'rare'
+    },
+    
+    cookingLevel60: {
+        id: 'cookingLevel60',
+        name: 'Cook Elite',
+        description: 'Reach level 60 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 60 },
+        reward: { gold: 35000, xp: { cooking: 15000 } },
+        icon: '🍳',
+        tier: 'rare'
+    },
+    
+    cookingLevel70: {
+        id: 'cookingLevel70',
+        name: 'Cook Master',
+        description: 'Reach level 70 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 70 },
+        reward: { gold: 60000, xp: { cooking: 25000 } },
+        icon: '🍳',
+        tier: 'epic'
+    },
+    
+    cookingLevel80: {
+        id: 'cookingLevel80',
+        name: 'Cook Grandmaster',
+        description: 'Reach level 80 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 80 },
+        reward: { gold: 100000, xp: { cooking: 40000 } },
+        icon: '🍳',
+        tier: 'epic'
+    },
+    
+    cookingLevel90: {
+        id: 'cookingLevel90',
+        name: 'Legendary Cook',
+        description: 'Reach level 90 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 90 },
+        reward: { gold: 175000, xp: { cooking: 70000 } },
+        icon: '🍳',
+        tier: 'legendary'
+    },
+    
+    cookingLevel99: {
+        id: 'cookingLevel99',
+        name: 'Cooking Perfection',
+        description: 'Reach level 99 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 99 },
+        reward: { gold: 300000, xp: { cooking: 100000 } },
+        icon: '👑',
+        tier: 'legendary'
+    },
+    
+    // === FARMING LEVEL MILESTONES ===
+    farmingLevel10: {
+        id: 'farmingLevel10',
+        name: 'Farmer Novice',
+        description: 'Reach level 10 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 10 },
+        reward: { gold: 1000, xp: { farming: 500 } },
+        icon: '🌾',
+        tier: 'common'
+    },
+    
+    farmingLevel20: {
+        id: 'farmingLevel20',
+        name: 'Farmer Apprentice',
+        description: 'Reach level 20 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 20 },
+        reward: { gold: 2500, xp: { farming: 1000 } },
+        icon: '🌾',
+        tier: 'common'
+    },
+    
+    farmingLevel30: {
+        id: 'farmingLevel30',
+        name: 'Farmer Journeyman',
+        description: 'Reach level 30 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 30 },
+        reward: { gold: 5000, xp: { farming: 2000 } },
+        icon: '🌾',
+        tier: 'uncommon'
+    },
+    
+    farmingLevel40: {
+        id: 'farmingLevel40',
+        name: 'Farmer Adept',
+        description: 'Reach level 40 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 40 },
+        reward: { gold: 10000, xp: { farming: 4000 } },
+        icon: '🌾',
+        tier: 'uncommon'
+    },
+    
+    farmingLevel50: {
+        id: 'farmingLevel50',
+        name: 'Farmer Expert',
+        description: 'Reach level 50 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 50 },
+        reward: { gold: 20000, xp: { farming: 8000 } },
+        icon: '🌾',
+        tier: 'rare'
+    },
+    
+    farmingLevel60: {
+        id: 'farmingLevel60',
+        name: 'Farmer Elite',
+        description: 'Reach level 60 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 60 },
+        reward: { gold: 35000, xp: { farming: 15000 } },
+        icon: '🌾',
+        tier: 'rare'
+    },
+    
+    farmingLevel70: {
+        id: 'farmingLevel70',
+        name: 'Farmer Master',
+        description: 'Reach level 70 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 70 },
+        reward: { gold: 60000, xp: { farming: 25000 } },
+        icon: '🌾',
+        tier: 'epic'
+    },
+    
+    farmingLevel80: {
+        id: 'farmingLevel80',
+        name: 'Farmer Grandmaster',
+        description: 'Reach level 80 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 80 },
+        reward: { gold: 100000, xp: { farming: 40000 } },
+        icon: '🌾',
+        tier: 'epic'
+    },
+    
+    farmingLevel90: {
+        id: 'farmingLevel90',
+        name: 'Legendary Farmer',
+        description: 'Reach level 90 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 90 },
+        reward: { gold: 175000, xp: { farming: 70000 } },
+        icon: '🌾',
+        tier: 'legendary'
+    },
+    
+    farmingLevel99: {
+        id: 'farmingLevel99',
+        name: 'Farming Perfection',
+        description: 'Reach level 99 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 99 },
+        reward: { gold: 300000, xp: { farming: 100000 } },
+        icon: '👑',
+        tier: 'legendary'
+    },
+    
+    // === ENCHANTING LEVEL MILESTONES ===
+    enchantingLevel10: {
+        id: 'enchantingLevel10',
+        name: 'Enchanter Novice',
+        description: 'Reach level 10 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 10 },
+        reward: { gold: 1000, xp: { enchanting: 500 } },
+        icon: '✨',
+        tier: 'common'
+    },
+    
+    enchantingLevel20: {
+        id: 'enchantingLevel20',
+        name: 'Enchanter Apprentice',
+        description: 'Reach level 20 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 20 },
+        reward: { gold: 2500, xp: { enchanting: 1000 } },
+        icon: '✨',
+        tier: 'common'
+    },
+    
+    enchantingLevel30: {
+        id: 'enchantingLevel30',
+        name: 'Enchanter Journeyman',
+        description: 'Reach level 30 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 30 },
+        reward: { gold: 5000, xp: { enchanting: 2000 } },
+        icon: '✨',
+        tier: 'uncommon'
+    },
+    
+    enchantingLevel40: {
+        id: 'enchantingLevel40',
+        name: 'Enchanter Adept',
+        description: 'Reach level 40 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 40 },
+        reward: { gold: 10000, xp: { enchanting: 4000 } },
+        icon: '✨',
+        tier: 'uncommon'
+    },
+    
+    enchantingLevel50: {
+        id: 'enchantingLevel50',
+        name: 'Enchanter Expert',
+        description: 'Reach level 50 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 50 },
+        reward: { gold: 20000, xp: { enchanting: 8000 } },
+        icon: '✨',
+        tier: 'rare'
+    },
+    
+    enchantingLevel60: {
+        id: 'enchantingLevel60',
+        name: 'Enchanter Elite',
+        description: 'Reach level 60 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 60 },
+        reward: { gold: 35000, xp: { enchanting: 15000 } },
+        icon: '✨',
+        tier: 'rare'
+    },
+    
+    enchantingLevel70: {
+        id: 'enchantingLevel70',
+        name: 'Enchanter Master',
+        description: 'Reach level 70 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 70 },
+        reward: { gold: 60000, xp: { enchanting: 25000 } },
+        icon: '✨',
+        tier: 'epic'
+    },
+    
+    enchantingLevel80: {
+        id: 'enchantingLevel80',
+        name: 'Enchanter Grandmaster',
+        description: 'Reach level 80 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 80 },
+        reward: { gold: 100000, xp: { enchanting: 40000 } },
+        icon: '✨',
+        tier: 'epic'
+    },
+    
+    enchantingLevel90: {
+        id: 'enchantingLevel90',
+        name: 'Legendary Enchanter',
+        description: 'Reach level 90 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 90 },
+        reward: { gold: 175000, xp: { enchanting: 70000 } },
+        icon: '✨',
+        tier: 'legendary'
+    },
+    
+    enchantingLevel99: {
+        id: 'enchantingLevel99',
+        name: 'Enchanting Perfection',
+        description: 'Reach level 99 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 99 },
+        reward: { gold: 300000, xp: { enchanting: 100000 } },
+        icon: '👑',
+        tier: 'legendary'
+    },
+    
     // === EQUIPMENT COLLECTION ACHIEVEMENTS ===
     
     // === STEEL EQUIPMENT ACHIEVEMENTS ===
@@ -1668,6 +2447,722 @@ export const ACHIEVEMENTS = {
         reward: { gold: 100000, xp: { attack: 10000 } },
         icon: '⚔️🛡️',
         tier: 'legendary'
+    },
+    
+    // === LEVEL MILESTONE ACHIEVEMENTS ===
+    
+    // Attack Level Milestones
+    attackLevel10: {
+        id: 'attackLevel10',
+        name: 'Warrior Novice',
+        description: 'Reach level 10 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 10 },
+        reward: { gold: 1000, xp: { attack: 200 } },
+        icon: '⚔️',
+        tier: 'common'
+    },
+    attackLevel20: {
+        id: 'attackLevel20',
+        name: 'Warrior Apprentice', 
+        description: 'Reach level 20 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 20 },
+        reward: { gold: 2500, xp: { attack: 500 } },
+        icon: '⚔️',
+        tier: 'common'
+    },
+    attackLevel30: {
+        id: 'attackLevel30',
+        name: 'Warrior Journeyman',
+        description: 'Reach level 30 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 30 },
+        reward: { gold: 5000, xp: { attack: 1000 } },
+        icon: '⚔️',
+        tier: 'uncommon'
+    },
+    attackLevel40: {
+        id: 'attackLevel40',
+        name: 'Warrior Adept',
+        description: 'Reach level 40 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 40 },
+        reward: { gold: 10000, xp: { attack: 2000 } },
+        icon: '⚔️',
+        tier: 'uncommon'
+    },
+    attackLevel50: {
+        id: 'attackLevel50',
+        name: 'Warrior Expert',
+        description: 'Reach level 50 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 50 },
+        reward: { gold: 20000, xp: { attack: 4000 } },
+        icon: '⚔️',
+        tier: 'rare'
+    },
+    attackLevel60: {
+        id: 'attackLevel60',
+        name: 'Warrior Elite',
+        description: 'Reach level 60 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 60 },
+        reward: { gold: 35000, xp: { attack: 7000 } },
+        icon: '⚔️',
+        tier: 'rare'
+    },
+    attackLevel70: {
+        id: 'attackLevel70',
+        name: 'Warrior Master',
+        description: 'Reach level 70 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 70 },
+        reward: { gold: 60000, xp: { attack: 12000 } },
+        icon: '⚔️',
+        tier: 'epic'
+    },
+    attackLevel80: {
+        id: 'attackLevel80',
+        name: 'Warrior Grandmaster',
+        description: 'Reach level 80 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 80 },
+        reward: { gold: 100000, xp: { attack: 20000 } },
+        icon: '⚔️',
+        tier: 'epic'
+    },
+    attackLevel90: {
+        id: 'attackLevel90',
+        name: 'Warrior Legendary',
+        description: 'Reach level 90 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 90 },
+        reward: { gold: 175000, xp: { attack: 35000 } },
+        icon: '⚔️',
+        tier: 'legendary'
+    },
+    attackLevel99: {
+        id: 'attackLevel99',
+        name: 'Warrior Perfection',
+        description: 'Reach level 99 Attack',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.attack.level', value: 99 },
+        reward: { gold: 300000, xp: { attack: 60000 } },
+        icon: '👑',
+        tier: 'legendary'
+    },
+
+    // Mining Level Milestones
+    miningLevel10: {
+        id: 'miningLevel10',
+        name: 'Miner Novice',
+        description: 'Reach level 10 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 10 },
+        reward: { gold: 1000, xp: { mining: 200 } },
+        icon: '⛏️',
+        tier: 'common'
+    },
+    miningLevel20: {
+        id: 'miningLevel20',
+        name: 'Miner Apprentice',
+        description: 'Reach level 20 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 20 },
+        reward: { gold: 2500, xp: { mining: 500 } },
+        icon: '⛏️',
+        tier: 'common'
+    },
+    miningLevel30: {
+        id: 'miningLevel30',
+        name: 'Miner Journeyman',
+        description: 'Reach level 30 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 30 },
+        reward: { gold: 5000, xp: { mining: 1000 } },
+        icon: '⛏️',
+        tier: 'uncommon'
+    },
+    miningLevel40: {
+        id: 'miningLevel40',
+        name: 'Miner Adept',
+        description: 'Reach level 40 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 40 },
+        reward: { gold: 10000, xp: { mining: 2000 } },
+        icon: '⛏️',
+        tier: 'uncommon'
+    },
+    miningLevel50: {
+        id: 'miningLevel50',
+        name: 'Miner Expert',
+        description: 'Reach level 50 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 50 },
+        reward: { gold: 20000, xp: { mining: 4000 } },
+        icon: '⛏️',
+        tier: 'rare'
+    },
+    miningLevel60: {
+        id: 'miningLevel60',
+        name: 'Miner Elite',
+        description: 'Reach level 60 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 60 },
+        reward: { gold: 35000, xp: { mining: 7000 } },
+        icon: '⛏️',
+        tier: 'rare'
+    },
+    miningLevel70: {
+        id: 'miningLevel70',
+        name: 'Miner Master',
+        description: 'Reach level 70 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 70 },
+        reward: { gold: 60000, xp: { mining: 12000 } },
+        icon: '⛏️',
+        tier: 'epic'
+    },
+    miningLevel80: {
+        id: 'miningLevel80',
+        name: 'Miner Grandmaster',
+        description: 'Reach level 80 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 80 },
+        reward: { gold: 100000, xp: { mining: 20000 } },
+        icon: '⛏️',
+        tier: 'epic'
+    },
+    miningLevel90: {
+        id: 'miningLevel90',
+        name: 'Miner Legendary',
+        description: 'Reach level 90 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 90 },
+        reward: { gold: 175000, xp: { mining: 35000 } },
+        icon: '⛏️',
+        tier: 'legendary'
+    },
+    miningLevel99: {
+        id: 'miningLevel99',
+        name: 'Miner Perfection',
+        description: 'Reach level 99 Mining',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.mining.level', value: 99 },
+        reward: { gold: 300000, xp: { mining: 60000 } },
+        icon: '👑',
+        tier: 'legendary'
+    },
+
+    // Woodcutting Level Milestones
+    woodcuttingLevel10: {
+        id: 'woodcuttingLevel10',
+        name: 'Lumberjack Novice',
+        description: 'Reach level 10 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 10 },
+        reward: { gold: 1000, xp: { woodcutting: 200 } },
+        icon: '🌲',
+        tier: 'common'
+    },
+    woodcuttingLevel20: {
+        id: 'woodcuttingLevel20',
+        name: 'Lumberjack Apprentice',
+        description: 'Reach level 20 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 20 },
+        reward: { gold: 2500, xp: { woodcutting: 500 } },
+        icon: '🌲',
+        tier: 'common'
+    },
+    woodcuttingLevel30: {
+        id: 'woodcuttingLevel30',
+        name: 'Lumberjack Journeyman',
+        description: 'Reach level 30 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 30 },
+        reward: { gold: 5000, xp: { woodcutting: 1000 } },
+        icon: '🌲',
+        tier: 'uncommon'
+    },
+    woodcuttingLevel40: {
+        id: 'woodcuttingLevel40',
+        name: 'Lumberjack Adept',
+        description: 'Reach level 40 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 40 },
+        reward: { gold: 10000, xp: { woodcutting: 2000 } },
+        icon: '🌲',
+        tier: 'uncommon'
+    },
+    woodcuttingLevel50: {
+        id: 'woodcuttingLevel50',
+        name: 'Lumberjack Expert',
+        description: 'Reach level 50 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 50 },
+        reward: { gold: 20000, xp: { woodcutting: 4000 } },
+        icon: '🌲',
+        tier: 'rare'
+    },
+    woodcuttingLevel60: {
+        id: 'woodcuttingLevel60',
+        name: 'Lumberjack Elite',
+        description: 'Reach level 60 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 60 },
+        reward: { gold: 35000, xp: { woodcutting: 7000 } },
+        icon: '🌲',
+        tier: 'rare'
+    },
+    woodcuttingLevel70: {
+        id: 'woodcuttingLevel70',
+        name: 'Lumberjack Master',
+        description: 'Reach level 70 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 70 },
+        reward: { gold: 60000, xp: { woodcutting: 12000 } },
+        icon: '🌲',
+        tier: 'epic'
+    },
+    woodcuttingLevel80: {
+        id: 'woodcuttingLevel80',
+        name: 'Lumberjack Grandmaster',
+        description: 'Reach level 80 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 80 },
+        reward: { gold: 100000, xp: { woodcutting: 20000 } },
+        icon: '🌲',
+        tier: 'epic'
+    },
+    woodcuttingLevel90: {
+        id: 'woodcuttingLevel90',
+        name: 'Lumberjack Legendary',
+        description: 'Reach level 90 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 90 },
+        reward: { gold: 175000, xp: { woodcutting: 35000 } },
+        icon: '🌲',
+        tier: 'legendary'
+    },
+    woodcuttingLevel99: {
+        id: 'woodcuttingLevel99',
+        name: 'Lumberjack Perfection',
+        description: 'Reach level 99 Woodcutting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.woodcutting.level', value: 99 },
+        reward: { gold: 300000, xp: { woodcutting: 60000 } },
+        icon: '👑',
+        tier: 'legendary'
+    },
+
+    // Blacksmithing Level Milestones
+    blacksmithingLevel10: {
+        id: 'blacksmithingLevel10',
+        name: 'Smith Novice',
+        description: 'Reach level 10 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 10 },
+        reward: { gold: 1000, xp: { blacksmithing: 200 } },
+        icon: '🛠️',
+        tier: 'common'
+    },
+    blacksmithingLevel20: {
+        id: 'blacksmithingLevel20',
+        name: 'Smith Apprentice',
+        description: 'Reach level 20 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 20 },
+        reward: { gold: 2500, xp: { blacksmithing: 500 } },
+        icon: '🛠️',
+        tier: 'common'
+    },
+    blacksmithingLevel30: {
+        id: 'blacksmithingLevel30',
+        name: 'Smith Journeyman',
+        description: 'Reach level 30 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 30 },
+        reward: { gold: 5000, xp: { blacksmithing: 1000 } },
+        icon: '🛠️',
+        tier: 'uncommon'
+    },
+    blacksmithingLevel40: {
+        id: 'blacksmithingLevel40',
+        name: 'Smith Adept',
+        description: 'Reach level 40 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 40 },
+        reward: { gold: 10000, xp: { blacksmithing: 2000 } },
+        icon: '🛠️',
+        tier: 'uncommon'
+    },
+    blacksmithingLevel50: {
+        id: 'blacksmithingLevel50',
+        name: 'Smith Expert',
+        description: 'Reach level 50 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 50 },
+        reward: { gold: 20000, xp: { blacksmithing: 4000 } },
+        icon: '🛠️',
+        tier: 'rare'
+    },
+    blacksmithingLevel60: {
+        id: 'blacksmithingLevel60',
+        name: 'Smith Elite',
+        description: 'Reach level 60 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 60 },
+        reward: { gold: 35000, xp: { blacksmithing: 7000 } },
+        icon: '🛠️',
+        tier: 'rare'
+    },
+    blacksmithingLevel70: {
+        id: 'blacksmithingLevel70',
+        name: 'Smith Master',
+        description: 'Reach level 70 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 70 },
+        reward: { gold: 60000, xp: { blacksmithing: 12000 } },
+        icon: '🛠️',
+        tier: 'epic'
+    },
+    blacksmithingLevel80: {
+        id: 'blacksmithingLevel80',
+        name: 'Smith Grandmaster',
+        description: 'Reach level 80 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 80 },
+        reward: { gold: 100000, xp: { blacksmithing: 20000 } },
+        icon: '🛠️',
+        tier: 'epic'
+    },
+    blacksmithingLevel90: {
+        id: 'blacksmithingLevel90',
+        name: 'Smith Legendary',
+        description: 'Reach level 90 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 90 },
+        reward: { gold: 175000, xp: { blacksmithing: 35000 } },
+        icon: '🛠️',
+        tier: 'legendary'
+    },
+    blacksmithingLevel99: {
+        id: 'blacksmithingLevel99',
+        name: 'Smith Perfection',
+        description: 'Reach level 99 Blacksmithing',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.blacksmithing.level', value: 99 },
+        reward: { gold: 300000, xp: { blacksmithing: 60000 } },
+        icon: '👑',
+        tier: 'legendary'
+    },
+
+    // Cooking Level Milestones
+    cookingLevel10: {
+        id: 'cookingLevel10',
+        name: 'Chef Novice',
+        description: 'Reach level 10 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 10 },
+        reward: { gold: 1000, xp: { cooking: 200 } },
+        icon: '🍳',
+        tier: 'common'
+    },
+    cookingLevel20: {
+        id: 'cookingLevel20',
+        name: 'Chef Apprentice',
+        description: 'Reach level 20 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 20 },
+        reward: { gold: 2500, xp: { cooking: 500 } },
+        icon: '🍳',
+        tier: 'common'
+    },
+    cookingLevel30: {
+        id: 'cookingLevel30',
+        name: 'Chef Journeyman',
+        description: 'Reach level 30 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 30 },
+        reward: { gold: 5000, xp: { cooking: 1000 } },
+        icon: '🍳',
+        tier: 'uncommon'
+    },
+    cookingLevel40: {
+        id: 'cookingLevel40',
+        name: 'Chef Adept',
+        description: 'Reach level 40 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 40 },
+        reward: { gold: 10000, xp: { cooking: 2000 } },
+        icon: '🍳',
+        tier: 'uncommon'
+    },
+    cookingLevel50: {
+        id: 'cookingLevel50',
+        name: 'Chef Expert',
+        description: 'Reach level 50 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 50 },
+        reward: { gold: 20000, xp: { cooking: 4000 } },
+        icon: '🍳',
+        tier: 'rare'
+    },
+    cookingLevel60: {
+        id: 'cookingLevel60',
+        name: 'Chef Elite',
+        description: 'Reach level 60 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 60 },
+        reward: { gold: 35000, xp: { cooking: 7000 } },
+        icon: '🍳',
+        tier: 'rare'
+    },
+    cookingLevel70: {
+        id: 'cookingLevel70',
+        name: 'Chef Master',
+        description: 'Reach level 70 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 70 },
+        reward: { gold: 60000, xp: { cooking: 12000 } },
+        icon: '🍳',
+        tier: 'epic'
+    },
+    cookingLevel80: {
+        id: 'cookingLevel80',
+        name: 'Chef Grandmaster',
+        description: 'Reach level 80 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 80 },
+        reward: { gold: 100000, xp: { cooking: 20000 } },
+        icon: '🍳',
+        tier: 'epic'
+    },
+    cookingLevel90: {
+        id: 'cookingLevel90',
+        name: 'Chef Legendary',
+        description: 'Reach level 90 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 90 },
+        reward: { gold: 175000, xp: { cooking: 35000 } },
+        icon: '🍳',
+        tier: 'legendary'
+    },
+    cookingLevel99: {
+        id: 'cookingLevel99',
+        name: 'Chef Perfection',
+        description: 'Reach level 99 Cooking',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.cooking.level', value: 99 },
+        reward: { gold: 300000, xp: { cooking: 60000 } },
+        icon: '👑',
+        tier: 'legendary'
+    },
+
+    // Farming Level Milestones
+    farmingLevel10: {
+        id: 'farmingLevel10',
+        name: 'Farmer Novice',
+        description: 'Reach level 10 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 10 },
+        reward: { gold: 1000, xp: { farming: 200 } },
+        icon: '🌾',
+        tier: 'common'
+    },
+    farmingLevel20: {
+        id: 'farmingLevel20',
+        name: 'Farmer Apprentice',
+        description: 'Reach level 20 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 20 },
+        reward: { gold: 2500, xp: { farming: 500 } },
+        icon: '🌾',
+        tier: 'common'
+    },
+    farmingLevel30: {
+        id: 'farmingLevel30',
+        name: 'Farmer Journeyman',
+        description: 'Reach level 30 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 30 },
+        reward: { gold: 5000, xp: { farming: 1000 } },
+        icon: '🌾',
+        tier: 'uncommon'
+    },
+    farmingLevel40: {
+        id: 'farmingLevel40',
+        name: 'Farmer Adept',
+        description: 'Reach level 40 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 40 },
+        reward: { gold: 10000, xp: { farming: 2000 } },
+        icon: '🌾',
+        tier: 'uncommon'
+    },
+    farmingLevel50: {
+        id: 'farmingLevel50',
+        name: 'Farmer Expert',
+        description: 'Reach level 50 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 50 },
+        reward: { gold: 20000, xp: { farming: 4000 } },
+        icon: '🌾',
+        tier: 'rare'
+    },
+    farmingLevel60: {
+        id: 'farmingLevel60',
+        name: 'Farmer Elite',
+        description: 'Reach level 60 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 60 },
+        reward: { gold: 35000, xp: { farming: 7000 } },
+        icon: '🌾',
+        tier: 'rare'
+    },
+    farmingLevel70: {
+        id: 'farmingLevel70',
+        name: 'Farmer Master',
+        description: 'Reach level 70 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 70 },
+        reward: { gold: 60000, xp: { farming: 12000 } },
+        icon: '🌾',
+        tier: 'epic'
+    },
+    farmingLevel80: {
+        id: 'farmingLevel80',
+        name: 'Farmer Grandmaster',
+        description: 'Reach level 80 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 80 },
+        reward: { gold: 100000, xp: { farming: 20000 } },
+        icon: '🌾',
+        tier: 'epic'
+    },
+    farmingLevel90: {
+        id: 'farmingLevel90',
+        name: 'Farmer Legendary',
+        description: 'Reach level 90 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 90 },
+        reward: { gold: 175000, xp: { farming: 35000 } },
+        icon: '🌾',
+        tier: 'legendary'
+    },
+    farmingLevel99: {
+        id: 'farmingLevel99',
+        name: 'Farmer Perfection',
+        description: 'Reach level 99 Farming',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.farming.level', value: 99 },
+        reward: { gold: 300000, xp: { farming: 60000 } },
+        icon: '👑',
+        tier: 'legendary'
+    },
+
+    // Enchanting Level Milestones
+    enchantingLevel10: {
+        id: 'enchantingLevel10',
+        name: 'Enchanter Novice',
+        description: 'Reach level 10 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 10 },
+        reward: { gold: 1000, xp: { enchanting: 200 } },
+        icon: '✨',
+        tier: 'common'
+    },
+    enchantingLevel20: {
+        id: 'enchantingLevel20',
+        name: 'Enchanter Apprentice',
+        description: 'Reach level 20 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 20 },
+        reward: { gold: 2500, xp: { enchanting: 500 } },
+        icon: '✨',
+        tier: 'common'
+    },
+    enchantingLevel30: {
+        id: 'enchantingLevel30',
+        name: 'Enchanter Journeyman',
+        description: 'Reach level 30 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 30 },
+        reward: { gold: 5000, xp: { enchanting: 1000 } },
+        icon: '✨',
+        tier: 'uncommon'
+    },
+    enchantingLevel40: {
+        id: 'enchantingLevel40',
+        name: 'Enchanter Adept',
+        description: 'Reach level 40 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 40 },
+        reward: { gold: 10000, xp: { enchanting: 2000 } },
+        icon: '✨',
+        tier: 'uncommon'
+    },
+    enchantingLevel50: {
+        id: 'enchantingLevel50',
+        name: 'Enchanter Expert',
+        description: 'Reach level 50 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 50 },
+        reward: { gold: 20000, xp: { enchanting: 4000 } },
+        icon: '✨',
+        tier: 'rare'
+    },
+    enchantingLevel60: {
+        id: 'enchantingLevel60',
+        name: 'Enchanter Elite',
+        description: 'Reach level 60 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 60 },
+        reward: { gold: 35000, xp: { enchanting: 7000 } },
+        icon: '✨',
+        tier: 'rare'
+    },
+    enchantingLevel70: {
+        id: 'enchantingLevel70',
+        name: 'Enchanter Master',
+        description: 'Reach level 70 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 70 },
+        reward: { gold: 60000, xp: { enchanting: 12000 } },
+        icon: '✨',
+        tier: 'epic'
+    },
+    enchantingLevel80: {
+        id: 'enchantingLevel80',
+        name: 'Enchanter Grandmaster',
+        description: 'Reach level 80 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 80 },
+        reward: { gold: 100000, xp: { enchanting: 20000 } },
+        icon: '✨',
+        tier: 'epic'
+    },
+    enchantingLevel90: {
+        id: 'enchantingLevel90',
+        name: 'Enchanter Legendary',
+        description: 'Reach level 90 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 90 },
+        reward: { gold: 175000, xp: { enchanting: 35000 } },
+        icon: '✨',
+        tier: 'legendary'
+    },
+    enchantingLevel99: {
+        id: 'enchantingLevel99',
+        name: 'Enchanter Perfection',
+        description: 'Reach level 99 Enchanting',
+        category: 'Level Milestones',
+        requirement: { type: 'skills.enchanting.level', value: 99 },
+        reward: { gold: 300000, xp: { enchanting: 60000 } },
+        icon: '👑',
+        tier: 'legendary'
     }
 };
 
@@ -1725,6 +3220,22 @@ function checkAchievements() {
             // Handle item discovery achievements
             const itemName = reqType.substring('item.obtained.'.length);
             currentValue = (stats.collection && stats.collection.itemsObtained && stats.collection.itemsObtained[itemName]) ? 1 : 0;
+        } else if (reqType.startsWith('skills.')) {
+            // Handle skill level achievements
+            try {
+                // Navigate through the playerData.skills object path
+                let current = playerData.skills;
+                const skillPathParts = pathParts.slice(1); // Remove 'skills' prefix
+                for (const part of skillPathParts) {
+                    current = current[part];
+                    if (current === undefined) {
+                        return; // Path doesn't exist
+                    }
+                }
+                currentValue = current || 0;
+            } catch (error) {
+                return; // Error accessing path
+            }
         } else {
             try {
                 // Navigate through the nested object path
@@ -1746,6 +3257,47 @@ function checkAchievements() {
             unlockAchievement(achievement);
         }
     });
+}
+
+// Check for retroactive skill level achievements
+// This ensures players who already have high levels get all lower milestone achievements
+export function checkRetroactiveSkillAchievements() {
+    if (!playerData.achievements) {
+        playerData.achievements = {
+            completed: [],
+            notified: [],
+            claimed: []
+        };
+    }
+    
+    const skills = ['attack', 'mining', 'woodcutting', 'blacksmithing', 'cooking', 'farming', 'enchanting'];
+    const milestones = [10, 20, 30, 40, 50, 60, 70, 80, 90, 99];
+    
+    skills.forEach(skill => {
+        if (!playerData.skills[skill]) return;
+        
+        const currentLevel = playerData.skills[skill].level || 1;
+        
+        // Check all milestone achievements up to the player's current level
+        milestones.forEach(milestone => {
+            if (currentLevel >= milestone) {
+                const achievementId = `${skill}_level_${milestone}`;
+                
+                // Only unlock if not already completed
+                if (!playerData.achievements.completed.includes(achievementId)) {
+                    const achievement = ACHIEVEMENTS[achievementId];
+                    if (achievement) {
+                        unlockAchievement(achievement);
+                    }
+                }
+            }
+        });
+    });
+}
+
+// Expose function globally for use in other modules to avoid circular imports
+if (typeof window !== 'undefined') {
+    window.checkRetroactiveSkillAchievements = checkRetroactiveSkillAchievements;
 }
 
 // Unlock an achievement
@@ -1785,6 +3337,22 @@ export function getAchievementProgress(achievementId) {
         const itemName = reqType.substring('equipment.equipped.'.length);
         const stats = playerData.statistics;
         currentValue = (stats.equipment && stats.equipment.equipped && stats.equipment.equipped[itemName]) ? 1 : 0;
+    } else if (reqType.startsWith('skills.')) {
+        // Handle skill level achievements
+        try {
+            // Navigate through the playerData.skills object path
+            let current = playerData.skills;
+            const skillPathParts = pathParts.slice(1); // Remove 'skills' prefix
+            for (const part of skillPathParts) {
+                current = current[part];
+                if (current === undefined) {
+                    break;
+                }
+            }
+            currentValue = current || 0;
+        } catch (error) {
+            currentValue = 0;
+        }
     } else {
         try {
             // Navigate through the nested object path
