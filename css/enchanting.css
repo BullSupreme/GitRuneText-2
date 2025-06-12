@@ -12,6 +12,21 @@
     50% { background-position: 100% 50%; }
 }
 
+/* Enchanting Navigation - Center Gems Button */
+.enchanting-nav {
+    position: relative;
+}
+
+.enchanting-nav #gems-conversion-btn {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.enchanting-nav #gems-conversion-btn:hover {
+    transform: translateX(-50%);
+}
+
 /* Enhanced Enchanting Page Layout */
 #enchanting-section {
     background: linear-gradient(135deg, 
@@ -112,7 +127,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 18px;
-    margin-top: 20px;
+    margin-top: 5px;
 }
 
 .enchanting-equipment-slot {
@@ -1045,9 +1060,6 @@
     min-height: 400px;
 }
 
-.enchanting-overview-header {
-    margin-bottom: 15px;
-}
 
 .enchanting-overview-header .section-title {
     font-size: 2.2em;
@@ -1055,7 +1067,7 @@
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 15px;
+    margin-bottom: 2px;
     text-align: center;
 }
 
@@ -1962,7 +1974,6 @@
 
 #gems-conversion-btn:hover {
     animation-duration: 1.5s;
-    transform: scale(1.05);
     filter: brightness(1.3);
 }
 

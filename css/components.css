@@ -1026,41 +1026,81 @@ body.desktop-mode-active .modal-overlay {
         transform: translateY(-50%) translateX(15px) rotate(45deg) scale(0.8);
         opacity: 0.7;
     }
+    5% {
+        transform: translateY(-50%) translateX(13.5px) rotate(40deg) scale(0.825);
+        opacity: 0.75;
+    }
     10% {
         transform: translateY(-50%) translateX(12px) rotate(35deg) scale(0.85);
         opacity: 0.8;
+    }
+    15% {
+        transform: translateY(-50%) translateX(10px) rotate(30deg) scale(0.875);
+        opacity: 0.85;
     }
     20% {
         transform: translateY(-50%) translateX(8px) rotate(25deg) scale(0.9);
         opacity: 0.9;
     }
+    25% {
+        transform: translateY(-50%) translateX(6px) rotate(17.5deg) scale(0.925);
+        opacity: 0.925;
+    }
     30% {
         transform: translateY(-50%) translateX(4px) rotate(10deg) scale(0.95);
         opacity: 0.95;
     }
+    35% {
+        transform: translateY(-50%) translateX(2px) rotate(2.5deg) scale(0.975);
+        opacity: 0.975;
+    }
     40% {
         transform: translateY(-50%) translateX(0px) rotate(-5deg) scale(1.0);
+        opacity: 1;
+    }
+    45% {
+        transform: translateY(-50%) translateX(-2px) rotate(-12.5deg) scale(1.05);
         opacity: 1;
     }
     50% {
         transform: translateY(-50%) translateX(-4px) rotate(-20deg) scale(1.1);
         opacity: 1;
     }
+    55% {
+        transform: translateY(-50%) translateX(-5px) rotate(-25deg) scale(1.125);
+        opacity: 1;
+    }
     60% {
         transform: translateY(-50%) translateX(-6px) rotate(-30deg) scale(1.15);
         opacity: 1;
+    }
+    65% {
+        transform: translateY(-50%) translateX(-5px) rotate(-25deg) scale(1.1);
+        opacity: 0.975;
     }
     70% {
         transform: translateY(-50%) translateX(-4px) rotate(-20deg) scale(1.05);
         opacity: 0.95;
     }
+    75% {
+        transform: translateY(-50%) translateX(-2px) rotate(-12.5deg) scale(1.0);
+        opacity: 0.925;
+    }
     80% {
         transform: translateY(-50%) translateX(0px) rotate(-5deg) scale(0.95);
         opacity: 0.9;
     }
+    85% {
+        transform: translateY(-50%) translateX(4px) rotate(10deg) scale(0.9);
+        opacity: 0.85;
+    }
     90% {
         transform: translateY(-50%) translateX(8px) rotate(25deg) scale(0.85);
         opacity: 0.8;
+    }
+    95% {
+        transform: translateY(-50%) translateX(11.5px) rotate(35deg) scale(0.825);
+        opacity: 0.75;
     }
     100% {
         transform: translateY(-50%) translateX(15px) rotate(45deg) scale(0.8);
