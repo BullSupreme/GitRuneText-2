@@ -866,11 +866,46 @@ function displayEnchantmentOptions(slotKey) {
 }
 
 /**
+ * Consumes gems from both 'gems' and 'assorted_gems' inventory keys
+ */
+function consumeGems(amount) {
+    let remaining = amount;
+    
+    // First consume from 'gems' key
+    if (playerData.inventory['gems'] && remaining > 0) {
+        const fromGems = Math.min(playerData.inventory['gems'], remaining);
+        playerData.inventory['gems'] -= fromGems;
+        remaining -= fromGems;
+        if (playerData.inventory['gems'] <= 0) {
+            delete playerData.inventory['gems'];
+        }
+    }
+    
+    // Then consume from 'assorted_gems' key
+    if (playerData.inventory['assorted_gems'] && remaining > 0) {
+        const fromAssortedGems = Math.min(playerData.inventory['assorted_gems'], remaining);
+        playerData.inventory['assorted_gems'] -= fromAssortedGems;
+        remaining -= fromAssortedGems;
+        if (playerData.inventory['assorted_gems'] <= 0) {
+            delete playerData.inventory['assorted_gems'];
+        }
+    }
+}
+
+/**
  * Checks if player has required resources for enchanting
  */
 function checkEnchantingResources(cost) {
     if (cost.gold && playerData.gold < cost.gold) return false;
-    if (cost.mainResource && (!playerData.inventory[cost.mainResource] || playerData.inventory[cost.mainResource] < cost.mainResourceQty)) return false;
+    
+    // Special handling for gems - check both 'gems' and 'assorted_gems' keys
+    if (cost.mainResource === 'gems') {
+        const gemsAmount = (playerData.inventory['gems'] || 0) + (playerData.inventory['assorted_gems'] || 0);
+        if (gemsAmount < cost.mainResourceQty) return false;
+    } else if (cost.mainResource && (!playerData.inventory[cost.mainResource] || playerData.inventory[cost.mainResource] < cost.mainResourceQty)) {
+        return false;
+    }
+    
     if (cost.secondaryResource && (!playerData.inventory[cost.secondaryResource] || playerData.inventory[cost.secondaryResource] < cost.secondaryResourceQty)) return false;
     if (cost.tertiaryResource && (!playerData.inventory[cost.tertiaryResource] || playerData.inventory[cost.tertiaryResource] < cost.tertiaryResourceQty)) return false;
     return true;
@@ -899,6 +934,9 @@ function formatEnchantingCost(cost) {
         // Get player's current amount of this resource
         if (resourceName === 'gold') {
             playerAmount = playerData.gold || 0;
+        } else if (resourceName === 'gems') {
+            // For gems, combine both 'gems' and 'assorted_gems' keys
+            playerAmount = (playerData.inventory?.['gems'] || 0) + (playerData.inventory?.['assorted_gems'] || 0);
         } else {
             playerAmount = playerData.inventory?.[resourceName] || 0;
         }
@@ -1292,7 +1330,12 @@ export function performEnchantment() {
     // Deduct resources
     if (tierData.cost.gold) playerData.gold -= tierData.cost.gold;
     if (tierData.cost.mainResource) {
-        removeItemFromInventory(tierData.cost.mainResource, tierData.cost.mainResourceQty);
+        // Special handling for gems - consume from both 'gems' and 'assorted_gems' keys
+        if (tierData.cost.mainResource === 'gems') {
+            consumeGems(tierData.cost.mainResourceQty);
+        } else {
+            removeItemFromInventory(tierData.cost.mainResource, tierData.cost.mainResourceQty);
+        }
     }
     if (tierData.cost.secondaryResource) {
         removeItemFromInventory(tierData.cost.secondaryResource, tierData.cost.secondaryResourceQty);
@@ -1941,7 +1984,12 @@ function updateRingEnchantButton(gemData, slotKey = null) {
     const enchantButton = document.getElementById('enchanting-perform-btn');
     
     if (costDisplay) {
-        costDisplay.innerHTML = `${gemData.emoji} <span class="fore-green">1</span> ${gemData.name}`;
+        // Check if player has enough gems (combine both 'gems' and 'assorted_gems')
+        const totalGems = (playerData.inventory?.['gems'] || 0) + (playerData.inventory?.['assorted_gems'] || 0);
+        const hasEnoughGems = totalGems >= 1;
+        const colorClass = hasEnoughGems ? 'fore-green' : 'fore-red';
+        
+        costDisplay.innerHTML = `${gemData.emoji} <span class="${colorClass}">1</span> ${gemData.name}`;
     }
     
     if (enchantButton && slotKey) {
