@@ -500,7 +500,7 @@ export function capCurrentHp() {
 
 // Function to handle low health warning reset on heal
 // This is called from outside modules to avoid circular imports
-let lowHealthWarningResetCallback = null;
+var lowHealthWarningResetCallback = null;
 
 export function setLowHealthWarningResetCallback(callback) {
     lowHealthWarningResetCallback = callback;

@@ -1,0 +1,92 @@
+/* Main Menu Styles */
+
+#main-menu-section {
+    padding: 2rem;
+    text-align: center;
+}
+
+#main-menu-section .welcome-text {
+    margin-bottom: 2rem;
+}
+
+#main-menu-section .welcome-text h2 {
+    color: var(--text-primary);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* Main menu buttons container */
+.menu-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Main menu button styles */
+.menu-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 100px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.menu-button:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.menu-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.menu-button .button-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.menu-button .button-label {
+    display: block;
+}
+
+/* Main menu HP bar */
+#main-menu-hp-bar-fill {
+    background: var(--hp-color);
+}
+
+#main-menu-hp-bar-text {
+    color: var(--text-primary);
+    font-weight: bold;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 600px) {
+    .menu-buttons {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .menu-button {
+        padding: 1rem;
+        min-height: 80px;
+    }
+    
+    .menu-button .button-icon {
+        font-size: 1.5rem;
+    }
+}
