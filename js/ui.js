@@ -84,7 +84,14 @@ export function showSection(sectionId) {
         if (sectionId === 'main-menu-section' && playerData && playerData.hp <= 0) {
             const attackLevel = getLevelFromXp(playerData.skills?.attack?.xp || 0);
             const maxHp = getMaxHp(attackLevel);
-            const revivePercent = attackLevel < 10 ? 0.5 : 0.25;
+            let revivePercent;
+            if (attackLevel <= 5) {
+                revivePercent = 1.0; // Full health for levels 1-5
+            } else if (attackLevel < 10) {
+                revivePercent = 0.5; // 50% health for levels 6-9
+            } else {
+                revivePercent = 0.25; // 25% health for level 10+
+            }
             const reviveAmount = Math.ceil(maxHp * revivePercent);
             playerData.hp = reviveAmount;
             
